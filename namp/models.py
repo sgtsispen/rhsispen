@@ -97,6 +97,8 @@ class Equipe(models.Model):
 	hora_inicial = models.TimeField(auto_now= False, auto_now_add=False)
 	categoria = models.CharField(max_length=50)
 	fk_setor = models.ForeignKey(Setor, on_delete = models.RESTRICT, verbose_name='Setor')
+	def __str__(self):
+		return self.nome 
 	class Meta:
 		verbose_name = "Equipe"
 		verbose_name_plural = "Equipes"
@@ -121,7 +123,7 @@ class ContatoEquipe(models.Model):
 		verbose_name_plural = "ContatoEquipes"
 
 class Servidor(models.Model):
-	id_matricula = models.AutoField(primary_key=True)
+	id_matricula = models.CharField('Matrícula', primary_key=True, max_length=30)
 	vinculo = models.CharField(max_length=3) #Parte da matricula
 	nome = models.CharField(max_length=100)
 	cpf = models.CharField(max_length=11)
@@ -133,6 +135,8 @@ class Servidor(models.Model):
 	situacao = models.BooleanField(default=False)
 	fk_equipe = models.ForeignKey(Equipe, on_delete = models.RESTRICT, verbose_name='Equipe')
 	fk_endereco_serv = models.OneToOneField(EnderecoServ, on_delete = models.RESTRICT, verbose_name='Endereço')
+	def __str__(self):
+		return self.id_matricula
 	class Meta:
 		verbose_name = "Servidor"
 		verbose_name_plural = "Servidores"
@@ -191,7 +195,7 @@ class HistStatusFuncional(models.Model):
 	data_inicial = models.DateField()
 	data_final = models.DateField()
 	fk_servidor = models.ForeignKey(Servidor, on_delete = models.RESTRICT, verbose_name='Servidor')
-	fk_status_funcional = models.ForeignKey(StatusFuncional, on_delete = models.RESTRICT, verbose_name='Funcional')
+	fk_status_funcional = models.ForeignKey(StatusFuncional, on_delete = models.RESTRICT, verbose_name='Status Funcional')
 	class Meta:
 		verbose_name = "HistStatusFuncional"
 		verbose_name_plural = "HistStatusFuncionais"

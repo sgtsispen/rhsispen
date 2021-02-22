@@ -47,7 +47,8 @@ class HistLotacaoAdmin(admin.ModelAdmin):
 admin.site.register(HistLotacao, HistLotacaoAdmin)
 
 class HistStatusFuncionalAdmin(admin.ModelAdmin):
-	pass
+	list_display = ('id_hist_funcional','data_inicial', 'data_final', 'fk_servidor', 'fk_status_funcional')
+	pass	
 admin.site.register(HistStatusFuncional, HistStatusFuncionalAdmin)
 
 class JornadaAdmin(admin.ModelAdmin):
@@ -60,6 +61,7 @@ admin.site.register(Regiao, RegiaoAdmin)
 
 class ServidorAdmin(admin.ModelAdmin):
 	pass
+	list_display = ('id_matricula','vinculo', 'nome', 'cpf', 'sexo','dt_nasc','cargo','tipo_vinculo','regime_juridico','situacao','fk_equipe','fk_endereco_serv')
 admin.site.register(Servidor, ServidorAdmin)
 
 class SetorAdmin(admin.ModelAdmin):
