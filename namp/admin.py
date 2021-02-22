@@ -61,19 +61,21 @@ admin.site.register(Regiao, RegiaoAdmin)
 
 class ServidorAdmin(admin.ModelAdmin):
 	pass
-	list_display = ('id_matricula','vinculo', 'nome', 'cpf', 'sexo','dt_nasc','cargo','tipo_vinculo','regime_juridico','situacao','fk_equipe','fk_endereco_serv')
+	list_display = ('__str__','vinculo', 'nome', 'cpf', 'sexo','dt_nasc','cargo','tipo_vinculo','regime_juridico','situacao','fk_equipe','fk_endereco_serv')
 admin.site.register(Servidor, ServidorAdmin)
 
 class SetorAdmin(admin.ModelAdmin):
 	pass
 admin.site.register(Setor, SetorAdmin)
 
-class StatusFuncionalAdmin(admin.ModelAdmin):
+class StatusFuncionalAdmin(admin.ModelAdmin):	
 	pass
+	list_display = ('id_status_funcional','__str__','descricao_status')
 admin.site.register(StatusFuncional, StatusFuncionalAdmin)
 
 class TipoJornadaAdmin(admin.ModelAdmin):
 	pass
+	list_display = ('id_tipo_jornada','carga_horaria', 'tipificacao', 'descricao')
 admin.site.register(TipoJornada, TipoJornadaAdmin)
 
 
