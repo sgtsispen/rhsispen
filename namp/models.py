@@ -4,7 +4,7 @@ from django.db import models
 '''CLASSES SEM CHAVE ESTRANGEIRA'''
 
 class Regiao(models.Model):
-	id_regiao = models.AutoField(primary_key=True)
+	id_regiao = models.AutoField('Cód',primary_key=True)
 	nome = models.CharField(max_length=100)
 	def __str__(self):
 		return str(self.id_regiao)
@@ -13,7 +13,7 @@ class Regiao(models.Model):
 		verbose_name_plural = "Regiões"
 
 class Funcao(models.Model):
-	id_funcao = models.CharField(primary_key=True, max_length=25) #Cod com a secad
+	id_funcao = models.CharField('Código da Função', primary_key=True, max_length=25) #Cod com a secad
 	nome = models.CharField(max_length=100)
 	def __str__(self):
 		return self.nome
@@ -62,7 +62,7 @@ class Afastamento(models.Model):
 		verbose_name_plural = "Afastamentos"
 
 class TipoJornada(models.Model):
-	id_tipo_jornada = models.AutoField(primary_key=True)
+	id_tipo_jornada = models.AutoField('Código', primary_key=True)
 	carga_horaria = models.PositiveIntegerField()
 	tipificacao = models.CharField(max_length=100)
 	descricao = models.CharField(max_length=100)

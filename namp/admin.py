@@ -13,12 +13,12 @@ admin.site.register(Afastamento, AfastamentoAdmin)
 
 class ContatoEquipeAdmin(admin.ModelAdmin):
 	pass
-	list_display = ('id_contato_equipe','contato', 'fk_equipe')
+	list_display = ('contato', 'fk_equipe')
 admin.site.register(ContatoEquipe, ContatoEquipeAdmin)
 
 class ContatoServAdmin(admin.ModelAdmin):
 	pass
-	list_display = ('id_contato_serv','contato', 'fk_servidor')
+	list_display = ('fk_servidor', 'contato')
 admin.site.register(ContatoServ, ContatoServAdmin)
 
 class EnderecoServAdmin(admin.ModelAdmin):
@@ -27,11 +27,12 @@ admin.site.register(EnderecoServ, EnderecoServAdmin)
 
 class EnderecoSetorAdmin(admin.ModelAdmin):
 	pass
+	list_display = ('municipio','endereco','bairro')
 admin.site.register(EnderecoSetor, EnderecoSetorAdmin)
 
 class EquipeAdmin(admin.ModelAdmin):
 	pass
-	list_display = ('id_equipe','nome','status','hora_inicial','categoria','fk_setor')
+	list_display = ('nome','status','hora_inicial','categoria','fk_setor')
 admin.site.register(Equipe, EquipeAdmin)
 
 class FuncaoAdmin(admin.ModelAdmin):
@@ -41,27 +42,27 @@ admin.site.register(Funcao, FuncaoAdmin)
 
 class HistAfastamentoAdmin(admin.ModelAdmin):
 	pass
-	list_display = ('id_hist_afastamento','data_inicial','duracao','fk_afastamento','fk_servidor')
+	list_display = ('data_inicial','duracao','fk_afastamento','fk_servidor')
 admin.site.register(HistAfastamento, HistAfastamentoAdmin)
 
 class HistFuncaoAdmin(admin.ModelAdmin):
 	pass
-	list_display = ('id_hist_funcao','data_inicio','data_final','fk_funcao','fk_servidor')
+	list_display = ('data_inicio','data_final','fk_funcao','fk_servidor')
 admin.site.register(HistFuncao, HistFuncaoAdmin)
 
 class HistLotacaoAdmin(admin.ModelAdmin):
 	pass
-	list_display = ('id_hist_lotacao','data_inicial','data_final','fk_servidor','fk_equipe')
+	list_display = ('data_inicial','data_final','fk_servidor','fk_equipe')
 admin.site.register(HistLotacao, HistLotacaoAdmin)
 
 class HistStatusFuncionalAdmin(admin.ModelAdmin):
-	list_display = ('id_hist_funcional','data_inicial', 'data_final', 'fk_servidor', 'fk_status_funcional')
+	list_display = ('data_inicial', 'data_final', 'fk_servidor', 'fk_status_funcional')
 	pass	
 admin.site.register(HistStatusFuncional, HistStatusFuncionalAdmin)
 
 class JornadaAdmin(admin.ModelAdmin):
 	pass
-	list_display = ('id_jornada','data_jornada','assiduidade','fk_servidor','fk_equipe','fk_tipo_jornada')
+	list_display = ('data_jornada','assiduidade','fk_servidor','fk_equipe','fk_tipo_jornada')
 admin.site.register(Jornada, JornadaAdmin)
 
 class RegiaoAdmin(admin.ModelAdmin):
@@ -81,7 +82,7 @@ admin.site.register(Setor, SetorAdmin)
 
 class StatusFuncionalAdmin(admin.ModelAdmin):	
 	pass
-	list_display = ('id_status_funcional','__str__','descricao_status')
+	list_display = ('__str__','descricao_status')
 admin.site.register(StatusFuncional, StatusFuncionalAdmin)
 
 class TipoJornadaAdmin(admin.ModelAdmin):
