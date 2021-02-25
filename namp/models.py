@@ -4,16 +4,17 @@ from django.db import models
 '''CLASSES SEM CHAVE ESTRANGEIRA'''
 
 class Regiao(models.Model):
-	id_regiao = models.AutoField('Cód',primary_key=True)
+	id_regiao = models.AutoField(primary_key=True)
 	nome = models.CharField(max_length=100)
 	def __str__(self):
-		return str(self.id_regiao)
+		return self.nome
 	class Meta:
 		verbose_name = "Região"
 		verbose_name_plural = "Regiões"
+		ordering = ["id_regiao"]
 
 class Funcao(models.Model):
-	id_funcao = models.CharField('Código da Função', primary_key=True, max_length=25) #Cod com a secad
+	id_funcao = models.CharField(primary_key=True, max_length=25) #Cod com a secad
 	nome = models.CharField(max_length=100)
 	def __str__(self):
 		return self.nome
@@ -23,12 +24,12 @@ class Funcao(models.Model):
 
 class EnderecoSetor(models.Model):
 	id_endereco_setor = models.AutoField(primary_key=True)
-	uf = models.CharField(max_length=2)
-	cep = models.CharField(max_length=8)
-	municipio = models.CharField(max_length=100)
-	endereco = models.CharField(max_length=100)
-	numero = models.CharField(max_length=10)
-	bairro = models.CharField(max_length=100)
+	uf = models.CharField(max_length=2, default='TO')
+	cep = models.CharField(max_length=8, blank=True, default='77000000')
+	municipio = models.CharField(max_length=100, default='Palmas')
+	endereco = models.CharField(max_length=100, default='Não registrado')
+	numero = models.CharField(max_length=10, blank=True)
+	bairro = models.CharField(max_length=100, blank=True)
 	complemento = models.CharField(max_length=100, blank=True)
 	def __str__(self):
 		return self.municipio + ' - ' + self.endereco
@@ -62,7 +63,7 @@ class Afastamento(models.Model):
 		verbose_name_plural = "Afastamentos"
 
 class TipoJornada(models.Model):
-	id_tipo_jornada = models.AutoField('Código', primary_key=True)
+	id_tipo_jornada = models.AutoField(primary_key=True)
 	carga_horaria = models.PositiveIntegerField()
 	tipificacao = models.CharField(max_length=100)
 	descricao = models.CharField(max_length=100)
@@ -93,10 +94,10 @@ class StatusFuncional(models.Model):
 class Setor(models.Model):
 	id_setor = models.CharField('Código', primary_key=True, max_length=50)
 	nome = models.CharField(max_length=100)
-	status = models.BooleanField(default=False)
+	status = models.BooleanField('Setor Ativo', default=False)
 	setor_sede = models.BooleanField(default=False)
 	#RESTRICT: proibe a exclussão de região referenciada em setor
-	fk_regiao = models.ForeignKey(Regiao, on_delete = models.RESTRICT, verbose_name='Região')
+	fk_regiao = models.ForeignKey(Regiao, on_delete = models.RESTRICT, verbose_name='Região', default=5)
 	#CASCATE: se excluido o setor, será excluido o objeto referenciado(endereco_setor)
 	fk_endereco_setor = models.OneToOneField(EnderecoSetor, on_delete = models.RESTRICT, verbose_name='Endereço')
 	def __str__(self):
@@ -113,7 +114,7 @@ class Equipe(models.Model):
 	categoria = models.CharField(max_length=50)
 	fk_setor = models.ForeignKey(Setor, on_delete = models.RESTRICT, verbose_name='Setor')
 	def __str__(self):
-		return self.nome + ' - ' + str(self.fk_setor)
+		return self.nome + ' - ' + (self.fk_setor.nome)
 	class Meta:
 		verbose_name = "Equipe"
 		verbose_name_plural = "Equipes"
