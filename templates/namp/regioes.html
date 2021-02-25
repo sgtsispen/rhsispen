@@ -3,7 +3,7 @@
 {% block content %}
 <div class="row">
 	<div class="col-sm-4">
-	  	<canvas id="regioesChart" width="300" height="300"></canvas>
+	  	<canvas id="regioesChart" width="300" height="300"></canvas> <!--Delimitação de altura e largura-->
 	</div>
 </div>
 {% endblock %}
@@ -15,7 +15,7 @@ var regioes = JSON.parse('{{ regioes|safe }}');
 var setores = JSON.parse('{{ setores|safe }}');
 
 var regioesChart = new Chart(ctx, {
-    type: 'bar',
+    type: 'bar', //Tipo de gráfico q irá mostrar em tela
     data: {
         labels: regioes,
         datasets: [{
@@ -27,7 +27,7 @@ var regioesChart = new Chart(ctx, {
                 'rgba(255, 206, 86, 0.2)',
                 'rgba(75, 192, 192, 0.2)',
                 'rgba(153, 102, 255, 0.2)',
-                'rgba(255, 159, 64, 0.2)'
+                'rgba(200, 159, 64, 0.2)'
             ],
             borderColor: [
                 'rgba(255,99,132,1)',

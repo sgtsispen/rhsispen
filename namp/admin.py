@@ -87,9 +87,6 @@ class RegiaoAdmin(admin.ModelAdmin):
 		extra_context = extra_context or {"regioes": regioes_json, "setores": setores_json}
 
 		return super().changelist_view(request,extra_context=extra_context)
-
-
-
 admin.site.register(Regiao, RegiaoAdmin)
 
 class ServidorAdmin(admin.ModelAdmin):
