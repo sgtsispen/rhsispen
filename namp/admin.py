@@ -1,9 +1,14 @@
-from django.contrib import admin
 
 # Register your models here.
+import json
+
 from django.contrib import admin
+from django.core.serializers.json import DjangoJSONEncoder
+from django.db.models import Count
 
 from namp.models import Afastamento, ContatoEquipe, ContatoServ, EnderecoServ, EnderecoSetor, Equipe, Funcao, HistAfastamento, HistFuncao, HistLotacao, HistStatusFuncional, Jornada, Regiao, Servidor, Setor, StatusFuncional, TipoJornada
+
+admin.site.site_header = 'Administração do Núcleo de Apoio a Movimentação de Pessoal'
 
 # Register your models here.
 class AfastamentoAdmin(admin.ModelAdmin):
@@ -27,6 +32,7 @@ admin.site.register(EnderecoServ, EnderecoServAdmin)
 
 class EnderecoSetorAdmin(admin.ModelAdmin):
 	pass
+	list_display = ('endereco','numero','bairro','complemento','cep','municipio')
 admin.site.register(EnderecoSetor, EnderecoSetorAdmin)
 
 class EquipeAdmin(admin.ModelAdmin):
@@ -65,8 +71,25 @@ class JornadaAdmin(admin.ModelAdmin):
 admin.site.register(Jornada, JornadaAdmin)
 
 class RegiaoAdmin(admin.ModelAdmin):
-	pass
+	change_list_template = 'admin/namp/regiao/change_list.html'
 	list_display = ('id_regiao','nome')
+	
+	def changelist_view(self, request, extra_context=None):
+		#todas as instâncias de Setor do banco de dados
+
+		queryset = Regiao.objects.all()
+		regioes = ['Região ' + str(obj.id_regiao) for obj in queryset]
+		setores = [int(obj.setor_set.count()) for obj in queryset]
+
+		regioes_json = json.dumps(list(regioes), cls=DjangoJSONEncoder)
+		setores_json = json.dumps(list(setores), cls=DjangoJSONEncoder)
+
+		extra_context = extra_context or {"regioes": regioes_json, "setores": setores_json}
+
+		return super().changelist_view(request,extra_context=extra_context)
+
+
+
 admin.site.register(Regiao, RegiaoAdmin)
 
 class ServidorAdmin(admin.ModelAdmin):
@@ -76,7 +99,9 @@ admin.site.register(Servidor, ServidorAdmin)
 
 class SetorAdmin(admin.ModelAdmin):
 	pass
-	list_display = ('nome','setor_sede','fk_regiao','fk_endereco_setor')
+	list_filter = ('fk_regiao','status','setor_sede',)
+	list_display = ('id_setor', 'nome','fk_regiao','fk_endereco_setor','status', 'setor_sede')
+
 admin.site.register(Setor, SetorAdmin)
 
 class StatusFuncionalAdmin(admin.ModelAdmin):	
