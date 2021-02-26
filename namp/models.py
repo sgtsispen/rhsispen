@@ -182,11 +182,13 @@ class ContatoServ(models.Model):
 	tipo_contato = models.CharField('Tipo de contato', max_length=100,choices=CONTATOS_CHOICES)
 	contato = models.CharField(max_length=100)
 	fk_servidor = models.ForeignKey(Servidor, on_delete = models.RESTRICT, verbose_name='Servidor')
+	
 	def __str__(self):
-		return self.contato + str(self.fk_servidor) 
+		return ''
+	
 	class Meta:
 		verbose_name = "Contato do Servidor"
-		verbose_name_plural = "Contatos de Servidores"
+		verbose_name_plural = "Contatos do Servidor"
 
 class HistAfastamento(models.Model):
 	id_hist_afastamento = models.AutoField(primary_key=True)
