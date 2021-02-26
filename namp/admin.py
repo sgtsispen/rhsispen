@@ -4,7 +4,7 @@ import json
 
 from django.contrib import admin
 from django.core.serializers.json import DjangoJSONEncoder
-from django.db.models import Count
+
 
 from namp.models import Afastamento, ContatoEquipe, ContatoServ, EnderecoServ, EnderecoSetor, Equipe, Funcao, HistAfastamento, HistFuncao, HistLotacao, HistStatusFuncional, Jornada, Regiao, Servidor, Setor, StatusFuncional, TipoJornada
 
@@ -14,6 +14,7 @@ admin.site.site_header = 'Administração do Núcleo de Apoio a Movimentação d
 class AfastamentoAdmin(admin.ModelAdmin):
 	pass
 	list_display = ('id_afastamento','__str__','descricao')
+	#inlines = [descricaoInline]
 admin.site.register(Afastamento, AfastamentoAdmin)
 
 class ContatoEquipeAdmin(admin.ModelAdmin):
@@ -37,7 +38,7 @@ admin.site.register(EnderecoSetor, EnderecoSetorAdmin)
 
 class EquipeAdmin(admin.ModelAdmin):
 	pass
-	list_display = ('id_equipe','nome','status','hora_inicial','categoria','fk_setor')
+	list_display = ('nome','fk_setor','status','hora_inicial','categoria')
 admin.site.register(Equipe, EquipeAdmin)
 
 class FuncaoAdmin(admin.ModelAdmin):
@@ -67,7 +68,8 @@ admin.site.register(HistStatusFuncional, HistStatusFuncionalAdmin)
 
 class JornadaAdmin(admin.ModelAdmin):
 	pass
-	list_display = ('id_jornada','data_jornada','assiduidade','fk_servidor','fk_equipe','fk_tipo_jornada')
+	list_filter = ('assiduidade','fk_equipe','fk_tipo_jornada')	
+	list_display = ('data_jornada','fk_servidor', 'assiduidade','fk_equipe', 'fk_tipo_jornada')
 admin.site.register(Jornada, JornadaAdmin)
 
 class RegiaoAdmin(admin.ModelAdmin):
@@ -92,6 +94,15 @@ admin.site.register(Regiao, RegiaoAdmin)
 class ServidorAdmin(admin.ModelAdmin):
 	pass
 	list_display = ('__str__','vinculo', 'cpf', 'sexo','dt_nasc','cargo','tipo_vinculo','regime_juridico','situacao','fk_equipe','fk_endereco_serv')
+	list_filter = ('cargo','tipo_vinculo','regime_juridico','situacao',str('fk_equipe'),str('fk_endereco_serv'))
+	fieldsets = (
+		('Dados Pessoais',{
+				'fields': ((str('id_matricula'),'vinculo'),'cpf', 'sexo','dt_nasc', str('fk_endereco_serv'))
+		}),
+		('Dados Funcionais',{
+				'fields': ('cargo','tipo_vinculo','regime_juridico','situacao', str('fk_equipe'))
+		}),
+	)
 admin.site.register(Servidor, ServidorAdmin)
 
 class SetorAdmin(admin.ModelAdmin):
@@ -103,10 +114,10 @@ admin.site.register(Setor, SetorAdmin)
 
 class StatusFuncionalAdmin(admin.ModelAdmin):	
 	pass
-	list_display = ('id_status_funcional','__str__','descricao_status')
+	list_display = (str('nome_status'),'descricao_status')
 admin.site.register(StatusFuncional, StatusFuncionalAdmin)
 
 class TipoJornadaAdmin(admin.ModelAdmin):
 	pass
-	list_display = ('id_tipo_jornada','carga_horaria', 'tipificacao', 'descricao')
+	list_display = ('carga_horaria', 'tipificacao', 'descricao')
 admin.site.register(TipoJornada, TipoJornadaAdmin)

@@ -68,7 +68,7 @@ class TipoJornada(models.Model):
 	tipificacao = models.CharField(max_length=100)
 	descricao = models.CharField(max_length=100)
 	def __str__(self):
-		return str(self.id_tipo_jornada)
+		return self.tipificacao
 	class Meta:
 		verbose_name = "Tipo de Jornada"
 		verbose_name_plural = "Tipos de Jornadas"
@@ -140,14 +140,14 @@ class ContatoEquipe(models.Model):
 
 class Servidor(models.Model):
 	id_matricula = models.CharField('Matrícula', primary_key=True, max_length=30)
-	vinculo = models.CharField(max_length=3) #Parte da matricula
+	vinculo = models.CharField('Vínculo',max_length=3) #Parte da matricula
 	nome = models.CharField(max_length=100)
-	cpf = models.CharField(max_length=11)
+	cpf = models.CharField('CPF',max_length=11)
 	sexo = models.CharField(max_length=1)
-	dt_nasc = models.DateField()
+	dt_nasc = models.DateField('Data de Nascimento')
 	cargo = models.CharField(max_length=50)
-	tipo_vinculo = models.CharField(max_length=50)
-	regime_juridico = models.CharField(max_length=50)
+	tipo_vinculo = models.CharField('Tipo de Vínculo',max_length=50)
+	regime_juridico = models.CharField('Regime Jurídico',max_length=50)
 	situacao = models.BooleanField(default=False)
 	fk_equipe = models.ForeignKey(Equipe, on_delete = models.RESTRICT, verbose_name='Equipe')
 	fk_endereco_serv = models.OneToOneField(EnderecoServ, on_delete = models.RESTRICT, verbose_name='Endereço')
@@ -232,7 +232,7 @@ class Jornada(models.Model):
 	fk_equipe = models.ForeignKey(Equipe, on_delete = models.RESTRICT, verbose_name='Equipe')
 	fk_tipo_jornada = models.ForeignKey(TipoJornada, on_delete = models.RESTRICT, verbose_name='Tipo Jornada')
 	def __str__(self):
-		return str(self.id_jornada)
+		return str(self.id_jornada) 
 	class Meta:
 		verbose_name = "Jornada"
 		verbose_name_plural = "Jornadas"
