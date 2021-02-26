@@ -1,3 +1,1 @@
-# rhsispen
-# Sistema de controle de RH
-# sistema de Recursos Humanos
+# Sistema de recursos Humanos
