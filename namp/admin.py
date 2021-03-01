@@ -22,10 +22,16 @@ class ContatoEquipeAdmin(admin.ModelAdmin):
 	list_display = ('id_contato_equipe','contato', 'fk_equipe')
 admin.site.register(ContatoEquipe, ContatoEquipeAdmin)
 
-class ContatoServAdmin(admin.ModelAdmin):
-	pass
-	list_display = ('id_contato_serv','contato', 'fk_servidor')
-admin.site.register(ContatoServ, ContatoServAdmin)
+'''class ContatoServAdmin(admin.ModelAdmin):
+	list_display = ('id_contato_serv','tipo_contato','contato', 'fk_servidor')
+admin.site.register(ContatoServ, ContatoServAdmin)'''
+
+'''
+Abaixo: apresentação dos forms da model ContatoServ dentro do form da model Servidor
+'''		
+class ContatoServAdmin(admin.TabularInline):
+    model = ContatoServ
+    extra = 1
 
 class EnderecoServAdmin(admin.ModelAdmin):
 	pass
@@ -38,8 +44,18 @@ admin.site.register(EnderecoSetor, EnderecoSetorAdmin)
 
 class EquipeAdmin(admin.ModelAdmin):
 	pass
+<<<<<<< HEAD
+	list_display = ('nome','status','hora_inicial','categoria','fk_setor')
+=======
 	list_display = ('nome','fk_setor','status','hora_inicial','categoria')
+>>>>>>> a3008408c766434959825c1c3234eba2838e65df
 admin.site.register(Equipe, EquipeAdmin)
+
+
+class EquipeInline(admin.TabularInline):
+	model = Equipe
+	extra = 1
+
 
 class FuncaoAdmin(admin.ModelAdmin):
 	pass
@@ -89,10 +105,22 @@ class RegiaoAdmin(admin.ModelAdmin):
 		extra_context = extra_context or {"regioes": regioes_json, "setores": setores_json}
 
 		return super().changelist_view(request,extra_context=extra_context)
+<<<<<<< HEAD
+
+=======
+>>>>>>> a3008408c766434959825c1c3234eba2838e65df
 admin.site.register(Regiao, RegiaoAdmin)
 
 class ServidorAdmin(admin.ModelAdmin):
 	pass
+<<<<<<< HEAD
+	list_display = ('id_matricula','vinculo','nome','cpf', 'sexo','dt_nasc','cargo','tipo_vinculo','regime_juridico','situacao','fk_equipe','fk_endereco_serv')
+	'''
+	Abaixo: apresentação dos forms da model ContatoServ dentro do form da model Servidor
+	'''	
+	inlines = [ContatoServAdmin]
+
+=======
 	list_display = ('__str__','vinculo', 'cpf', 'sexo','dt_nasc','cargo','tipo_vinculo','regime_juridico','situacao','fk_equipe','fk_endereco_serv')
 	list_filter = ('cargo','tipo_vinculo','regime_juridico','situacao',str('fk_equipe'),str('fk_endereco_serv'))
 	fieldsets = (
@@ -103,12 +131,15 @@ class ServidorAdmin(admin.ModelAdmin):
 				'fields': ('cargo','tipo_vinculo','regime_juridico','situacao', str('fk_equipe'))
 		}),
 	)
+>>>>>>> a3008408c766434959825c1c3234eba2838e65df
 admin.site.register(Servidor, ServidorAdmin)
 
 class SetorAdmin(admin.ModelAdmin):
 	pass
 	list_filter = ('fk_regiao','status','setor_sede',)
 	list_display = ('id_setor', 'nome','fk_regiao','fk_endereco_setor','status', 'setor_sede')
+	search_fields = ('nome',)
+	inlines = [EquipeInline]
 
 admin.site.register(Setor, SetorAdmin)
 
