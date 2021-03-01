@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.validators import RegexValidator
 
 # Create your models here.
 '''CLASSES SEM CHAVE ESTRANGEIRA'''
@@ -55,7 +56,7 @@ class EnderecoServ(models.Model):
 class Afastamento(models.Model):
 	id_afastamento = models.CharField('Código', primary_key=True, max_length=25) #Cod com a secad
 	tipificacao = models.CharField('Tipo de afastamento', max_length=50)
-	descricao = models.CharField(max_length=100)
+	descricao = models.TextField(max_length=100)
 	def __str__(self):
 		return self.tipificacao
 	class Meta:
@@ -124,9 +125,9 @@ class ContatoEquipe(models.Model):
 	FIXO = 'Telefone Fixo'
 	EMAIL = 'E-mail'
 	CONTATOS_CHOICES = (
-	    (CELULAR,'Telefone Celular'),
+	    (CELULAR,'Telefone Celular'), #validators=[RegexValidator(r'^(\d{2})\d{5}-\d{4}$')],
 	    (FIXO,'Telefone Fixo'),
-	    (EMAIL,'E-mail'),
+	    (EMAIL,'E-mail'), #EmailValidator(message = "Digite o E-mail", code = "E-mail inválido", whitelist=None), #EmailValidator(message = "Digite o E-mail", code = "E-mail inválido", whitelist=None)
 	)
 	id_contato_equipe = models.AutoField(primary_key=True)
 	tipificacao = models.CharField('Tipo de contato', max_length=50, choices=CONTATOS_CHOICES)
