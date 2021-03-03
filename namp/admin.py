@@ -45,10 +45,6 @@ class EnderecoServInline(admin.StackedInline):
 			'fields': ('municipio', 'uf', ('cep', 'numero'), ('endereco'), ('bairro', 'complemento'))
 	            }),
 	)
-class EnderecoSetorAdmin(admin.ModelAdmin):
-	pass
-	list_display = ('endereco','numero','bairro','complemento','cep','municipio')
-admin.site.register(EnderecoSetor, EnderecoSetorAdmin)
 
 class ServidorInline(admin.TabularInline):
 	model=Servidor
@@ -145,16 +141,21 @@ class ServidorAdmin(admin.ModelAdmin):
 		#EquipeInline,
 		ContatoServInline
 	]
-
 admin.site.register(Servidor, ServidorAdmin)
+
+class EnderecoSetorInline(admin.StackedInline):
+	model = EnderecoSetor
+
+class EnderecoSetorAdmin(admin.ModelAdmin):
+	list_display = ('endereco','numero','bairro','complemento','cep','municipio')
+admin.site.register(EnderecoSetor, EnderecoSetorAdmin)
 
 class SetorAdmin(admin.ModelAdmin):
 	pass
 	list_filter = ('fk_regiao','status','setor_sede',)
-	list_display = ('id_setor', 'nome','fk_regiao','fk_endereco_setor','status', 'setor_sede')
+	list_display = ('id_setor', 'nome','fk_regiao','status', 'setor_sede')
 	search_fields = ('nome',)
-	inlines = [EquipeInline]
-
+	inlines = [EnderecoSetorInline,EquipeInline]
 admin.site.register(Setor, SetorAdmin)
 
 class StatusFuncionalAdmin(admin.ModelAdmin):	

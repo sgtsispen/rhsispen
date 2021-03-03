@@ -22,21 +22,6 @@ class Funcao(models.Model):
 		verbose_name = "Função"
 		verbose_name_plural = "Funções"
 
-class EnderecoSetor(models.Model):
-	id_endereco_setor = models.AutoField(primary_key=True)
-	uf = models.CharField(max_length=2, default='TO')
-	cep = models.CharField(max_length=8, blank=True, default='77000000')
-	municipio = models.CharField(max_length=100, default='Palmas')
-	endereco = models.CharField(max_length=100, default='Não registrado')
-	numero = models.CharField(max_length=10, blank=True)
-	bairro = models.CharField(max_length=100, blank=True)
-	complemento = models.CharField(max_length=100, blank=True)
-	def __str__(self):
-		return self.municipio + ' - ' + self.endereco
-	class Meta:
-		verbose_name = "Endereço do Setor"
-		verbose_name_plural = "Enderecos dos Setores"
-
 class Afastamento(models.Model):
 	id_afastamento = models.CharField('Código', primary_key=True, max_length=25) #Cod com a secad
 	tipificacao = models.CharField('Tipo de afastamento', max_length=50)
@@ -83,13 +68,29 @@ class Setor(models.Model):
 	setor_sede = models.BooleanField(default=False)
 	#RESTRICT: proibe a exclussão de região referenciada em setor
 	fk_regiao = models.ForeignKey(Regiao, on_delete = models.RESTRICT, verbose_name='Região', default=5)
-	#CASCATE: se excluido o setor, será excluido o objeto referenciado(endereco_setor)
-	fk_endereco_setor = models.OneToOneField(EnderecoSetor, on_delete = models.RESTRICT, verbose_name='Endereço')
+	
 	def __str__(self):
 		return self.nome
 	class Meta:
 		verbose_name = "Setor"
 		verbose_name_plural = "Setores"
+
+class EnderecoSetor(models.Model):
+	id_endereco_setor = models.AutoField(primary_key=True)
+	uf = models.CharField(max_length=2, default='TO')
+	cep = models.CharField(max_length=8, blank=True, default='77000000')
+	municipio = models.CharField(max_length=100, default='Palmas')
+	endereco = models.CharField(max_length=100, default='Não registrado')
+	numero = models.CharField(max_length=10, blank=True)
+	bairro = models.CharField(max_length=100, blank=True)
+	complemento = models.CharField(max_length=100, blank=True)
+	#CASCATE: se excluido o setor, será excluido o objeto referenciado(endereco_setor)
+	fk_setor = models.OneToOneField(Setor, on_delete = models.RESTRICT, verbose_name='Setor')
+	def __str__(self):
+		return self.municipio + ' - ' + self.endereco
+	class Meta:
+		verbose_name = "Endereço do Setor"
+		verbose_name_plural = "Enderecos dos Setores"
 
 class Equipe(models.Model):
 	id_equipe = models.AutoField(primary_key=True)
