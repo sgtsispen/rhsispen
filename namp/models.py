@@ -37,21 +37,6 @@ class EnderecoSetor(models.Model):
 		verbose_name = "Endereço do Setor"
 		verbose_name_plural = "Enderecos dos Setores"
 
-class EnderecoServ(models.Model):
-	id_endereco_serv = models.AutoField(primary_key=True)
-	uf = models.CharField(max_length=2) 
-	cep = models.CharField(max_length=8)
-	municipio = models.CharField(max_length=100)
-	endereco = models.CharField(max_length=100)
-	numero = models.CharField(max_length=10)
-	bairro = models.CharField(max_length=100)
-	complemento = models.CharField(max_length=100, blank=True)
-	def __str__(self):
-		return self.uf + ' - ' + self.municipio + ' , ' +self.endereco 
-	class Meta:
-		verbose_name = "Endereço do Servidor"
-		verbose_name_plural = "Endereços de Servidores"
-
 class Afastamento(models.Model):
 	id_afastamento = models.CharField('Código', primary_key=True, max_length=25) #Cod com a secad
 	tipificacao = models.CharField('Tipo de afastamento', max_length=50)
@@ -111,7 +96,8 @@ class Equipe(models.Model):
 	nome = models.CharField(max_length=50)
 	status = models.BooleanField(default=False)
 	hora_inicial = models.TimeField(auto_now= False, auto_now_add=False)
-	categoria = models.CharField(max_length=50)
+	CHOICES_CATEGORIA = [('Plantão','Plantão'),('Expediente','Expediente')]
+	categoria = models.CharField('Categoria', max_length=10, choices=CHOICES_CATEGORIA)
 	fk_setor = models.ForeignKey(Setor, on_delete = models.RESTRICT, verbose_name='Setor')
 	def __str__(self):
 		return self.nome + ' - ' + (self.fk_setor.nome)
@@ -136,26 +122,43 @@ class ContatoEquipe(models.Model):
 		return self.contato + str(self.fk_equipe)
 	class Meta:
 		verbose_name = "Contato da Equipe"
-		verbose_name_plural = "Contato das Equipes"
+		verbose_name_plural = "Contatos da Equipe"
 
 class Servidor(models.Model):
 	id_matricula = models.CharField('Matrícula', primary_key=True, max_length=30)
-	vinculo = models.CharField('Vínculo',max_length=3) #Parte da matricula
+	vinculo = models.CharField('Vínculo',max_length=2) #Parte da matricula
 	nome = models.CharField(max_length=100)
 	cpf = models.CharField('CPF',max_length=11)
-	sexo = models.CharField(max_length=1)
+	CHOICES_SEXO = [('M','Masculino'),('F','Feminino')]
+	sexo = models.CharField('Sexo', max_length=1, choices=CHOICES_SEXO)
 	dt_nasc = models.DateField('Data de Nascimento')
 	cargo = models.CharField(max_length=50)
 	tipo_vinculo = models.CharField('Tipo de Vínculo',max_length=50)
 	regime_juridico = models.CharField('Regime Jurídico',max_length=50)
 	situacao = models.BooleanField(default=False)
 	fk_equipe = models.ForeignKey(Equipe, on_delete = models.RESTRICT, verbose_name='Equipe')
-	fk_endereco_serv = models.OneToOneField(EnderecoServ, on_delete = models.RESTRICT, verbose_name='Endereço')
+	
 	def __str__(self):
 		return self.nome
 	class Meta:
 		verbose_name = "Servidor"
 		verbose_name_plural = "Servidores"
+
+class EnderecoServ(models.Model):
+	id_endereco_serv = models.AutoField(primary_key=True)
+	uf = models.CharField(max_length=2) 
+	cep = models.CharField(max_length=8)
+	municipio = models.CharField(max_length=100)
+	endereco = models.CharField(max_length=100)
+	numero = models.CharField(max_length=10)
+	bairro = models.CharField(max_length=100)
+	complemento = models.CharField(max_length=100, blank=True)
+	fk_servidor = models.OneToOneField(Servidor, on_delete = models.RESTRICT, verbose_name='Servidor')
+	def __str__(self):
+		return self.uf + ' - ' + self.municipio + ' , ' +self.endereco 
+	class Meta:
+		verbose_name = "Endereço do Servidor"
+		verbose_name_plural = "Endereços de Servidores"
 
 class HistFuncao(models.Model):
 	id_hist_funcao = models.AutoField(primary_key=True)
@@ -238,3 +241,6 @@ class Jornada(models.Model):
 	class Meta:
 		verbose_name = "Jornada"
 		verbose_name_plural = "Jornadas"
+'''
+select nome, cpf, funcional, vinculo, inicio from plantaoextra.extra where inicio>='2021-03-01 07:00' and inicio<'2021-03-02 07:00' and unidade='UNIDADE PENAL DE PALMAS' order by inicio, nome 
+'''

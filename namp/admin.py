@@ -17,6 +17,10 @@ class AfastamentoAdmin(admin.ModelAdmin):
 	#inlines = [descricaoInline]
 admin.site.register(Afastamento, AfastamentoAdmin)
 
+class ContatoEquipeInline(admin.TabularInline):
+    model = ContatoEquipe
+    extra = 0
+
 class ContatoEquipeAdmin(admin.ModelAdmin):
 	pass
 	list_display = ('id_contato_equipe','contato', 'fk_equipe')
@@ -26,36 +30,47 @@ admin.site.register(ContatoEquipe, ContatoEquipeAdmin)
 	list_display = ('id_contato_serv','tipo_contato','contato', 'fk_servidor')
 admin.site.register(ContatoServ, ContatoServAdmin)'''
 
-'''
-Abaixo: apresentação dos forms da model ContatoServ dentro do form da model Servidor
-'''		
-class ContatoServAdmin(admin.TabularInline):
+class ContatoServInline(admin.TabularInline):
     model = ContatoServ
-    extra = 1
+    extra = 0
 
 class EnderecoServAdmin(admin.ModelAdmin):
 	pass
 admin.site.register(EnderecoServ, EnderecoServAdmin)
 
+class EnderecoServInline(admin.StackedInline):
+	model=EnderecoServ
+	fieldsets = (
+		(None, {
+			'fields': ('municipio', 'uf', ('cep', 'numero'), ('endereco'), ('bairro', 'complemento'))
+	            }),
+	)
 class EnderecoSetorAdmin(admin.ModelAdmin):
 	pass
 	list_display = ('endereco','numero','bairro','complemento','cep','municipio')
 admin.site.register(EnderecoSetor, EnderecoSetorAdmin)
 
+class ServidorInline(admin.TabularInline):
+	model=Servidor
+	extra=0
+	#exclude = ['dt_nasc', 'cargo', 'tipo_vinculo', 'regime_juridico', 'fk_endereco_serv', 'situacao']
+	fields = ('nome', 'id_matricula','cpf')
+
+
 class EquipeAdmin(admin.ModelAdmin):
 	pass
-<<<<<<< HEAD
 	list_display = ('nome','status','hora_inicial','categoria','fk_setor')
-=======
-	list_display = ('nome','fk_setor','status','hora_inicial','categoria')
->>>>>>> a3008408c766434959825c1c3234eba2838e65df
+
+	inlines=[
+		ContatoEquipeInline,
+		ServidorInline
+		]
 admin.site.register(Equipe, EquipeAdmin)
 
 
 class EquipeInline(admin.TabularInline):
 	model = Equipe
-	extra = 1
-
+	extra = 0
 
 class FuncaoAdmin(admin.ModelAdmin):
 	pass
@@ -105,33 +120,32 @@ class RegiaoAdmin(admin.ModelAdmin):
 		extra_context = extra_context or {"regioes": regioes_json, "setores": setores_json}
 
 		return super().changelist_view(request,extra_context=extra_context)
-<<<<<<< HEAD
-
-=======
->>>>>>> a3008408c766434959825c1c3234eba2838e65df
 admin.site.register(Regiao, RegiaoAdmin)
 
 class ServidorAdmin(admin.ModelAdmin):
-	pass
-<<<<<<< HEAD
-	list_display = ('id_matricula','vinculo','nome','cpf', 'sexo','dt_nasc','cargo','tipo_vinculo','regime_juridico','situacao','fk_equipe','fk_endereco_serv')
+	#pass
+	#list_display = ('id_matricula','vinculo','nome','cpf', 'sexo','dt_nasc','cargo','tipo_vinculo','regime_juridico','situacao','fk_equipe','fk_endereco_serv')
+	
 	'''
 	Abaixo: apresentação dos forms da model ContatoServ dentro do form da model Servidor
 	'''	
-	inlines = [ContatoServAdmin]
 
-=======
-	list_display = ('__str__','vinculo', 'cpf', 'sexo','dt_nasc','cargo','tipo_vinculo','regime_juridico','situacao','fk_equipe','fk_endereco_serv')
-	list_filter = ('cargo','tipo_vinculo','regime_juridico','situacao',str('fk_equipe'),str('fk_endereco_serv'))
+	list_display = ('__str__','vinculo','nome', 'cpf', 'sexo','dt_nasc','cargo','tipo_vinculo','regime_juridico','situacao','fk_equipe')
+	list_filter = ('cargo','tipo_vinculo','regime_juridico','situacao',str('fk_equipe'))
 	fieldsets = (
 		('Dados Pessoais',{
-				'fields': ((str('id_matricula'),'vinculo'),'cpf', 'sexo','dt_nasc', str('fk_endereco_serv'))
+				'fields': (('nome','cpf'),(str('id_matricula'),'vinculo'), ('sexo','dt_nasc'))
 		}),
 		('Dados Funcionais',{
 				'fields': ('cargo','tipo_vinculo','regime_juridico','situacao', str('fk_equipe'))
 		}),
 	)
->>>>>>> a3008408c766434959825c1c3234eba2838e65df
+	inlines = [
+		EnderecoServInline,
+		#EquipeInline,
+		ContatoServInline
+	]
+
 admin.site.register(Servidor, ServidorAdmin)
 
 class SetorAdmin(admin.ModelAdmin):
