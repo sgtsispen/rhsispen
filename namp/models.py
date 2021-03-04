@@ -136,7 +136,7 @@ class Servidor(models.Model):
 	cargo = models.CharField(max_length=50)
 	tipo_vinculo = models.CharField('Tipo de Vínculo',max_length=50)
 	regime_juridico = models.CharField('Regime Jurídico',max_length=50)
-	situacao = models.BooleanField(default=False)
+	situacao = models.BooleanField('Servidor Ativo', default=False)
 	fk_equipe = models.ForeignKey(Equipe, on_delete = models.RESTRICT, verbose_name='Equipe')
 	
 	def __str__(self):
@@ -159,7 +159,7 @@ class EnderecoServ(models.Model):
 		return self.uf + ' - ' + self.municipio + ' , ' +self.endereco 
 	class Meta:
 		verbose_name = "Endereço do Servidor"
-		verbose_name_plural = "Endereços de Servidores"
+		verbose_name_plural = "Endereços de Servidor"
 
 class HistFuncao(models.Model):
 	id_hist_funcao = models.AutoField(primary_key=True)
@@ -192,7 +192,7 @@ class ContatoServ(models.Model):
 	
 	class Meta:
 		verbose_name = "Contato do Servidor"
-		verbose_name_plural = "Contatos do Servidor"
+		verbose_name_plural = "Contatos de Servidor"
 
 class HistAfastamento(models.Model):
 	id_hist_afastamento = models.AutoField(primary_key=True)

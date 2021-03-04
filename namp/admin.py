@@ -51,10 +51,14 @@ class ServidorInline(admin.TabularInline):
 	extra=0
 	#exclude = ['dt_nasc', 'cargo', 'tipo_vinculo', 'regime_juridico', 'fk_endereco_serv', 'situacao']
 	fields = ('nome', 'id_matricula','cpf')
+	readonly_fields = ('nome', 'id_matricula','cpf')
+
+	def has_add_permission(self, request, obj=None):
+		return False
+
 
 
 class EquipeAdmin(admin.ModelAdmin):
-	pass
 	list_display = ('nome','status','hora_inicial','categoria','fk_setor')
 
 	inlines=[
