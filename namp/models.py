@@ -22,7 +22,7 @@ class Funcao(models.Model):
 	class Meta:
 		verbose_name = "Função"
 		verbose_name_plural = "Funções"
-
+'''
 class EnderecoSetor(models.Model):
 	id_endereco_setor = models.AutoField(primary_key=True)
 	uf = models.CharField(max_length=2, default='TO')
@@ -37,7 +37,7 @@ class EnderecoSetor(models.Model):
 	class Meta:
 		verbose_name = "Endereço do Setor"
 		verbose_name_plural = "Enderecos dos Setores"
-
+'''
 class EnderecoServ(models.Model):
 	id_endereco_serv = models.AutoField(primary_key=True)
 	uf = models.CharField(max_length=2) 
@@ -101,7 +101,7 @@ class Setor(models.Model):
 	fk_regiao = models.ForeignKey(Regiao, on_delete = models.RESTRICT, verbose_name='Região', default=5) #RESTRICT: proibe a exclussão de região referenciada em setor
 	#CASCATE: se excluido o setor, será excluido o objeto referenciado(endereco_setor)
 	#ENREREÇO SETOR TEM FK PRA SETOR 
-	fk_endereco_setor = models.OneToOneField(EnderecoSetor, on_delete = models.RESTRICT, verbose_name='Endereço')
+	#fk_endereco_setor = models.OneToOneField(EnderecoSetor, on_delete = models.RESTRICT, verbose_name='Endereço')
 	def __str__(self):
 		return self.nome
 	class Meta:

@@ -33,7 +33,7 @@ class EnderecoServAdmin(admin.ModelAdmin):
 	pass
 admin.site.register(EnderecoServ, EnderecoServAdmin)
 
-'''
+
 class EnderecoServInline(admin.TabularInline):
 	model = EnderecoServ
 	extra = 1
@@ -42,6 +42,7 @@ class EnderecoSetorAdmin(admin.ModelAdmin):
 	pass
 	list_display = ('endereco','numero','bairro','complemento','cep','municipio')
 admin.site.register(EnderecoSetor, EnderecoSetorAdmin)
+'''
 
 class ServidorInline(admin.TabularInline):
     model = Servidor
@@ -112,11 +113,11 @@ admin.site.register(Regiao, RegiaoAdmin)
 class ServidorAdmin(admin.ModelAdmin):
 	pass
 	#list_display = ('id_matricula','vinculo','nome','cpf', 'sexo','dt_nasc','cargo','tipo_vinculo','regime_juridico','situacao','fk_equipe','fk_endereco_serv')
-	list_display = ('__str__','vinculo', 'cpf', 'sexo','cargo','tipo_vinculo','regime_juridico','situacao','fk_equipe','fk_endereco_serv')
-	list_filter = ('cargo','tipo_vinculo','regime_juridico','situacao',str('fk_equipe'),str('fk_endereco_serv'))
+	list_display = ('__str__','vinculo', 'cpf', 'sexo','cargo','tipo_vinculo','regime_juridico','situacao','fk_equipe')
+	list_filter = ('cargo','tipo_vinculo','regime_juridico','situacao',str('fk_equipe'))
 	fieldsets = (
 		('DADOS PESSOAIS',{
-				'fields': ((str('id_matricula'),'vinculo'), 'nome', 'cpf', 'sexo','dt_nasc', str('fk_endereco_serv'))
+				'fields': ((str('id_matricula'),'vinculo'), 'nome', 'cpf', 'sexo','dt_nasc')
 		}),
 		('DADOS FUNCIONAIS',{
 				'fields': ('cargo','tipo_vinculo','regime_juridico','situacao', str('fk_equipe'))
@@ -139,7 +140,7 @@ admin.site.register(EnderecoSetor, EnderecoSetorAdmin)
 class SetorAdmin(admin.ModelAdmin):
 	pass
 	list_filter = ('fk_regiao','status','setor_sede')
-	list_display = ('id_setor', 'nome','fk_regiao','fk_endereco_setor','status', 'setor_sede')
+	list_display = ('id_setor', 'nome','fk_regiao','status', 'setor_sede')
 	search_fields = ('nome',)
 	inlines = [EquipeInline]
 admin.site.register(Setor, SetorAdmin)
