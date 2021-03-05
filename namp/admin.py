@@ -1,5 +1,4 @@
 
-# Register your models here.
 import json
 
 from django.contrib import admin
@@ -8,13 +7,13 @@ from django.core.serializers.json import DjangoJSONEncoder
 
 from namp.models import Afastamento, ContatoEquipe, ContatoServ, EnderecoServ, EnderecoSetor, Equipe, Funcao, HistAfastamento, HistFuncao, HistLotacao, HistStatusFuncional, Jornada, Regiao, Servidor, Setor, StatusFuncional, TipoJornada
 
+#Cabeçalho da página
 admin.site.site_header = 'Administração do Núcleo de Apoio a Movimentação de Pessoal'
 
-# Register your models here.
+# Registro de models
 class AfastamentoAdmin(admin.ModelAdmin):
 	pass
 	list_display = ('id_afastamento','__str__','descricao')
-	#inlines = [descricaoInline]
 admin.site.register(Afastamento, AfastamentoAdmin)
 
 class ContatoEquipeInline(admin.TabularInline):
@@ -23,13 +22,9 @@ class ContatoEquipeInline(admin.TabularInline):
 
 class ContatoEquipeAdmin(admin.ModelAdmin):
 	pass
-	list_display = ('id_contato_equipe','contato', 'fk_equipe')
+	list_display = ('__str__','contato')
 admin.site.register(ContatoEquipe, ContatoEquipeAdmin)
-
-'''class ContatoServAdmin(admin.ModelAdmin):
-	list_display = ('id_contato_serv','tipo_contato','contato', 'fk_servidor')
-admin.site.register(ContatoServ, ContatoServAdmin)'''
-
+	
 class ContatoServInline(admin.TabularInline):
     model = ContatoServ
     extra = 0
@@ -38,39 +33,31 @@ class EnderecoServAdmin(admin.ModelAdmin):
 	pass
 admin.site.register(EnderecoServ, EnderecoServAdmin)
 
-class EnderecoServInline(admin.StackedInline):
-	model=EnderecoServ
-	fieldsets = (
-		(None, {
-			'fields': (('uf', 'municipio'), 'cep', ('endereco', 'bairro'), ('numero', 'complemento'))
-	            }),
-	)
+'''
+class EnderecoServInline(admin.TabularInline):
+	model = EnderecoServ
+	extra = 1
+'''
+class EnderecoSetorAdmin(admin.ModelAdmin):
+	pass
+	list_display = ('endereco','numero','bairro','complemento','cep','municipio')
+admin.site.register(EnderecoSetor, EnderecoSetorAdmin)
 
 class ServidorInline(admin.TabularInline):
-	model=Servidor
-	extra=0
-	#exclude = ['dt_nasc', 'cargo', 'tipo_vinculo', 'regime_juridico', 'fk_endereco_serv', 'situacao']
-	fields = ('nome', 'id_matricula','cpf')
-	readonly_fields = ('nome', 'id_matricula','cpf')
-
-	def has_add_permission(self, request, obj=None):
-		return False
-
-
+    model = Servidor
+	#readonly_fields = ('__str__', 'cpf', 'cargo')
+    fields = ('nome', str('id_matricula'),'vinculo','cpf', 'cargo') 
+    extra = 1
 
 class EquipeAdmin(admin.ModelAdmin):
-	list_display = ('nome','status','hora_inicial','categoria','fk_setor')
-
-	inlines=[
-		ContatoEquipeInline,
-		ServidorInline
-		]
+	pass
+	list_display = ('nome','fk_setor','status','hora_inicial','categoria')
+	inlines = [ServidorInline]
 admin.site.register(Equipe, EquipeAdmin)
-
 
 class EquipeInline(admin.TabularInline):
 	model = Equipe
-	extra = 0
+	extra = 1
 
 class FuncaoAdmin(admin.ModelAdmin):
 	pass
@@ -123,27 +110,23 @@ class RegiaoAdmin(admin.ModelAdmin):
 admin.site.register(Regiao, RegiaoAdmin)
 
 class ServidorAdmin(admin.ModelAdmin):
-	#pass
+	pass
 	#list_display = ('id_matricula','vinculo','nome','cpf', 'sexo','dt_nasc','cargo','tipo_vinculo','regime_juridico','situacao','fk_equipe','fk_endereco_serv')
+	list_display = ('__str__','vinculo', 'cpf', 'sexo','cargo','tipo_vinculo','regime_juridico','situacao','fk_equipe','fk_endereco_serv')
+	list_filter = ('cargo','tipo_vinculo','regime_juridico','situacao',str('fk_equipe'),str('fk_endereco_serv'))
+	fieldsets = (
+		('DADOS PESSOAIS',{
+				'fields': ((str('id_matricula'),'vinculo'), 'nome', 'cpf', 'sexo','dt_nasc', str('fk_endereco_serv'))
+		}),
+		('DADOS FUNCIONAIS',{
+				'fields': ('cargo','tipo_vinculo','regime_juridico','situacao', str('fk_equipe'))
+		}),
+	)
 	'''
 	Abaixo: apresentação dos forms da model ContatoServ dentro do form da model Servidor
 	'''	
-
-	list_display = ('__str__','vinculo','nome', 'cpf', 'sexo','dt_nasc','cargo','tipo_vinculo','regime_juridico','situacao','fk_equipe')
-	list_filter = ('cargo','tipo_vinculo','regime_juridico','situacao',str('fk_equipe'))
-	fieldsets = (
-		('Dados Pessoais',{
-				'fields': (('nome','cpf'), ('sexo', 'dt_nasc'))
-		}),
-		('Dados Funcionais',{
-				'fields': ((str('id_matricula'),'vinculo'), ('cargo', 'situacao'), ('tipo_vinculo', 'regime_juridico') , str('fk_equipe'))
-		}),
-	)
-	inlines = [
-		EnderecoServInline,
-		#EquipeInline,
-		ContatoServInline
-	]
+	inlines = [ContatoServInline]
+	#inlines = [EnderecoServInline] PRONTO PARA RECEBER A CHAVE ESTRANGEIRA
 admin.site.register(Servidor, ServidorAdmin)
 
 class EnderecoSetorInline(admin.StackedInline):
@@ -155,10 +138,10 @@ admin.site.register(EnderecoSetor, EnderecoSetorAdmin)
 
 class SetorAdmin(admin.ModelAdmin):
 	pass
-	list_filter = ('fk_regiao','status','setor_sede',)
-	list_display = ('id_setor', 'nome','fk_regiao','status', 'setor_sede')
+	list_filter = ('fk_regiao','status','setor_sede')
+	list_display = ('id_setor', 'nome','fk_regiao','fk_endereco_setor','status', 'setor_sede')
 	search_fields = ('nome',)
-	inlines = [EnderecoSetorInline,EquipeInline]
+	inlines = [EquipeInline]
 admin.site.register(Setor, SetorAdmin)
 
 class StatusFuncionalAdmin(admin.ModelAdmin):	
@@ -170,3 +153,4 @@ class TipoJornadaAdmin(admin.ModelAdmin):
 	pass
 	list_display = ('carga_horaria', 'tipificacao', 'descricao')
 admin.site.register(TipoJornada, TipoJornadaAdmin)
+
