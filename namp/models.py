@@ -1,7 +1,6 @@
 from django.db import models
-from django.core.validators import RegexValidator
 
-# Criação dos models
+# Create your models here.
 '''CLASSES SEM CHAVE ESTRANGEIRA'''
 
 class Regiao(models.Model):
@@ -22,37 +21,6 @@ class Funcao(models.Model):
 	class Meta:
 		verbose_name = "Função"
 		verbose_name_plural = "Funções"
-'''
-class EnderecoSetor(models.Model):
-	id_endereco_setor = models.AutoField(primary_key=True)
-	uf = models.CharField(max_length=2, default='TO')
-	cep = models.CharField(max_length=8, blank=True, default='77000000')
-	municipio = models.CharField(max_length=100, default='Palmas')
-	endereco = models.CharField(max_length=100, default='Não registrado')
-	numero = models.CharField(max_length=10, blank=True)
-	bairro = models.CharField(max_length=100, blank=True)
-	complemento = models.CharField(max_length=100, blank=True)
-	def __str__(self):
-		return self.municipio + ' - ' + self.endereco
-	class Meta:
-		verbose_name = "Endereço do Setor"
-		verbose_name_plural = "Enderecos dos Setores"
-'''
-class EnderecoServ(models.Model):
-	id_endereco_serv = models.AutoField(primary_key=True)
-	uf = models.CharField(max_length=2) 
-	cep = models.CharField(max_length=8)
-	municipio = models.CharField(max_length=100)
-	endereco = models.CharField(max_length=100)
-	numero = models.CharField(max_length=10)
-	bairro = models.CharField(max_length=100)
-	complemento = models.CharField(max_length=100, blank=True)
-	def __str__(self):
-		return self.uf + ' - ' + self.municipio + ' , ' +self.endereco 
-	class Meta:
-		verbose_name = "Endereço do Servidor"
-		verbose_name_plural = "Endereços de Servidores"
-	
 
 class Afastamento(models.Model):
 	id_afastamento = models.CharField('Código', primary_key=True, max_length=25) #Cod com a secad
@@ -98,10 +66,9 @@ class Setor(models.Model):
 	nome = models.CharField(max_length=100)
 	status = models.BooleanField('Setor Ativo', default=False)
 	setor_sede = models.BooleanField(default=False)
-	fk_regiao = models.ForeignKey(Regiao, on_delete = models.RESTRICT, verbose_name='Região', default=5) #RESTRICT: proibe a exclussão de região referenciada em setor
-	#CASCATE: se excluido o setor, será excluido o objeto referenciado(endereco_setor)
-	#ENREREÇO SETOR TEM FK PRA SETOR 
-	#fk_endereco_setor = models.OneToOneField(EnderecoSetor, on_delete = models.RESTRICT, verbose_name='Endereço')
+	#RESTRICT: proibe a exclussão de região referenciada em setor
+	fk_regiao = models.ForeignKey(Regiao, on_delete = models.RESTRICT, verbose_name='Região', default=5)
+	
 	def __str__(self):
 		return self.nome
 	class Meta:
@@ -120,7 +87,7 @@ class EnderecoSetor(models.Model):
 	#CASCATE: se excluido o setor, será excluido o objeto referenciado(endereco_setor)
 	fk_setor = models.OneToOneField(Setor, on_delete = models.RESTRICT, verbose_name='Setor')
 	def __str__(self):
-		return self.municipio + ' - ' + self.endereco
+		return ' - '
 	class Meta:
 		verbose_name = "Endereço do Setor"
 		verbose_name_plural = "Enderecos dos Setores"
@@ -144,32 +111,27 @@ class ContatoEquipe(models.Model):
 	FIXO = 'Telefone Fixo'
 	EMAIL = 'E-mail'
 	CONTATOS_CHOICES = (
-	    (CELULAR,'Telefone Celular'), #validators=[RegexValidator(r'^(\d{2})\d{5}-\d{4}$')],
+	    (CELULAR,'Telefone Celular'),
 	    (FIXO,'Telefone Fixo'),
-	    (EMAIL,'E-mail'), #EmailValidator(message = "Digite o E-mail", code = "E-mail inválido", whitelist=None), #EmailValidator(message = "Digite o E-mail", code = "E-mail inválido", whitelist=None)
+	    (EMAIL,'E-mail'),
 	)
 	id_contato_equipe = models.AutoField(primary_key=True)
 	tipificacao = models.CharField('Tipo de contato', max_length=50, choices=CONTATOS_CHOICES)
 	contato = models.CharField(max_length=50)
 	fk_equipe = models.ForeignKey(Equipe, on_delete = models.RESTRICT, verbose_name='Equipe')
 	def __str__(self):
-		return str(self.fk_equipe)
+		return self.contato + ' ' + str(self.fk_equipe)
 	class Meta:
 		verbose_name = "Contato da Equipe"
 		verbose_name_plural = "Contatos da Equipe"
 
 class Servidor(models.Model):
-	Masculino = 'M'
-	Feminino = 'F'
-	GEN_CHOICES = (
-		(Masculino, 'M'),
-		(Feminino, 'F'),
-		)
 	id_matricula = models.CharField('Matrícula', primary_key=True, max_length=30)
 	vinculo = models.CharField('Vínculo',max_length=2) #Parte da matricula
 	nome = models.CharField(max_length=100)
-	cpf = models.CharField('CPF',max_length=12)
-	sexo = models.CharField('(Feminino/Masculino)', max_length=1, choices=GEN_CHOICES)
+	cpf = models.CharField('CPF',max_length=11)
+	CHOICES_SEXO = [('M','Masculino'),('F','Feminino')]
+	sexo = models.CharField('Sexo', max_length=1, choices=CHOICES_SEXO)
 	dt_nasc = models.DateField('Data de Nascimento')
 	cargo = models.CharField(max_length=50)
 	tipo_vinculo = models.CharField('Tipo de Vínculo',max_length=50)
@@ -183,8 +145,6 @@ class Servidor(models.Model):
 		verbose_name = "Servidor"
 		verbose_name_plural = "Servidores"
 
-''' CLASSE PRONTA PARA A ALTERAÇÃO DE CHAVE
-
 class EnderecoServ(models.Model):
 	id_endereco_serv = models.AutoField(primary_key=True)
 	uf = models.CharField(max_length=2) 
@@ -194,13 +154,12 @@ class EnderecoServ(models.Model):
 	numero = models.CharField(max_length=10)
 	bairro = models.CharField(max_length=100)
 	complemento = models.CharField(max_length=100, blank=True)
-	fk_servidor = models.OneToOneField(Servidor, on_delete = models.RESTRICT, verbose_name = 'Servidor')
+	fk_servidor = models.OneToOneField(Servidor, on_delete = models.RESTRICT, verbose_name='Servidor')
 	def __str__(self):
-		return self.uf + ' - ' + self.municipio + ' , ' +self.endereco 
+		return '-'
 	class Meta:
 		verbose_name = "Endereço do Servidor"
-		verbose_name_plural = "Endereços de Servidores"
-'''
+		verbose_name_plural = "Endereço do Servidor"
 
 class HistFuncao(models.Model):
 	id_hist_funcao = models.AutoField(primary_key=True)
@@ -230,6 +189,7 @@ class ContatoServ(models.Model):
 	
 	def __str__(self):
 		return ''
+	
 	class Meta:
 		verbose_name = "Contato do Servidor"
 		verbose_name_plural = "Contatos de Servidor"
