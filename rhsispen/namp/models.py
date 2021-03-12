@@ -65,7 +65,7 @@ class StatusFuncional(models.Model):
 class Setor(models.Model):
 	id_setor = models.CharField('Código', primary_key=True, max_length=50)
 	nome = models.CharField(max_length=100, unique=True)
-	status = models.BooleanField('Setor Ativo', default=False)
+	status = models.BooleanField('Setor Ativo', default=False) #mudar pra o nome da variael = setor_ativo
 	setor_sede = models.BooleanField(default=False)
 	#RESTRICT: proibe a exclussão de região referenciada em setor
 	fk_regiao = models.ForeignKey(Regiao, on_delete = models.RESTRICT, verbose_name='Região')
@@ -81,7 +81,7 @@ class EnderecoSetor(models.Model):
 	id_endereco_setor = models.AutoField(primary_key=True)
 	uf = models.CharField(max_length=2, default='TO')
 	cep = models.CharField(max_length=8, blank=True, default='77000000')
-	municipio = models.CharField(max_length=100, default='Palmas')
+	municipio = models.CharField(max_length=100, default='Não registrado')
 	endereco = models.CharField(max_length=100, default='Não registrado')
 	numero = models.CharField(max_length=10, blank=True)
 	bairro = models.CharField(max_length=100, blank=True)

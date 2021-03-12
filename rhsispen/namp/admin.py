@@ -147,9 +147,16 @@ class EnderecoSetorInline(admin.StackedInline):
 class SetorAdmin(admin.ModelAdmin):
 	pass
 	list_filter = ('fk_regiao','status','setor_sede',)
-	list_display = ('id_setor', 'nome','fk_regiao','status', 'setor_sede')
+	list_display = ('id_setor', 'nome','fk_regiao','status', 'setor_sede', 'get_total_servidor')
 	search_fields = ('nome',)
 	inlines = [EnderecoSetorInline,EquipeInline]
+
+	def get_total_servidor(self, obj):
+		return Servidor.objects.filter().count() #adicionar filtro para total de cada equipe
+	get_total_servidor.short_description = 'Servidores'  #Nome da coluna
+	get_total_servidor.admin_order_field = 'nome'
+
+
 admin.site.register(Setor, SetorAdmin)
 
 class StatusFuncionalAdmin(admin.ModelAdmin):
