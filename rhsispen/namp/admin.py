@@ -73,11 +73,16 @@ class HistFuncaoAdmin(admin.ModelAdmin):
 admin.site.register(HistFuncao, HistFuncaoAdmin)
 
 class HistLotacaoAdmin(admin.ModelAdmin):
+	#def get_servidor(self, obj):
+	#	return Servidor.objects.get()
+
+	#search_fields = [get_servidor] #ARRUMAR A BUSCA, FK_SERVIDOR_NAO_FUNCIONA
 	list_display = ('id_hist_lotacao','data_inicial','data_final','fk_servidor','fk_equipe', 'get_setor')
 	def get_setor(self, obj):
 		return Setor.objects.get(id_setor=obj.fk_equipe.fk_setor.id_setor)
-	get_setor.short_description = 'Unidade Operacional'  #Renames column head
+	get_setor.short_description = 'Unidade Operacional'  #Nome da coluna
 	get_setor.admin_order_field = 'fk_servidor'
+
 
 admin.site.register(HistLotacao, HistLotacaoAdmin)
 
@@ -114,17 +119,18 @@ admin.site.register(Regiao, RegiaoAdmin)
 
 class ServidorAdmin(admin.ModelAdmin):
 	search_fields = ('nome',)
+	radio_fields = {'sexo': admin.HORIZONTAL, 'regime_juridico': admin.HORIZONTAL, 'tipo_vinculo': admin.VERTICAL}
 	'''
 	Abaixo: apresentação dos forms da model ContatoServ dentro do form da model Servidor
 	'''
-	list_display = ('nome', 'id_matricula','vinculo','cpf', 'sexo','dt_nasc','cargo','tipo_vinculo','regime_juridico','situacao','fk_equipe', 'get_setor')
+	list_display = ('nome', 'id_matricula', 'vinculo','cpf','dt_nasc','cargo','tipo_vinculo','regime_juridico','situacao','fk_equipe', 'get_setor')
 	list_filter = ('cargo','situacao','fk_equipe')
 	fieldsets = (
 		('Dados Pessoais',{
 				'fields': (('nome','cpf'), ('sexo','dt_nasc'))
 		}),
 		('Dados Funcionais',{
-				'fields': (('id_matricula','vinculo'), ('tipo_vinculo','regime_juridico'), ('cargo', 'situacao'),'fk_equipe')
+				'fields': (('id_matricula','vinculo'), ('tipo_vinculo', 'regime_juridico'), ('cargo', 'situacao'),'fk_equipe')
 		}),
 	)
 
