@@ -119,6 +119,7 @@ admin.site.register(Regiao, RegiaoAdmin)
 
 class ServidorAdmin(admin.ModelAdmin):
 	search_fields = ('nome',)
+	radio_fields = {'sexo': admin.HORIZONTAL}
 	'''
 	Abaixo: apresentação dos forms da model ContatoServ dentro do form da model Servidor
 	'''
