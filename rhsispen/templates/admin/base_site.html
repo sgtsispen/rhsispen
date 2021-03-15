@@ -1,0 +1,13 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block branding %}
+    {{ block.super }}
+
+    <h1 id="head">
+	<a href="{% url 'admin:index' %}">
+    	<img src="{% static 'images/logoppto.png' %}" alt="logo" width="48" height="48">
+		Núcleo de Apoio à Movimentação de Pessoal
+	</h1>
+	</a>
+{% endblock %}
