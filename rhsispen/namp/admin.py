@@ -4,7 +4,11 @@ import json
 from django.contrib import admin
 from django.core.serializers.json import DjangoJSONEncoder
 
-from namp.models import Afastamento, ContatoEquipe, ContatoServ, EnderecoServ, EnderecoSetor, Equipe, Funcao, HistAfastamento, HistFuncao, HistLotacao, HistStatusFuncional, Jornada, Regiao, Servidor, Setor, StatusFuncional, TipoJornada
+from namp.forms import ServidorFormAdmin  # Add depois
+from namp.models import (Afastamento, ContatoEquipe, ContatoServ, EnderecoServ,
+                         EnderecoSetor, Equipe, Funcao, HistAfastamento,
+                         HistFuncao, HistLotacao, HistStatusFuncional, Jornada,
+                         Regiao, Servidor, Setor, StatusFuncional, TipoJornada)
 
 admin.site.site_header = 'Administração do Núcleo de Apoio a Movimentação de Pessoal'
 
@@ -120,6 +124,7 @@ class RegiaoAdmin(admin.ModelAdmin):
 admin.site.register(Regiao, RegiaoAdmin)
 
 class ServidorAdmin(admin.ModelAdmin):
+	form = ServidorFormAdmin #Add para as mascaras
 	list_per_page = 8
 	search_fields = ('nome','fk_equipe__nome', 'fk_equipe__fk_setor__nome')
 	autocomplete_fields = ['fk_equipe']
@@ -137,13 +142,18 @@ class ServidorAdmin(admin.ModelAdmin):
 				'fields': (('id_matricula','vinculo'), ('tipo_vinculo', 'regime_juridico'), ('cargo', 'situacao'),'fk_equipe')
 		}),
 	)
-
 	inlines = [EnderecoServInline, ContatoServInline]
 	
 	def get_setor(self, obj):
 		return Setor.objects.get(id_setor=obj.fk_equipe.fk_setor.id_setor)
 	get_setor.short_description = 'Unidade Operacional' 
 	get_setor.admin_order_field = 'nome'
+
+	class Media:
+		js = (
+			"jquery.mask.min.js",
+			"mascara.js",
+			)
 admin.site.register(Servidor, ServidorAdmin)
 
 class EnderecoSetorInline(admin.StackedInline):
