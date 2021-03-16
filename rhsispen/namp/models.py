@@ -137,7 +137,6 @@ class Servidor(models.Model):
 	cpf = models.CharField('CPF',max_length=11, unique=True)
 
 	CHOICES_SEXO = [('M','Masculino'),('F','Feminino')]
-
 	sexo = models.CharField('Sexo', max_length=1, choices=CHOICES_SEXO)
 	dt_nasc = models.DateField('Data de Nascimento')
 	cargo = models.CharField(max_length=50)
@@ -145,6 +144,7 @@ class Servidor(models.Model):
 	regime_juridico = models.CharField('Regime Jurídico',max_length=50)
 	situacao = models.BooleanField('Servidor Ativo', default=False)
 	fk_equipe = models.ForeignKey(Equipe, on_delete = models.RESTRICT, verbose_name='Equipe')
+	
 	def __str__(self):
 		return self.nome
 	class Meta:

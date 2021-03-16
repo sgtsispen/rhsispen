@@ -48,6 +48,9 @@ class EquipeAdmin(admin.ModelAdmin):
 	list_display = ('nome', 'fk_setor', 'status','hora_inicial','categoria', 'get_servidor')
 	list_filter = ('fk_setor', 'categoria')
 	inlines=[ContatoEquipeInline, ServidorInline]
+	search_fields = ['nome']
+
+	autocomplete_fields = ['fk_setor']
 
 	def get_servidor(self, obj):
 		return Servidor.objects.filter(fk_equipe=obj).count()
@@ -120,6 +123,7 @@ admin.site.register(Regiao, RegiaoAdmin)
 class ServidorAdmin(admin.ModelAdmin):
 	search_fields = ('nome',)
 	radio_fields = {'sexo': admin.HORIZONTAL}
+	autocomplete_fields = ['fk_equipe']
 	'''
 	Abaixo: apresentação dos forms da model ContatoServ dentro do form da model Servidor
 	'''
@@ -156,6 +160,8 @@ class SetorAdmin(admin.ModelAdmin):
 	list_display = ('id_setor', 'nome','fk_regiao','status', 'setor_sede', 'get_total_servidor')
 	search_fields = ('nome',)
 	inlines = [EnderecoSetorInline,EquipeInline]
+	#search_fields = ['nome']
+
 
 	def get_total_servidor(self, obj):
 		return Servidor.objects.filter().count() #adicionar filtro para total de cada equipe
