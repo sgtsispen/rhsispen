@@ -48,7 +48,8 @@ class EquipeAdmin(admin.ModelAdmin):
 	list_display = ('nome', 'fk_setor', 'status','hora_inicial','categoria', 'get_servidor')
 	list_filter = ('fk_setor', 'categoria')
 	inlines=[ContatoEquipeInline, ServidorInline]
-
+	search_fields = ['nome']
+	autocomplete_fields = ['fk_setor']
 	def get_servidor(self, obj):
 		return Servidor.objects.filter(fk_equipe=obj).count()
 	get_servidor.short_description = 'Servidores'  #Renames column head
@@ -118,8 +119,10 @@ class RegiaoAdmin(admin.ModelAdmin):
 admin.site.register(Regiao, RegiaoAdmin)
 
 class ServidorAdmin(admin.ModelAdmin):
-	search_fields = ('nome',)
-	radio_fields = {'sexo': admin.HORIZONTAL}
+	list_per_page = 8
+	search_fields = ('nome','fk_equipe__nome', 'fk_equipe__fk_setor__nome')
+	autocomplete_fields = ['fk_equipe']
+	radio_fields = {'sexo': admin.HORIZONTAL, 'regime_juridico': admin.HORIZONTAL, 'tipo_vinculo': admin.VERTICAL}
 	'''
 	Abaixo: apresentação dos forms da model ContatoServ dentro do form da model Servidor
 	'''
@@ -130,7 +133,7 @@ class ServidorAdmin(admin.ModelAdmin):
 				'fields': (('nome','cpf'), ('sexo','dt_nasc'))
 		}),
 		('Dados Funcionais',{
-				'fields': (('id_matricula','vinculo'), ('tipo_vinculo','regime_juridico'), ('cargo', 'situacao'),'fk_equipe')
+				'fields': (('id_matricula','vinculo'), ('tipo_vinculo', 'regime_juridico'), ('cargo', 'situacao'),'fk_equipe')
 		}),
 	)
 
@@ -151,14 +154,14 @@ class EnderecoSetorInline(admin.StackedInline):
 	)
 
 class SetorAdmin(admin.ModelAdmin):
-	pass
+	list_per_page = 8
 	list_filter = ('fk_regiao','status','setor_sede',)
 	list_display = ('id_setor', 'nome','fk_regiao','status', 'setor_sede', 'get_total_servidor')
-	search_fields = ('nome',)
+	search_fields = ('nome','fk_regiao__nome', 'id_setor')
 	inlines = [EnderecoSetorInline,EquipeInline]
 
 	def get_total_servidor(self, obj):
-		return Servidor.objects.filter().count() #adicionar filtro para total de cada equipe
+		return Servidor.objects.filter(fk_equipe__in=Equipe.objects.filter(fk_setor=obj)).count() #total servidores do setor
 	get_total_servidor.short_description = 'Servidores'  #Nome da coluna
 	get_total_servidor.admin_order_field = 'nome'
 
