@@ -12,14 +12,11 @@ admin.site.site_header = 'Administração do Núcleo de Apoio a Movimentação d
 class AfastamentoAdmin(admin.ModelAdmin):
 	pass
 	list_display = ('id_afastamento','__str__','descricao')
-	#inlines = [descricaoInline]
 admin.site.register(Afastamento, AfastamentoAdmin)
 
 class ContatoEquipeInline(admin.TabularInline):
     model = ContatoEquipe
     extra = 0
-	#def __str__(self):
-	#	return ''
 
 class ContatoServInline(admin.TabularInline):
     model = ContatoServ
@@ -52,8 +49,8 @@ class EquipeAdmin(admin.ModelAdmin):
 	autocomplete_fields = ['fk_setor']
 	def get_servidor(self, obj):
 		return Servidor.objects.filter(fk_equipe=obj).count()
-	get_servidor.short_description = 'Servidores'  #Renames column head
-	get_servidor.admin_order_field = 'nome'
+	get_servidor.short_description = 'Servidores'  #Nome da coluna 
+	get_servidor.admin_order_field = 'nome'		   #Ordem da coluna
 
 admin.site.register(Equipe, EquipeAdmin)
 
@@ -66,28 +63,32 @@ class FuncaoAdmin(admin.ModelAdmin):
 admin.site.register(Funcao, FuncaoAdmin)
 
 class HistAfastamentoAdmin(admin.ModelAdmin):
+	search_fields = ('fk_servidor__nome',)  #campo de busca por nome do servidor
+	list_per_page = 8						#limita a quantidade de info na pág
 	list_display = ('id_hist_afastamento','data_inicial','data_final','fk_afastamento','fk_servidor')
 admin.site.register(HistAfastamento, HistAfastamentoAdmin)
 
 class HistFuncaoAdmin(admin.ModelAdmin):
+	search_fields = ('fk_servidor__nome',) 
+	list_per_page = 8
 	list_display = ('id_hist_funcao','data_inicio','data_final','fk_funcao','fk_servidor')
 admin.site.register(HistFuncao, HistFuncaoAdmin)
 
 class HistLotacaoAdmin(admin.ModelAdmin):
-	#def get_servidor(self, obj):
-	#	return Servidor.objects.get()
-
-	#search_fields = [get_servidor] #ARRUMAR A BUSCA, FK_SERVIDOR_NAO_FUNCIONA
-	list_display = ('id_hist_lotacao','data_inicial','data_final','fk_servidor','fk_equipe', 'get_setor')
+	search_fields = ('fk_servidor__nome',)
+	list_per_page = 8
+	list_display = ('fk_servidor','data_inicial','data_final','fk_equipe', 'get_setor')
+	list_filter = ('fk_equipe__nome', )
 	def get_setor(self, obj):
 		return Setor.objects.get(id_setor=obj.fk_equipe.fk_setor.id_setor)
 	get_setor.short_description = 'Unidade Operacional'  #Nome da coluna
 	get_setor.admin_order_field = 'fk_servidor'
 
-
 admin.site.register(HistLotacao, HistLotacaoAdmin)
 
 class HistStatusFuncionalAdmin(admin.ModelAdmin):
+	search_fields = ('fk_servidor__nome',)
+	list_per_page = 8
 	list_display = ('id_hist_funcional','data_inicial', 'data_final', 'fk_servidor', 'fk_status_funcional')
 admin.site.register(HistStatusFuncional, HistStatusFuncionalAdmin)
 
@@ -122,7 +123,7 @@ class ServidorAdmin(admin.ModelAdmin):
 	list_per_page = 8
 	search_fields = ('nome','fk_equipe__nome', 'fk_equipe__fk_setor__nome')
 	autocomplete_fields = ['fk_equipe']
-	radio_fields = {'sexo': admin.HORIZONTAL, 'regime_juridico': admin.HORIZONTAL, 'tipo_vinculo': admin.VERTICAL}
+	radio_fields = {'sexo': admin.HORIZONTAL, 'regime_juridico': admin.HORIZONTAL}#, 'tipo_vinculo': admin.VERTICAL}
 	'''
 	Abaixo: apresentação dos forms da model ContatoServ dentro do form da model Servidor
 	'''
@@ -141,7 +142,7 @@ class ServidorAdmin(admin.ModelAdmin):
 	
 	def get_setor(self, obj):
 		return Setor.objects.get(id_setor=obj.fk_equipe.fk_setor.id_setor)
-	get_setor.short_description = 'Unidade Operacional'  #Renames column head
+	get_setor.short_description = 'Unidade Operacional' 
 	get_setor.admin_order_field = 'nome'
 admin.site.register(Servidor, ServidorAdmin)
 
@@ -162,9 +163,8 @@ class SetorAdmin(admin.ModelAdmin):
 
 	def get_total_servidor(self, obj):
 		return Servidor.objects.filter(fk_equipe__in=Equipe.objects.filter(fk_setor=obj)).count() #total servidores do setor
-	get_total_servidor.short_description = 'Servidores'  #Nome da coluna
+	get_total_servidor.short_description = 'Servidores'  
 	get_total_servidor.admin_order_field = 'nome'
-
 
 admin.site.register(Setor, SetorAdmin)
 

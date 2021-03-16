@@ -116,7 +116,7 @@ class ContatoEquipe(models.Model):
 	EMAIL = 'E-mail'
 
 	CONTATOS_CHOICES = (
-	    (CELULAR,'Telefone Celular'),
+	    (CELULAR,'Telefone Celular'), 
 	    (FIXO,'Telefone Fixo'),
 	    (EMAIL,'E-mail'),
 	)
@@ -135,15 +135,21 @@ class Servidor(models.Model):
 	vinculo = models.CharField('Vínculo',max_length=2) #Parte da matricula
 	nome = models.CharField(max_length=100)
 	cpf = models.CharField('CPF',max_length=11, unique=True)
-
 	CHOICES_SEXO = [('M','Masculino'),('F','Feminino')]
 	sexo = models.CharField('Sexo', max_length=1, choices=CHOICES_SEXO)
 	dt_nasc = models.DateField('Data de Nascimento')
-	cargo = models.CharField(max_length=50)
-
+	CHOICES_CARGO = [
+	('AEP','Agente de Execução Penal'),
+	('AAE','Agente Analista em Execução Penal'),
+	('AA','Assistente Administrativo'),
+	('AXA','Auxiliar Administrativo'),
+	('ASG','Auxiliar de Serviços Gerais'),
+	('ASS','Agente de Segurança Socioeducativo'),
+	('AES','Agente Especialista Socioeducativo'),
+	]
+	cargo = models.CharField(max_length=50, choices=CHOICES_CARGO)
 	tipo_vinculo = models.CharField('Tipo de Vínculo',max_length=50)
 	regime_juridico = models.CharField('Regime Jurídico',max_length=50)
-
 	CHOICES_VINCULO =[
 	('Contrato', 'Contrato'),
 	('Concursado', 'Concursado'),
@@ -154,7 +160,6 @@ class Servidor(models.Model):
 	tipo_vinculo = models.CharField('Tipo de Vínculo',max_length=25, choices=CHOICES_VINCULO)
 	CHOICES_JURIDICO = [('C','CLT'),('E','Estatutário')]
 	regime_juridico = models.CharField('Regime Jurídico',max_length=25, choices=CHOICES_JURIDICO)
-
 	situacao = models.BooleanField('Servidor Ativo', default=False)
 	fk_equipe = models.ForeignKey(Equipe, on_delete = models.RESTRICT, verbose_name='Equipe')
 	def __str__(self):
@@ -198,7 +203,7 @@ class ContatoServ(models.Model):
 	FIXO = 'Telefone Fixo'
 	EMAIL = 'E-mail'
 	CONTATOS_CHOICES = (
-	    (CELULAR,'Telefone Celular'),
+	    (CELULAR,'Telefone Celular'), 
 	    (FIXO,'Telefone Fixo'),
 	    (EMAIL,'E-mail'),
 	)
