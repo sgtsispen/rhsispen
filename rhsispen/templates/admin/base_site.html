@@ -1,0 +1,26 @@
+ {% extends "admin/base.html" %}
+
+{% load static %}
+{% block title %} SECIJU {% endblock %}
+
+{% block branding %}
+<h1 id="Núcleo de Apoio á Movimentação de Pessoal">
+    <a href="{% url 'admin:index' %}">
+	<h2>Núcleo de Apoio á Movimentação de Pessoal</h2>
+    </a>
+</h1>
+	<div>
+	        <img src="{% static '././logo.jng' %}"  width = "50" height = "50" alt="logo">
+	</div>
+	{{ block.super }}
+{% endblock %}
+
+{% block nav-global %}
+
+
+{% endblock %}
+
+
+
+
+
