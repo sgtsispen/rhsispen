@@ -157,7 +157,11 @@ input[type="submit"], button {
     }
 
     #changelist-filter {
+<<<<<<< HEAD
         width: 200px;
+=======
+        flex-basis: 200px;
+>>>>>>> c007f378246bee0e50853f8784cd0fab69f08f7f
     }
 
     .change-list .filtered .results,

@@ -128,6 +128,10 @@
 /* FILTER COLUMN */
 
 #changelist-filter {
+<<<<<<< HEAD
+=======
+    flex: 0 0 240px;
+>>>>>>> c007f378246bee0e50853f8784cd0fab69f08f7f
     order: 1;
     width: 240px;
     background: #f8f8f8;
