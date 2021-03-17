@@ -4,7 +4,7 @@ import json
 from django.contrib import admin
 from django.core.serializers.json import DjangoJSONEncoder
 
-from namp.forms import ServidorFormAdmin  # Add depois
+from namp.forms import ServidorFormAdmin, EnderecoFormAdmin, ContatoFormAdmin  # Formulario para mascara
 from namp.models import (Afastamento, ContatoEquipe, ContatoServ, EnderecoServ,
                          EnderecoSetor, Equipe, Funcao, HistAfastamento,
                          HistFuncao, HistLotacao, HistStatusFuncional, Jornada,
@@ -23,11 +23,13 @@ class ContatoEquipeInline(admin.TabularInline):
     extra = 0
 
 class ContatoServInline(admin.TabularInline):
-    model = ContatoServ
-    extra = 0
+	form = ContatoFormAdmin
+	model = ContatoServ
+	extra = 0
 
 class EnderecoServInline(admin.StackedInline):
-	model=EnderecoServ
+	form = EnderecoFormAdmin
+	model= EnderecoServ
 	fieldsets = (
 		(None, {
 			'fields': (('uf', 'municipio'), 'cep', ('endereco', 'bairro'), ('numero', 'complemento'))
@@ -157,6 +159,7 @@ class ServidorAdmin(admin.ModelAdmin):
 admin.site.register(Servidor, ServidorAdmin)
 
 class EnderecoSetorInline(admin.StackedInline):
+	form = EnderecoFormAdmin
 	model = EnderecoSetor
 	fieldsets = (
 		(None, {
