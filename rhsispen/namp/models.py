@@ -151,14 +151,23 @@ class Servidor(models.Model):
 	('Jovem Aprendiz', 'Jovem Aprendiz'),
 	('Terceirizado', 'Terceirizado'),
 	]
+
 	tipo_vinculo = models.CharField('Tipo de Vínculo',max_length=25, choices=CHOICES_VINCULO)
+	
 	CHOICES_JURIDICO = [('C','CLT'),('E','Estatutário')]
 	regime_juridico = models.CharField('Regime Jurídico',max_length=25, choices=CHOICES_JURIDICO)
 
 	situacao = models.BooleanField('Servidor Ativo', default=False)
-	fk_equipe = models.ForeignKey(Equipe, on_delete = models.RESTRICT, verbose_name='Equipe')
+
+	setor = models.ForeignKey(Setor, on_delete = models.RESTRICT, verbose_name='Setor')
+	
+	CHOICES_EQUIPES = (Equipe.objects.values('id_equipe','nome'),)
+
+	fk_equipe = models.CharField('Equipe', max_length=1,choices=CHOICES_EQUIPES)
+	
 	def __str__(self):
 		return self.nome
+
 	class Meta:
 		verbose_name = "Servidor"
 		verbose_name_plural = "Servidores"

@@ -120,20 +120,20 @@ admin.site.register(Regiao, RegiaoAdmin)
 
 class ServidorAdmin(admin.ModelAdmin):
 	list_per_page = 8
-	search_fields = ('nome','fk_equipe__nome', 'fk_equipe__fk_setor__nome')
-	autocomplete_fields = ['fk_equipe']
+	search_fields = ('nome','fk_equipe', 'setor_nome')
+	autocomplete_fields = ['setor']
 	radio_fields = {'sexo': admin.HORIZONTAL, 'regime_juridico': admin.HORIZONTAL, 'tipo_vinculo': admin.VERTICAL}
 	'''
 	Abaixo: apresentação dos forms da model ContatoServ dentro do form da model Servidor
 	'''
-	list_display = ('nome', 'id_matricula', 'vinculo','cpf','dt_nasc','cargo','tipo_vinculo','regime_juridico','situacao','fk_equipe', 'get_setor')
-	list_filter = ('cargo','situacao','fk_equipe')
+	list_display = ('nome', 'id_matricula', 'vinculo','cpf','dt_nasc','cargo','tipo_vinculo','regime_juridico','situacao','setor','fk_equipe', 'get_setor')
+	list_filter = ('cargo','situacao','fk_equipe', 'setor')
 	fieldsets = (
 		('Dados Pessoais',{
 				'fields': (('nome','cpf'), ('sexo','dt_nasc'))
 		}),
 		('Dados Funcionais',{
-				'fields': (('id_matricula','vinculo'), ('tipo_vinculo', 'regime_juridico'), ('cargo', 'situacao'),'fk_equipe')
+				'fields': (('id_matricula','vinculo'), ('tipo_vinculo', 'regime_juridico'), ('cargo', 'situacao'),'setor','fk_equipe')
 		}),
 	)
 
