@@ -26,7 +26,7 @@ class Funcao(models.Model):
 class Afastamento(models.Model):
 	id_afastamento = models.CharField('Código', primary_key=True, max_length=25) #Cod com a secad
 	tipificacao = models.CharField('Tipo de afastamento', max_length=50, unique=True)
-	descricao = models.TextField(max_length=100)
+	descricao = models.TextField('Descrição',max_length=100)
 	def __str__(self):
 		return self.tipificacao
 	class Meta:

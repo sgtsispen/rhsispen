@@ -4,7 +4,7 @@ import json
 from django.contrib import admin
 from django.core.serializers.json import DjangoJSONEncoder
 
-from namp.forms import ServidorFormAdmin, EnderecoFormAdmin, ContatoFormAdmin  # Formulario para mascara
+from namp.forms import ServidorFormAdmin, EnderecoFormAdmin, ContatoFormAdmin, TextFormAdmin  # Formulario para mascara
 from namp.models import (Afastamento, ContatoEquipe, ContatoServ, EnderecoServ,
                          EnderecoSetor, Equipe, Funcao, HistAfastamento,
                          HistFuncao, HistLotacao, HistStatusFuncional, Jornada,
@@ -14,7 +14,7 @@ admin.site.site_header = 'Administração do Núcleo de Apoio a Movimentação d
 
 # Register your models here.
 class AfastamentoAdmin(admin.ModelAdmin):
-	pass
+	form = TextFormAdmin
 	list_display = ('id_afastamento','__str__','descricao')
 admin.site.register(Afastamento, AfastamentoAdmin)
 
@@ -23,7 +23,7 @@ class ContatoEquipeInline(admin.TabularInline):
     extra = 0
 
 class ContatoServInline(admin.TabularInline):
-	form = ContatoFormAdmin
+	#form = ContatoFormAdmin
 	model = ContatoServ
 	extra = 0
 
