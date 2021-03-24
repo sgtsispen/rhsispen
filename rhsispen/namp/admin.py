@@ -4,7 +4,7 @@ import json
 from django.contrib import admin
 from django.core.serializers.json import DjangoJSONEncoder
 
-from namp.forms import ServidorFormAdmin  # Add depois
+from namp.forms import ServidorFormAdmin, EnderecoFormAdmin, TextFormAdmin, HoraFormAdmin, DataFormAdmin  # Formulario para mascara
 from namp.models import (Afastamento, ContatoEquipe, ContatoServ, EnderecoServ,
                          EnderecoSetor, Equipe, Funcao, HistAfastamento,
                          HistFuncao, HistLotacao, HistStatusFuncional, Jornada,
@@ -14,7 +14,7 @@ admin.site.site_header = 'Administração do Núcleo de Apoio a Movimentação d
 
 # Register your models here.
 class AfastamentoAdmin(admin.ModelAdmin):
-	pass
+	form = TextFormAdmin
 	list_display = ('id_afastamento','__str__','descricao')
 admin.site.register(Afastamento, AfastamentoAdmin)
 
@@ -23,11 +23,13 @@ class ContatoEquipeInline(admin.TabularInline):
     extra = 0
 
 class ContatoServInline(admin.TabularInline):
-    model = ContatoServ
-    extra = 0
+	#form = ContatoFormAdmin
+	model = ContatoServ
+	extra = 0
 
 class EnderecoServInline(admin.StackedInline):
-	model=EnderecoServ
+	form = EnderecoFormAdmin
+	model= EnderecoServ
 	fieldsets = (
 		(None, {
 			'fields': (('uf', 'municipio'), 'cep', ('endereco', 'bairro'), ('numero', 'complemento'))
@@ -46,6 +48,7 @@ class ServidorInline(admin.TabularInline):
 		return False
 
 class EquipeAdmin(admin.ModelAdmin):
+	form = HoraFormAdmin
 	list_display = ('nome', 'fk_setor', 'status','hora_inicial','categoria', 'get_servidor')
 	list_filter = ('categoria', )
 	inlines=[ContatoEquipeInline, ServidorInline]
@@ -79,6 +82,7 @@ class HistFuncaoAdmin(admin.ModelAdmin):
 admin.site.register(HistFuncao, HistFuncaoAdmin)
 
 class HistLotacaoAdmin(admin.ModelAdmin):
+	form = DataFormAdmin
 	search_fields = ('fk_servidor__nome',)
 	list_per_page = 8
 	list_display = ('fk_servidor','data_inicial','data_final','fk_equipe', 'get_setor')
@@ -157,6 +161,7 @@ class ServidorAdmin(admin.ModelAdmin):
 admin.site.register(Servidor, ServidorAdmin)
 
 class EnderecoSetorInline(admin.StackedInline):
+	form = EnderecoFormAdmin
 	model = EnderecoSetor
 	fieldsets = (
 		(None, {
