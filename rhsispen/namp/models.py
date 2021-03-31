@@ -25,10 +25,31 @@ class Funcao(models.Model):
 
 class Afastamento(models.Model):
 	id_afastamento = models.CharField('Código', primary_key=True, max_length=25) #Cod com a secad
-	tipificacao = models.CharField('Tipo de afastamento', max_length=50, unique=True)
-	descricao = models.TextField('Descrição',max_length=100)
+	CHOICES_TIPOS = [('36','Afastamento Falencimento em Famímilia'),
+						 ('94','Afastamento Nascimento ou Adoção Filho'),
+						 ('76','Afastamento para Curso de Formação - Não Remunerado'),
+						 ('73','Afastamento para Finalização de Trabalho de Curso'),
+						 ('3','Aguadando Exercício - Término Cessão'),
+						 ('1','Aguardando Declaração de Exercicio, Afastamento até 15 dias'),
+						 ('114','Atestado Médico'),
+						 ('145','Atestado Medico Suspeita COVID-19'),
+						 ('31','Doação de Sangue'),
+						 ('6','Exercício de Mandato Eletivo'),
+						 ('43','Falta Integral'),
+						 ('103','Falta Integral - Nao Retornou ao Exercício'),
+						 ('116','Folga do TRE'),
+						 ('51','Licença Maternidade'),
+						 ('46','Licença Motivo de Doença em Pessoa da Familia'),
+						 ('45','Licença para Tratamento de Saúde'),
+						 ('77','Licença para Tratamento de Saúde (Prorrogação)'),
+						 ('8','Licença para Tratar de Interesses Particulares'),
+						 ('115','Ponto Facultativo do Aniversario'),
+						 ('1','Remanejamento de Função'),
+						 ('146','Trabalho Remoto (COVID-19)')]
+	nome = models.CharField('Tipo de afastamento', max_length=50, unique=True,  choices=CHOICES_TIPOS)
+	descricao = models.TextField('Descrição',max_length=100, blank=True)
 	def __str__(self):
-		return self.tipificacao
+		return self.nome
 	class Meta:
 		verbose_name = "Afastamento"
 		verbose_name_plural = "Afastamentos"
@@ -49,7 +70,7 @@ class StatusFuncional(models.Model):
 	tipificacao = models.CharField(max_length=50,unique=True)
 	descricao = models.TextField(max_length=100)
 	def __str__(self):
-		return self.nome_status	
+		return self.tipificacao
 	class Meta:
 		verbose_name = "Status Funcional"
 		verbose_name_plural = "Status Funcionais"
@@ -193,7 +214,7 @@ class HistFuncao(models.Model):
 	fk_funcao = models.ForeignKey(Funcao, on_delete = models.RESTRICT, verbose_name='Função')
 	fk_servidor = models.ForeignKey(Servidor, on_delete = models.RESTRICT, verbose_name='Servidor')
 	def __str__(self):
-		return str(self.id_hist_funcao)
+		return str(self.fk_servidor)
 	class Meta:
 		verbose_name = "Histórico de Função"
 		verbose_name_plural = "Históricos de Funcões"
