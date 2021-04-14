@@ -28,7 +28,6 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -36,7 +35,16 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'namp.apps.NampConfig',
+    'django_object_actions', #add depois
 ]
+
+#INICIO DO TESTE
+#THIRD_PARTY_APPS = [
+#    'django_object_actions',
+#]
+
+#INSTALLED_APPS = THIRD_PARTY_APPS + DEFAULT_APPS
+# FIM DO TESTE
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -120,5 +128,6 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
-
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+
+

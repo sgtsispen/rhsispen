@@ -25,26 +25,13 @@ class TextFormAdmin(forms.ModelForm):
 class HoraFormAdmin(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(HoraFormAdmin, self).__init__(*args, **kwargs)
-        self.fields['hora_inicial'].widget.attrs={"placeholder":"00:00"}
+        self.fields['hora_inicial'].widget.attrs={"placeholder":"00:00"} 
+        self.fields['hora_inicial'].widget.attrs['class'] = 'mask-hr'
 
-class DataFormAdmin(forms.ModelForm):
+class HistStatusFuncionalFormAdmin(forms.ModelForm):
     def __init__(self, *args, **kwargs):
-        super(DataFormAdmin, self).__init__(*args, **kwargs)
-        self.fields['data_inicial'].widget.attrs = {"placeholder":"00/00/0000"}
-        self.fields['data_inicial'].widget.attrs['class'] = 'mask-dt'
+        super(HistStatusFuncionalFormAdmin, self).__init__(*args, **kwargs)
+        self.fields['data_inicial'].widget.attrs={"placeholder":"00/00/0000"}
+        self.fields['data_inicial'].widget.attrs['class'] = 'mask-data'
         self.fields['data_final'].widget.attrs = {"placeholder":"00/00/0000"}
-        self.fields['data_final'].widget.attrs['class'] = 'mask-dt'
-
-
-'''
-class ContatoFormAdmin(forms.ModelForm):
-    def __init__(self, *args, **kwargs):
-        super(ContatoFormAdmin, self).__init__(*args, **kwargs)
-        self.fields['contato'].widget.attrs['class'] = 'mask-contato'
-
-
-from input_mask.widgets import InputMask
-
-
-class MyCustomInput(InputMask):
-   mask = {'cpf': '000.000.000-00'}'''
+        self.fields['data_final'].widget.attrs['class'] = 'mask-data'

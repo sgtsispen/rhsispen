@@ -25,28 +25,28 @@ class Funcao(models.Model):
 
 class Afastamento(models.Model):
 	id_afastamento = models.CharField('Código', primary_key=True, max_length=25) #Cod com a secad
-	CHOICES_TIPOS = [('36','Afastamento Falencimento em Famímilia'),
-						 ('94','Afastamento Nascimento ou Adoção Filho'),
-						 ('76','Afastamento para Curso de Formação - Não Remunerado'),
-						 ('73','Afastamento para Finalização de Trabalho de Curso'),
-						 ('3','Aguadando Exercício - Término Cessão'),
-						 ('1','Aguardando Declaração de Exercicio, Afastamento até 15 dias'),
-						 ('114','Atestado Médico'),
-						 ('145','Atestado Medico Suspeita COVID-19'),
-						 ('31','Doação de Sangue'),
-						 ('6','Exercício de Mandato Eletivo'),
-						 ('43','Falta Integral'),
-						 ('103','Falta Integral - Nao Retornou ao Exercício'),
-						 ('116','Folga do TRE'),
-						 ('51','Licença Maternidade'),
-						 ('46','Licença Motivo de Doença em Pessoa da Familia'),
-						 ('45','Licença para Tratamento de Saúde'),
-						 ('77','Licença para Tratamento de Saúde (Prorrogação)'),
-						 ('8','Licença para Tratar de Interesses Particulares'),
-						 ('115','Ponto Facultativo do Aniversario'),
-						 ('1','Remanejamento de Função'),
-						 ('146','Trabalho Remoto (COVID-19)')]
-	nome = models.CharField('Tipo de afastamento', max_length=50, unique=True,  choices=CHOICES_TIPOS)
+	#CHOICES_TIPOS = [('36','Afastamento Falecimento em Famímilia'),
+	#					 ('94','Afastamento Nascimento ou Adoção Filho'),
+	#					 ('76','Afastamento para Curso de Formação - Não Remunerado'),
+	#					 ('73','Afastamento para Finalização de Trabalho de Curso'),
+	#					 ('3','Aguardando Exercício - Término Cessão'),
+	#					 ('114','Atestado Médico'),
+	#					 ('145','Atestado Medico Suspeita COVID-19'),
+	#					 ('31','Doação de Sangue'),
+	#					 ('6','Exercício de Mandato Eletivo'),
+	#					 ('43','Falta Integral'),
+	#					 ('103','Falta Integral - Nao Retornou ao Exercício'),
+	#					 ('116','Folga do TRE'),
+	#					 ('51','Licença Maternidade'),
+	#					 ('46','Licença Motivo de Doença em Pessoa da Familia'),
+	#					 ('45','Licença para Tratamento de Saúde'),
+	#					 ('77','Licença para Tratamento de Saúde (Prorrogação)'),
+	#					 ('8','Licença para Tratar de Interesses Particulares'),
+	#					 ('115','Ponto Facultativo do Aniversario'),
+	#					 ('1','Remanejamento de Função'),
+	#					 ('1','Aguardando Declaração de Exercicio, Afastamento até 15 dias'),
+	#					 ('146','Trabalho Remoto (COVID-19)')]
+	nome = models.CharField('Tipo de afastamento', max_length=50, unique=True)
 	descricao = models.TextField('Descrição',max_length=100, blank=True)
 	def __str__(self):
 		return self.nome

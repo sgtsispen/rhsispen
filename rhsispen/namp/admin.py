@@ -4,11 +4,17 @@ import json
 from django.contrib import admin
 from django.core.serializers.json import DjangoJSONEncoder
 
-from namp.forms import ServidorFormAdmin, EnderecoFormAdmin, TextFormAdmin, HoraFormAdmin, DataFormAdmin  # Formulario para mascara
+from namp.forms import ServidorFormAdmin, EnderecoFormAdmin, TextFormAdmin, HoraFormAdmin, HistStatusFuncionalFormAdmin  # Formulario para mascara
 from namp.models import (Afastamento, ContatoEquipe, ContatoServ, EnderecoServ,
                          EnderecoSetor, Equipe, Funcao, HistAfastamento,
                          HistFuncao, HistLotacao, HistStatusFuncional, Jornada,
                          Regiao, Servidor, Setor, StatusFuncional, TipoJornada)
+#PDF
+from django.http import HttpResponse
+from django.template.loader import render_to_string
+from django.core.files.storage import FileSystemStorage
+from weasyprint import HTML
+from django_object_actions import DjangoObjectActions
 
 admin.site.site_header = 'Administração do Núcleo de Apoio a Movimentação de Pessoal'
 
@@ -82,7 +88,7 @@ class HistFuncaoAdmin(admin.ModelAdmin):
 admin.site.register(HistFuncao, HistFuncaoAdmin)
 
 class HistLotacaoAdmin(admin.ModelAdmin):
-	form = DataFormAdmin
+	form = HistStatusFuncionalFormAdmin
 	search_fields = ('fk_servidor__nome',)
 	list_per_page = 8
 	list_display = ('fk_servidor','data_inicial','data_final','fk_equipe', 'get_setor')
@@ -95,14 +101,27 @@ class HistLotacaoAdmin(admin.ModelAdmin):
 admin.site.register(HistLotacao, HistLotacaoAdmin)
 
 class HistStatusFuncionalAdmin(admin.ModelAdmin):
+	form = HistStatusFuncionalFormAdmin
 	search_fields = ('fk_servidor__nome',)
 	list_per_page = 8
 	list_display = ('id_hist_funcional','data_inicial', 'data_final', 'fk_servidor', 'fk_status_funcional')
+
+	autocomplete_fields = ['fk_servidor']
+	#autocomplete_fields = ['fk_status_funcional']
+
 admin.site.register(HistStatusFuncional, HistStatusFuncionalAdmin)
 
 class JornadaAdmin(admin.ModelAdmin):
 	list_filter = ('assiduidade','fk_equipe','fk_tipo_jornada')
 	list_display = ('data_jornada','fk_servidor', 'assiduidade','fk_equipe', 'fk_tipo_jornada')
+
+	autocomplete_fields = ['fk_servidor']
+
+	def formfield_for_foreignkey(self, db_field, request, **kwargs): #metodo pra mapear chave estrangeira
+		if db_field.name == "fk_equipe":
+			kwargs["queryset"] = Equipe.objects.none()		
+		return super(JornadaAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
+
 admin.site.register(Jornada, JornadaAdmin)
 
 class RegiaoAdmin(admin.ModelAdmin):
@@ -127,7 +146,7 @@ class RegiaoAdmin(admin.ModelAdmin):
 		return super().changelist_view(request,extra_context=extra_context)
 admin.site.register(Regiao, RegiaoAdmin)
 
-class ServidorAdmin(admin.ModelAdmin):
+class ServidorAdmin(DjangoObjectActions, admin.ModelAdmin):
 	form = ServidorFormAdmin #Add para as mascaras
 	list_per_page = 8
 	search_fields = ('nome','fk_equipe__nome', 'fk_equipe__fk_setor__nome')
@@ -152,6 +171,26 @@ class ServidorAdmin(admin.ModelAdmin):
 		return Setor.objects.get(id_setor=obj.fk_equipe.fk_setor.id_setor)
 	get_setor.short_description = 'Unidade Operacional' 
 	get_setor.admin_order_field = 'nome'
+
+	#PDF
+	def generate_pdf(self, request, obj):
+			html_string = render_to_string('/admin/namp/servidor/pdf_templates.html', {'obj': obj})
+
+			html = HTML(string=html_string)
+			html.write_pdf(target='/tmp/{}.pdf'.format(obj)) #.format(obj)
+
+			fs = FileSystemStorage('/tmp')
+			with fs.open('{}.pdf'.format(obj)) as pdf:
+				response = HttpResponse(pdf, content_type='application/pdf')
+				response['Content-Disposition'] = 'attachment; filename="{}.pdf"'.format(obj)
+				return response
+
+			return response
+
+	generate_pdf.label = 'Gerar PDF'
+	generate_pdf.short_description = 'PDF dessa ordem de serviço'
+
+	change_actions = ('generate_pdf',)
 
 	class Media:
 		js = (
@@ -190,3 +229,6 @@ admin.site.register(StatusFuncional, StatusFuncionalAdmin)
 class TipoJornadaAdmin(admin.ModelAdmin):
 	list_display = ('carga_horaria', 'tipificacao', 'descricao')
 admin.site.register(TipoJornada, TipoJornadaAdmin)
+
+
+
