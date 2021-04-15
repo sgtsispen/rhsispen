@@ -1,0 +1,16 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+django = "==3.2"
+mysqlclient = "*"
+weasyprint = "*"
+django-object-actions = "==3.0.2"
+reportlab = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.7"

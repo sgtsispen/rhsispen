@@ -1,12 +1,16 @@
 # Register your models here.
+from django.core import serializers
 import json
-
+from django import forms
 from django.contrib import admin
 from django.core.serializers.json import DjangoJSONEncoder
-
 from namp.models import Afastamento, ContatoEquipe, ContatoServ, EnderecoServ, EnderecoSetor, Equipe, Funcao, HistAfastamento, HistFuncao, HistLotacao, HistStatusFuncional, Jornada, Regiao, Servidor, Setor, StatusFuncional, TipoJornada
 
-admin.site.site_header = 'Administração do Núcleo de Apoio a Movimentação de Pessoal'
+from django.core.files.storage import FileSystemStorage
+from django.http import HttpResponse
+from django.template.loader import render_to_string
+from weasyprint import HTML
+from django_object_actions import DjangoObjectActions
 
 # Register your models here.
 class AfastamentoAdmin(admin.ModelAdmin):
@@ -49,9 +53,7 @@ class EquipeAdmin(admin.ModelAdmin):
 	list_filter = ('fk_setor', 'categoria')
 	inlines=[ContatoEquipeInline, ServidorInline]
 	search_fields = ['nome']
-
 	autocomplete_fields = ['fk_setor']
-
 	def get_servidor(self, obj):
 		return Servidor.objects.filter(fk_equipe=obj).count()
 	get_servidor.short_description = 'Servidores'  #Renames column head
@@ -68,18 +70,21 @@ class FuncaoAdmin(admin.ModelAdmin):
 admin.site.register(Funcao, FuncaoAdmin)
 
 class HistAfastamentoAdmin(admin.ModelAdmin):
+	autocomplete_fields = ['fk_servidor']
+	search_fields = ('fk_afastamento__tipificacao','fk_servidor__nome', 'fk_afastamento__id_afastamento')
 	list_display = ('id_hist_afastamento','data_inicial','data_final','fk_afastamento','fk_servidor')
 admin.site.register(HistAfastamento, HistAfastamentoAdmin)
 
 class HistFuncaoAdmin(admin.ModelAdmin):
+	autocomplete_fields = ['fk_servidor']
+	search_fields = ('fk_servidor__nome','fk_funcao__nome')
 	list_display = ('id_hist_funcao','data_inicio','data_final','fk_funcao','fk_servidor')
 admin.site.register(HistFuncao, HistFuncaoAdmin)
 
 class HistLotacaoAdmin(admin.ModelAdmin):
 	#def get_servidor(self, obj):
 	#	return Servidor.objects.get()
-
-	#search_fields = [get_servidor] #ARRUMAR A BUSCA, FK_SERVIDOR_NAO_FUNCIONA
+	search_fields = ('fk_servidor__nome','fk_equipe__nome', 'fk_equipe__fk_setor__nome')
 	list_display = ('id_hist_lotacao','data_inicial','data_final','fk_servidor','fk_equipe', 'get_setor')
 	def get_setor(self, obj):
 		return Setor.objects.get(id_setor=obj.fk_equipe.fk_setor.id_setor)
@@ -90,12 +95,19 @@ class HistLotacaoAdmin(admin.ModelAdmin):
 admin.site.register(HistLotacao, HistLotacaoAdmin)
 
 class HistStatusFuncionalAdmin(admin.ModelAdmin):
+	autocomplete_fields = ['fk_servidor']
 	list_display = ('id_hist_funcional','data_inicial', 'data_final', 'fk_servidor', 'fk_status_funcional')
 admin.site.register(HistStatusFuncional, HistStatusFuncionalAdmin)
 
 class JornadaAdmin(admin.ModelAdmin):
+	autocomplete_fields = ["fk_servidor"]
 	list_filter = ('assiduidade','fk_equipe','fk_tipo_jornada')
 	list_display = ('data_jornada','fk_servidor', 'assiduidade','fk_equipe', 'fk_tipo_jornada')
+
+	def formfield_for_foreignkey(self, db_field, request, **kwargs):
+		if db_field.name == "fk_equipe":
+			kwargs["queryset"] = Equipe.objects.none()		
+		return super(JornadaAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
 admin.site.register(Jornada, JornadaAdmin)
 
 class RegiaoAdmin(admin.ModelAdmin):
@@ -120,31 +132,40 @@ class RegiaoAdmin(admin.ModelAdmin):
 		return super().changelist_view(request,extra_context=extra_context)
 admin.site.register(Regiao, RegiaoAdmin)
 
-class ServidorAdmin(admin.ModelAdmin):
-	search_fields = ('nome',)
-	radio_fields = {'sexo': admin.HORIZONTAL}
-	autocomplete_fields = ['fk_equipe']
+@admin.register(Servidor)
+class ServidorAdmin(DjangoObjectActions, admin.ModelAdmin):
+	change_form_template = 'admin/namp/servidor/change_form.html'
+	change_list_template = 'admin/namp/servidor/change_list.html'
+
+	list_per_page = 8
+	search_fields = ('nome','fk_equipe__nome', 'fk_equipe__fk_setor__nome')
+	#autocomplete_fields = ['fk_setor']
+	radio_fields = {'sexo': admin.HORIZONTAL, 'regime_juridico': admin.HORIZONTAL, 'tipo_vinculo': admin.VERTICAL}
 	'''
 	Abaixo: apresentação dos forms da model ContatoServ dentro do form da model Servidor
 	'''
-	list_display = ('nome', 'id_matricula', 'vinculo','cpf','dt_nasc','cargo','tipo_vinculo','regime_juridico','situacao','fk_equipe', 'get_setor')
+	list_display = ('nome', 'id_matricula', 'vinculo','cpf','dt_nasc','cargo','tipo_vinculo','regime_juridico','situacao', 'fk_equipe', 'get_setor')
 	list_filter = ('cargo','situacao','fk_equipe')
 	fieldsets = (
 		('Dados Pessoais',{
 				'fields': (('nome','cpf'), ('sexo','dt_nasc'))
 		}),
 		('Dados Funcionais',{
-				'fields': (('id_matricula','vinculo'), ('tipo_vinculo','regime_juridico'), ('cargo', 'situacao'),'fk_equipe')
+				'fields': (('id_matricula','vinculo'), ('tipo_vinculo', 'regime_juridico'), ('cargo', 'situacao'),'fk_setor', 'fk_equipe')
 		}),
 	)
 
 	inlines = [EnderecoServInline, ContatoServInline]
-	
+
+	def formfield_for_foreignkey(self, db_field, request, **kwargs):
+		if db_field.name == "fk_equipe":
+			kwargs["queryset"] = Equipe.objects.order_by('nome').values_list('nome', flat=True).distinct()
+		return super(ServidorAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
+
 	def get_setor(self, obj):
 		return Setor.objects.get(id_setor=obj.fk_equipe.fk_setor.id_setor)
 	get_setor.short_description = 'Unidade Operacional'  #Renames column head
 	get_setor.admin_order_field = 'nome'
-admin.site.register(Servidor, ServidorAdmin)
 
 class EnderecoSetorInline(admin.StackedInline):
 	model = EnderecoSetor
@@ -155,16 +176,16 @@ class EnderecoSetorInline(admin.StackedInline):
 	)
 
 class SetorAdmin(admin.ModelAdmin):
-	pass
+	list_per_page = 8
 	list_filter = ('fk_regiao','status','setor_sede',)
 	list_display = ('id_setor', 'nome','fk_regiao','status', 'setor_sede', 'get_total_servidor')
-	search_fields = ('nome',)
+	search_fields = ('nome','fk_regiao__nome', 'id_setor')
 	inlines = [EnderecoSetorInline,EquipeInline]
 	#search_fields = ['nome']
 
 
 	def get_total_servidor(self, obj):
-		return Servidor.objects.filter().count() #adicionar filtro para total de cada equipe
+		return Servidor.objects.filter(fk_equipe__in=Equipe.objects.filter(fk_setor=obj)).count() #total servidores do setor
 	get_total_servidor.short_description = 'Servidores'  #Nome da coluna
 	get_total_servidor.admin_order_field = 'nome'
 

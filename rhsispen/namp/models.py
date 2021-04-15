@@ -1,5 +1,4 @@
 from django.db import models
-
 # Create your models here.
 '''CLASSES SEM CHAVE ESTRANGEIRA'''
 
@@ -114,7 +113,7 @@ class ContatoEquipe(models.Model):
 	CELULAR = 'Telefone Celular'
 	FIXO = 'Telefone Fixo'
 	EMAIL = 'E-mail'
-	
+
 	CONTATOS_CHOICES = (
 	    (CELULAR,'Telefone Celular'),
 	    (FIXO,'Telefone Fixo'),
@@ -140,13 +139,30 @@ class Servidor(models.Model):
 	sexo = models.CharField('Sexo', max_length=1, choices=CHOICES_SEXO)
 	dt_nasc = models.DateField('Data de Nascimento')
 	cargo = models.CharField(max_length=50)
+
 	tipo_vinculo = models.CharField('Tipo de Vínculo',max_length=50)
 	regime_juridico = models.CharField('Regime Jurídico',max_length=50)
+
+	CHOICES_VINCULO = [
+		('Contrato', 'Contrato'),
+		('Concursado', 'Concursado'),
+		('Estágio', 'Estágio'),
+		('Jovem Aprendiz', 'Jovem Aprendiz'),
+		('Terceirizado', 'Terceirizado'),
+	]
+	tipo_vinculo = models.CharField('Tipo de Vínculo',max_length=25, choices=CHOICES_VINCULO)
+	CHOICES_JURIDICO = [('C','CLT'),('E','Estatutário')]
+	regime_juridico = models.CharField('Regime Jurídico',max_length=25, choices=CHOICES_JURIDICO)
+
 	situacao = models.BooleanField('Servidor Ativo', default=False)
+
+	fk_setor = models.ForeignKey(Setor, on_delete = models.RESTRICT, verbose_name='Setor')
+	
 	fk_equipe = models.ForeignKey(Equipe, on_delete = models.RESTRICT, verbose_name='Equipe')
 	
 	def __str__(self):
 		return self.nome
+
 	class Meta:
 		verbose_name = "Servidor"
 		verbose_name_plural = "Servidores"
