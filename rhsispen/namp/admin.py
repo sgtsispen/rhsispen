@@ -65,6 +65,12 @@ class EquipeAdmin(admin.ModelAdmin):
 	get_servidor.short_description = 'Servidores'  #Nome da coluna 
 	get_servidor.admin_order_field = 'nome'		   #Ordem da coluna
 
+	class Media: #IMPORTAR ARQUIVO JS MASK
+		js = (
+			"jquery.mask.min.js",
+			"mascara.js",
+			)
+
 admin.site.register(Equipe, EquipeAdmin)
 
 class EquipeInline(admin.TabularInline):
@@ -88,7 +94,6 @@ class HistFuncaoAdmin(admin.ModelAdmin):
 admin.site.register(HistFuncao, HistFuncaoAdmin)
 
 class HistLotacaoAdmin(admin.ModelAdmin):
-	form = HistStatusFuncionalFormAdmin
 	search_fields = ('fk_servidor__nome',)
 	list_per_page = 8
 	list_display = ('fk_servidor','data_inicial','data_final','fk_equipe', 'get_setor')
@@ -101,7 +106,7 @@ class HistLotacaoAdmin(admin.ModelAdmin):
 admin.site.register(HistLotacao, HistLotacaoAdmin)
 
 class HistStatusFuncionalAdmin(admin.ModelAdmin):
-	form = HistStatusFuncionalFormAdmin
+	HistStatusFuncionalFormAdmin
 	search_fields = ('fk_servidor__nome',)
 	list_per_page = 8
 	list_display = ('id_hist_funcional','data_inicial', 'data_final', 'fk_servidor', 'fk_status_funcional')
@@ -192,7 +197,7 @@ class ServidorAdmin(DjangoObjectActions, admin.ModelAdmin):
 
 	change_actions = ('generate_pdf',)
 
-	class Media:
+	class Media: #IMPORTAR ARQUIVO JS MASK
 		js = (
 			"jquery.mask.min.js",
 			"mascara.js",

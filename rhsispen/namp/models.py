@@ -160,23 +160,23 @@ class Servidor(models.Model):
 	sexo = models.CharField('Sexo', max_length=1, choices=CHOICES_SEXO)
 	dt_nasc = models.DateField('Data de Nascimento')
 	CHOICES_CARGO = [
-	('AEP','Agente de Execução Penal'),
-	('AAE','Agente Analista em Execução Penal'),
-	('AA','Assistente Administrativo'),
-	('AXA','Auxiliar Administrativo'),
-	('ASG','Auxiliar de Serviços Gerais'),
-	('ASS','Agente de Segurança Socioeducativo'),
-	('AES','Agente Especialista Socioeducativo'),
+		('AEP','Agente de Execução Penal'),
+		('AAE','Agente Analista em Execução Penal'),
+		('AA','Assistente Administrativo'),
+		('AXA','Auxiliar Administrativo'),
+		('ASG','Auxiliar de Serviços Gerais'),
+		('ASS','Agente de Segurança Socioeducativo'),
+		('AES','Agente Especialista Socioeducativo'),
 	]
 	cargo = models.CharField(max_length=50, choices=CHOICES_CARGO)
 	tipo_vinculo = models.CharField('Tipo de Vínculo',max_length=50)
 	regime_juridico = models.CharField('Regime Jurídico',max_length=50)
 	CHOICES_VINCULO =[
-	('Contrato', 'Contrato'),
-	('Concursado', 'Concursado'),
-	('Estágio', 'Estágio'),
-	('Jovem Aprendiz', 'Jovem Aprendiz'),
-	('Terceirizado', 'Terceirizado'),
+		('Contrato', 'Contrato'),
+		('Concursado', 'Concursado'),
+		('Estágio', 'Estágio'),
+		('Jovem Aprendiz', 'Jovem Aprendiz'),
+		('Terceirizado', 'Terceirizado'),
 	]
 	tipo_vinculo = models.CharField('Tipo de Vínculo',max_length=25, choices=CHOICES_VINCULO)
 	CHOICES_JURIDICO = [('C','CLT'),('E','Estatutário')]

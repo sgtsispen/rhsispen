@@ -24,7 +24,6 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -37,14 +36,6 @@ INSTALLED_APPS = [
     'namp.apps.NampConfig',
     'django_object_actions', #add depois
 ]
-
-#INICIO DO TESTE
-#THIRD_PARTY_APPS = [
-#    'django_object_actions',
-#]
-
-#INSTALLED_APPS = THIRD_PARTY_APPS + DEFAULT_APPS
-# FIM DO TESTE
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -75,7 +66,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'rhsispen.wsgi.application'
-
 
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
@@ -108,7 +98,6 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
-
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.1/topics/i18n/
