@@ -4,7 +4,7 @@ import json
 from django.contrib import admin
 from django.core.serializers.json import DjangoJSONEncoder
 
-from namp.forms import ServidorFormAdmin, EnderecoFormAdmin, TextFormAdmin, HoraFormAdmin, HistStatusFuncionalFormAdmin  # Formulario para mascara
+from namp.forms import ServidorFormAdmin, EnderecoFormAdmin, TextFormAdmin, HoraFormAdmin, HistStatusFuncionalFormAdmin, HistAfastamentoFormAdmin  # Formulario para mascara
 from namp.models import (Afastamento, ContatoEquipe, ContatoServ, EnderecoServ,
                          EnderecoSetor, Equipe, Funcao, HistAfastamento,
                          HistFuncao, HistLotacao, HistStatusFuncional, Jornada,
@@ -82,9 +82,15 @@ class FuncaoAdmin(admin.ModelAdmin):
 admin.site.register(Funcao, FuncaoAdmin)
 
 class HistAfastamentoAdmin(admin.ModelAdmin):
+	form =  HistAfastamentoFormAdmin
 	search_fields = ('fk_servidor__nome',)  #campo de busca por nome do servidor
 	list_per_page = 8						#limita a quantidade de info na pág
 	list_display = ('id_hist_afastamento','data_inicial','data_final','fk_afastamento','fk_servidor')
+	class Media: #IMPORTAR ARQUIVO JS MASK
+		js = (
+			"jquery.mask.min.js",
+			"mascara.js",
+			)
 admin.site.register(HistAfastamento, HistAfastamentoAdmin)
 
 class HistFuncaoAdmin(admin.ModelAdmin):
@@ -106,13 +112,18 @@ class HistLotacaoAdmin(admin.ModelAdmin):
 admin.site.register(HistLotacao, HistLotacaoAdmin)
 
 class HistStatusFuncionalAdmin(admin.ModelAdmin):
-	HistStatusFuncionalFormAdmin
+	form = HistStatusFuncionalFormAdmin
 	search_fields = ('fk_servidor__nome',)
 	list_per_page = 8
 	list_display = ('id_hist_funcional','data_inicial', 'data_final', 'fk_servidor', 'fk_status_funcional')
 
 	autocomplete_fields = ['fk_servidor']
 	#autocomplete_fields = ['fk_status_funcional']
+	class Media: #IMPORTAR ARQUIVO JS MASK
+		js = (
+			"jquery.mask.min.js",
+			"mascara.js",
+			)
 
 admin.site.register(HistStatusFuncional, HistStatusFuncionalAdmin)
 

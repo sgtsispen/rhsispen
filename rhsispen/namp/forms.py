@@ -32,6 +32,14 @@ class HistStatusFuncionalFormAdmin(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(HistStatusFuncionalFormAdmin, self).__init__(*args, **kwargs)
         self.fields['data_inicial'].widget.attrs={"placeholder":"00/00/0000"}
-        self.fields['data_inicial'].widget.attrs['class'] = 'mask-data'
+        self.fields['data_inicial'].widget.attrs['class'] = 'mask-dt'
         self.fields['data_final'].widget.attrs = {"placeholder":"00/00/0000"}
-        self.fields['data_final'].widget.attrs['class'] = 'mask-data'
+        self.fields['data_final'].widget.attrs['class'] = 'mask-dt'
+
+class HistAfastamentoFormAdmin(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(HistAfastamentoFormAdmin, self).__init__(*args, **kwargs)
+        self.fields['data_inicial'].widget.attrs={"placeholder":"00/00/0000"}
+        self.fields['data_inicial'].widget.attrs['class'] = 'mask-dt'
+        self.fields['data_final'].widget.attrs = {"placeholder":"00/00/0000"}
+        self.fields['data_final'].widget.attrs['class'] = 'mask-dt'
