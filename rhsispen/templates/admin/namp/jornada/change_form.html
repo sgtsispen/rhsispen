@@ -77,8 +77,8 @@
     <script type="text/javascript">
       $(function () {
         // inspect html to check id of category select dropdown.
-        $(document).on("focus", "select#id_fk_setor", function () {
-          $.getJSON("/getEquipes/", { id_setor: $(this).val() }, function (j) {
+        $(document).on("change", "select#id_fk_servidor", function () {
+          $.getJSON("/getEquipeServidor/", { id_matricula: $(this).val() }, function (j) {
             var options = '<option value="">---------</option>';
             for (var i = 0; i < j.length; i++) {
               options +=
@@ -90,12 +90,12 @@
         });
       });
     </script>
-
+    
     <script type="text/javascript">
       $(function () {
         // inspect html to check id of category select dropdown.
         $(document).on("focus", "select#id_fk_equipe", function () {
-          $.getJSON("/getEquipes/", { id_setor: $("select#id_fk_setor").val() }, function (j) {
+          $.getJSON("/getEquipeServidor/", { id_matricula: $("select#id_fk_servidor").val() }, function (j) {
             var options = '<option value="">---------</option>';
             for (var i = 0; i < j.length; i++) {
               options +=

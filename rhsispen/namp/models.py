@@ -8,9 +8,9 @@ class Regiao(models.Model):
 	def __str__(self):
 		return self.nome
 	class Meta:
+		ordering = ["nome"]
 		verbose_name = "Região"
 		verbose_name_plural = "Regiões"
-		ordering = ["id_regiao"]
 
 class Funcao(models.Model):
 	id_funcao = models.CharField(primary_key=True, max_length=25) #Cod com a secad
@@ -18,6 +18,7 @@ class Funcao(models.Model):
 	def __str__(self):
 		return self.nome
 	class Meta:
+		ordering = ['nome']
 		verbose_name = "Função"
 		verbose_name_plural = "Funções"
 		unique_together = ('id_funcao','nome',)
@@ -29,6 +30,7 @@ class Afastamento(models.Model):
 	def __str__(self):
 		return self.tipificacao
 	class Meta:
+		ordering = ['tipificacao']
 		verbose_name = "Afastamento"
 		verbose_name_plural = "Afastamentos"
 
@@ -40,16 +42,18 @@ class TipoJornada(models.Model):
 	def __str__(self):
 		return self.tipificacao
 	class Meta:
+		ordering = ["tipificacao"]
 		verbose_name = "Tipo de Jornada"
 		verbose_name_plural = "Tipos de Jornadas"
 
 class StatusFuncional(models.Model):
 	id_status_funcional = models.AutoField(primary_key=True)
-	tipificacao = models.CharField(max_length=50,unique=True)
+	nome = models.CharField(max_length=50,unique=True)
 	descricao = models.TextField(max_length=100)
 	def __str__(self):
-		return self.nome_status	
+		return self.nome	
 	class Meta:
+		ordering = ["nome"]
 		verbose_name = "Status Funcional"
 		verbose_name_plural = "Status Funcionais"
 
@@ -71,6 +75,7 @@ class Setor(models.Model):
 	def __str__(self):
 		return self.nome
 	class Meta:
+		ordering = ['nome']
 		verbose_name = "Setor"
 		verbose_name_plural = "Setores"
 		#Campos que devem ser únicos juntos
@@ -90,6 +95,7 @@ class EnderecoSetor(models.Model):
 	def __str__(self):
 		return ' - '
 	class Meta:
+		ordering = ["uf","municipio", "endereco"]
 		verbose_name = "Endereço do Setor"
 		verbose_name_plural = "Enderecos dos Setores"
 
@@ -104,6 +110,7 @@ class Equipe(models.Model):
 	def __str__(self):
 		return self.nome
 	class Meta:
+		ordering = ["nome"]
 		verbose_name = "Equipe"
 		verbose_name_plural = "Equipes"
 		#Campos que devem ser únicos juntos
@@ -164,6 +171,7 @@ class Servidor(models.Model):
 		return self.nome
 
 	class Meta:
+		ordering = ['nome']
 		verbose_name = "Servidor"
 		verbose_name_plural = "Servidores"
 		#Campos que devem ser únicos juntos
@@ -182,6 +190,7 @@ class EnderecoServ(models.Model):
 	def __str__(self):
 		return '-'
 	class Meta:
+		ordering = ["uf","municipio", "endereco"]
 		verbose_name = "Endereço do Servidor"
 		verbose_name_plural = "Endereço do Servidor"
 
@@ -235,6 +244,7 @@ class HistLotacao(models.Model):
 	data_inicial =	models.DateField()
 	data_final = models.DateField(blank=True, null=True)
 	fk_servidor = models.ForeignKey(Servidor, on_delete = models.RESTRICT, verbose_name='Servidor')
+	fk_setor = models.ForeignKey(Setor, on_delete = models.RESTRICT, verbose_name='Sertor')
 	fk_equipe = models.ForeignKey(Equipe, on_delete = models.RESTRICT, verbose_name='Equipe')
 	def __str__(self):
 		return str(self.id_hist_lotacao)
@@ -265,5 +275,6 @@ class Jornada(models.Model):
 	def __str__(self):
 		return str(self.id_jornada) 
 	class Meta:
+		ordering = ["data_jornada"]
 		verbose_name = "Jornada"
 		verbose_name_plural = "Jornadas"
