@@ -1,0 +1,23 @@
+<html>
+<head>
+  <title>{{ obj.title }}</title>
+  <style>
+    body {
+      background-color: #f7f7f7;
+    }
+    p {
+      text-align: justify;
+      text-justify: inter-word;
+    }
+    .text-right {
+      text-align: right;
+    }
+  </style>
+</head>
+  <body>
+    <h1 class="text-right">Nome: {{ obj.nome }}</h1>
+    <p><b>CPF:</b> {{ obj.cpf }}</p>
+    <p><b>Matrícula:</b> {{ obj.id_matricula}}</p>
+    <p><b>Vínculo:</b> {{ obj.vinculo}}</p>
+  </body>
+</html>

@@ -1,6 +1,7 @@
 # Register your models here.
+from django.core import serializers
 import json
-
+from django import forms
 from django.contrib import admin
 from django.core.serializers.json import DjangoJSONEncoder
 
@@ -15,8 +16,7 @@ from django.template.loader import render_to_string
 from django.core.files.storage import FileSystemStorage
 from weasyprint import HTML
 from django_object_actions import DjangoObjectActions
-
-admin.site.site_header = 'Administração do Núcleo de Apoio a Movimentação de Pessoal'
+from django.template.loader import render_to_string
 
 # Register your models here.
 class AfastamentoAdmin(admin.ModelAdmin):
@@ -117,7 +117,7 @@ class HistStatusFuncionalAdmin(admin.ModelAdmin):
 	list_per_page = 8
 	list_display = ('id_hist_funcional','data_inicial', 'data_final', 'fk_servidor', 'fk_status_funcional')
 
-	autocomplete_fields = ['fk_servidor']
+	#autocomplete_fields = ['fk_servidor']
 	#autocomplete_fields = ['fk_status_funcional']
 	class Media: #IMPORTAR ARQUIVO JS MASK
 		js = (
@@ -128,16 +128,14 @@ class HistStatusFuncionalAdmin(admin.ModelAdmin):
 admin.site.register(HistStatusFuncional, HistStatusFuncionalAdmin)
 
 class JornadaAdmin(admin.ModelAdmin):
+	#autocomplete_fields = ["fk_servidor"]
 	list_filter = ('assiduidade','fk_equipe','fk_tipo_jornada')
 	list_display = ('data_jornada','fk_servidor', 'assiduidade','fk_equipe', 'fk_tipo_jornada')
 
-	autocomplete_fields = ['fk_servidor']
-
-	def formfield_for_foreignkey(self, db_field, request, **kwargs): #metodo pra mapear chave estrangeira
+	def formfield_for_foreignkey(self, db_field, request, **kwargs):
 		if db_field.name == "fk_equipe":
 			kwargs["queryset"] = Equipe.objects.none()		
 		return super(JornadaAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
-
 admin.site.register(Jornada, JornadaAdmin)
 
 class RegiaoAdmin(admin.ModelAdmin):
@@ -162,58 +160,43 @@ class RegiaoAdmin(admin.ModelAdmin):
 		return super().changelist_view(request,extra_context=extra_context)
 admin.site.register(Regiao, RegiaoAdmin)
 
+@admin.register(Servidor)
 class ServidorAdmin(DjangoObjectActions, admin.ModelAdmin):
 	form = ServidorFormAdmin #Add para as mascaras
+
+	#change_form_template = 'admin/namp/servidor/change_form.html'
+	#change_list_template = 'admin/namp/servidor/change_list.html'
+
 	list_per_page = 8
 	search_fields = ('nome','fk_equipe__nome', 'fk_equipe__fk_setor__nome')
-	autocomplete_fields = ['fk_equipe']
-	radio_fields = {'sexo': admin.HORIZONTAL, 'regime_juridico': admin.HORIZONTAL}#, 'tipo_vinculo': admin.VERTICAL}
+	#autocomplete_fields = ['fk_setor']
+	radio_fields = {'sexo': admin.HORIZONTAL, 'regime_juridico': admin.HORIZONTAL}
 	'''
 	Abaixo: apresentação dos forms da model ContatoServ dentro do form da model Servidor
 	'''
-	list_display = ('nome', 'id_matricula', 'vinculo','cpf','dt_nasc','cargo','tipo_vinculo','regime_juridico','situacao','fk_equipe', 'get_setor')
+	list_display = ('nome', 'id_matricula', 'vinculo','cpf','dt_nasc','cargo','tipo_vinculo','regime_juridico','situacao', 'fk_equipe', 'get_setor')
 	list_filter = ('cargo','situacao','fk_equipe')
 	fieldsets = (
 		('Dados Pessoais',{
 				'fields': (('nome','cpf'), ('sexo','dt_nasc'))
 		}),
 		('Dados Funcionais',{
-				'fields': (('id_matricula','vinculo'), ('tipo_vinculo', 'regime_juridico'), ('cargo', 'situacao'),'fk_equipe')
+				'fields': (('id_matricula','vinculo'), ('tipo_vinculo', 'regime_juridico'), ('cargo', 'situacao'),'fk_setor', 'fk_equipe')
 		}),
 	)
 	inlines = [EnderecoServInline, ContatoServInline]
-	
+
+	def formfield_for_foreignkey(self, db_field, request, **kwargs):
+		if db_field.name == "fk_equipe":
+			kwargs["queryset"] = Equipe.objects.order_by('nome').values_list('nome', flat=True).distinct()
+		return super(ServidorAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
+
 	def get_setor(self, obj):
 		return Setor.objects.get(id_setor=obj.fk_equipe.fk_setor.id_setor)
 	get_setor.short_description = 'Unidade Operacional' 
 	get_setor.admin_order_field = 'nome'
+#admin.site.register(Servidor, ServidorAdmin)
 
-	#PDF
-	def generate_pdf(self, request, obj):
-			html_string = render_to_string('/admin/namp/servidor/pdf_templates.html', {'obj': obj})
-
-			html = HTML(string=html_string)
-			html.write_pdf(target='/tmp/{}.pdf'.format(obj)) #.format(obj)
-
-			fs = FileSystemStorage('/tmp')
-			with fs.open('{}.pdf'.format(obj)) as pdf:
-				response = HttpResponse(pdf, content_type='application/pdf')
-				response['Content-Disposition'] = 'attachment; filename="{}.pdf"'.format(obj)
-				return response
-
-			return response
-
-	generate_pdf.label = 'Gerar PDF'
-	generate_pdf.short_description = 'PDF dessa ordem de serviço'
-
-	change_actions = ('generate_pdf',)
-
-	class Media: #IMPORTAR ARQUIVO JS MASK
-		js = (
-			"jquery.mask.min.js",
-			"mascara.js",
-			)
-admin.site.register(Servidor, ServidorAdmin)
 
 class EnderecoSetorInline(admin.StackedInline):
 	form = EnderecoFormAdmin
@@ -230,6 +213,8 @@ class SetorAdmin(admin.ModelAdmin):
 	list_display = ('id_setor', 'nome','fk_regiao','status', 'setor_sede', 'get_total_servidor')
 	search_fields = ('nome','fk_regiao__nome', 'id_setor')
 	inlines = [EnderecoSetorInline,EquipeInline]
+	#search_fields = ['nome']
+
 
 	def get_total_servidor(self, obj):
 		return Servidor.objects.filter(fk_equipe__in=Equipe.objects.filter(fk_setor=obj)).count() #total servidores do setor
