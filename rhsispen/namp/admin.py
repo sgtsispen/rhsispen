@@ -13,6 +13,7 @@ from weasyprint import HTML
 from django_object_actions import DjangoObjectActions
 from django.db.models import Count
 from django.core.exceptions import ValidationError
+from datetime import timedelta as TimeDelta, datetime as DateTime, date as Date
 # Register your models here.
 
 @admin.register(Afastamento)
@@ -94,7 +95,45 @@ class JornadaAdmin(admin.ModelAdmin):
 	change_form_template = 'admin/namp/jornada/change_form.html'
 
 	list_filter = ('assiduidade','fk_equipe','fk_tipo_jornada')
-	list_display = ('data_jornada','fk_servidor', 'assiduidade','fk_equipe', 'fk_tipo_jornada')
+
+	list_display = ('get_matricula','get_vinculo','fk_servidor','get_cpf', 'get_codigo_setor','get_nome_setor','get_carga_horaria','get_inicio', 'get_fim')
+
+	def get_matricula(self, obj):
+		return obj.fk_servidor.id_matricula
+	get_matricula.short_description = 'matrícula'
+
+	def get_vinculo(self, obj):
+		return obj.fk_servidor.vinculo
+	get_vinculo.short_description = 'vínculo'
+	
+	def get_cpf(self, obj):
+		return obj.fk_servidor.cpf
+	get_cpf.short_description = 'cpf'
+
+	def get_codigo_setor(self, obj):
+		return obj.fk_equipe.fk_setor.id_setor
+	get_codigo_setor.short_description = 'código'
+
+	def get_nome_setor(self, obj):
+		return obj.fk_equipe.fk_setor.nome
+	get_nome_setor.short_description = 'setor'
+
+	def get_carga_horaria(self, obj):
+		return obj.fk_tipo_jornada.carga_horaria
+	get_carga_horaria.short_description = 'carga horária'
+
+	def get_inicio(self, obj):
+		inicio = obj.data_jornada.strftime("%d/%m/%Y") + " " +obj.fk_equipe.hora_inicial.strftime("%H:%M:%S")
+		return inicio
+	get_inicio.short_description = 'início'
+	
+	def get_fim(self, obj):
+		inicio = obj.data_jornada.strftime("%d/%m/%Y") + " " +obj.fk_equipe.hora_inicial.strftime("%H:%M:%S")
+
+		inicioDateTime = DateTime.strptime(inicio, '%d/%m/%Y %H:%M:%S')
+		fim = inicioDateTime + TimeDelta(hours=obj.fk_tipo_jornada.carga_horaria)
+		return fim.strftime('%d/%m/%Y %H:%M:%S')
+	get_fim.short_description = 'fim'
 
 @admin.register(Regiao)
 class RegiaoAdmin(admin.ModelAdmin):
