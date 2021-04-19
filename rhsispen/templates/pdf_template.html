@@ -15,9 +15,15 @@
   </style>
 </head>
   <body>
-    <h1 class="text-right">Nome: {{ obj.nome }}</h1>
-    <p><b>CPF:</b> {{ obj.cpf }}</p>
-    <p><b>Matrícula:</b> {{ obj.id_matricula}}</p>
-    <p><b>Vínculo:</b> {{ obj.vinculo}}</p>
+    {% if servidores %}
+      {% for servidor in servidores %}
+        <h3>Nome: {{ servidor.nome }}</h1>
+        <p><b>CPF:</b> {{ servidor.cpf }}</p>
+        <p><b>Matrícula:</b> {{ servidor.id_matricula}}</p>
+        <p><b>Vínculo:</b> {{ servidor.vinculo}}</p>
+      {% endfor %}
+    {% else %}
+      <h1 class="text-right">Nenhum servidor cadastrado!</h1>
+    {% endif%}
   </body>
 </html>

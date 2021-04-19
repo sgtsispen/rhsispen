@@ -13,21 +13,30 @@ import json
 	as envia para a página populando o campo select fk_equipe
 '''
 def get_equipes(request):
+	result = list(Equipe.objects.none())
 	id_setor = request.GET.get('id_setor', '')
-	result = list(Equipe.objects.filter(fk_setor=id_setor).values('id_equipe', 'nome'))
+	if (id_setor):
+		result = list(Equipe.objects.filter(fk_setor=id_setor).values('id_equipe', 'nome'))
+	return HttpResponse(json.dumps(result), content_type="application/json")
+
+def get_equipe_servidor(request):
+	result = list(Equipe.objects.none())
+	id_matricula = request.GET.get('id_matricula', '')
+	if (id_matricula):
+		result = list(Equipe.objects.filter(fk_setor=Servidor.objects.get(id_matricula=id_matricula).fk_setor).values('id_equipe', 'nome'))
 	return HttpResponse(json.dumps(result), content_type="application/json")
 
 def exportar_pdf(request):
 	# Model data
-	servidor = Servidor.objects.get(nome="Leonardo Araujo")
+	servidores = Servidor.objects.all()
 	# Rendered
-	html_string = render_to_string('pdf_template.html', {'obj': servidor})
+	html_string = render_to_string('pdf_template.html', {'servidores': servidores})
 	html = HTML(string=html_string)
-	result = html.write_pdf(target='/tmp/{}.pdf'.format(servidor))
-	
+	result = html.write_pdf(target='/tmp/{}.pdf'.format(servidores))
+
 	fs = FileSystemStorage('/tmp')
-	with fs.open('{}.pdf'.format(servidor)) as pdf:
+	with fs.open('{}.pdf'.format(servidores)) as pdf:
 		response = HttpResponse(pdf, content_type='application/pdf')
-		response['Content-Disposition'] = 'attachment; filename="{}.pdf"'.format(servidor)
+		response['Content-Disposition'] = 'attachment; filename="{}.pdf"'.format(servidores)
 		return response
 	return response

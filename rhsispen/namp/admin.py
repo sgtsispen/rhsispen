@@ -16,13 +16,15 @@ from django.template.loader import render_to_string
 from django.core.files.storage import FileSystemStorage
 from weasyprint import HTML
 from django_object_actions import DjangoObjectActions
-from django.template.loader import render_to_string
-
+from django.db.models import Count
+from django.core.exceptions import ValidationError
+from datetime import timedelta as TimeDelta, datetime as DateTime, date as Date
 # Register your models here.
+
+@admin.register(Afastamento)
 class AfastamentoAdmin(admin.ModelAdmin):
-	form = TextFormAdmin
 	list_display = ('id_afastamento','__str__','descricao')
-admin.site.register(Afastamento, AfastamentoAdmin)
+	#inlines = [descricaoInline]
 
 class ContatoEquipeInline(admin.TabularInline):
     model = ContatoEquipe
@@ -53,13 +55,14 @@ class ServidorInline(admin.TabularInline):
 	def has_delete_permission(self, request, obj=None):
 		return False
 
+@admin.register(Equipe)
 class EquipeAdmin(admin.ModelAdmin):
 	form = HoraFormAdmin
 	list_display = ('nome', 'fk_setor', 'status','hora_inicial','categoria', 'get_servidor')
-	list_filter = ('categoria', )
-	inlines=[ContatoEquipeInline, ServidorInline]
+	list_filter = ('categoria',)
 	search_fields = ['nome']
-	autocomplete_fields = ['fk_setor']
+	inlines=[ContatoEquipeInline, ServidorInline]
+	
 	def get_servidor(self, obj):
 		return Servidor.objects.filter(fk_equipe=obj).count()
 	get_servidor.short_description = 'Servidores'  #Nome da coluna 
@@ -71,73 +74,80 @@ class EquipeAdmin(admin.ModelAdmin):
 			"mascara.js",
 			)
 
-admin.site.register(Equipe, EquipeAdmin)
-
 class EquipeInline(admin.TabularInline):
 	model = Equipe
 	extra = 0
 
+@admin.register(Funcao)
 class FuncaoAdmin(admin.ModelAdmin):
 	list_display = ('id_funcao', 'nome')
-admin.site.register(Funcao, FuncaoAdmin)
 
+@admin.register(HistAfastamento)
 class HistAfastamentoAdmin(admin.ModelAdmin):
-	form =  HistAfastamentoFormAdmin
-	search_fields = ('fk_servidor__nome',)  #campo de busca por nome do servidor
-	list_per_page = 8						#limita a quantidade de info na pág
+	search_fields = ('fk_afastamento__tipificacao','fk_servidor__nome', 'fk_afastamento__id_afastamento')
 	list_display = ('id_hist_afastamento','data_inicial','data_final','fk_afastamento','fk_servidor')
-	class Media: #IMPORTAR ARQUIVO JS MASK
-		js = (
-			"jquery.mask.min.js",
-			"mascara.js",
-			)
-admin.site.register(HistAfastamento, HistAfastamentoAdmin)
 
+@admin.register(HistFuncao)
 class HistFuncaoAdmin(admin.ModelAdmin):
-	search_fields = ('fk_servidor__nome',) 
-	list_per_page = 8
+	search_fields = ('fk_servidor__nome','fk_funcao__nome')
 	list_display = ('id_hist_funcao','data_inicio','data_final','fk_funcao','fk_servidor')
-admin.site.register(HistFuncao, HistFuncaoAdmin)
 
+@admin.register(HistLotacao)
 class HistLotacaoAdmin(admin.ModelAdmin):
-	search_fields = ('fk_servidor__nome',)
-	list_per_page = 8
-	list_display = ('fk_servidor','data_inicial','data_final','fk_equipe', 'get_setor')
-	list_filter = ('fk_equipe__nome', )
-	def get_setor(self, obj):
-		return Setor.objects.get(id_setor=obj.fk_equipe.fk_setor.id_setor)
-	get_setor.short_description = 'Unidade Operacional'  #Nome da coluna
-	get_setor.admin_order_field = 'fk_servidor'
+	change_form_template = 'admin/namp/histlotacao/change_form.html'
+	search_fields = ('fk_servidor__nome','fk_equipe__nome', 'fk_equipe__fk_setor__nome')
+	list_display = ('id_hist_lotacao','data_inicial','data_final','fk_servidor','fk_equipe', 'fk_setor')	
 
-admin.site.register(HistLotacao, HistLotacaoAdmin)
-
+@admin.register(HistStatusFuncional)
 class HistStatusFuncionalAdmin(admin.ModelAdmin):
-	form = HistStatusFuncionalFormAdmin
-	search_fields = ('fk_servidor__nome',)
-	list_per_page = 8
 	list_display = ('id_hist_funcional','data_inicial', 'data_final', 'fk_servidor', 'fk_status_funcional')
 
-	#autocomplete_fields = ['fk_servidor']
-	#autocomplete_fields = ['fk_status_funcional']
-	class Media: #IMPORTAR ARQUIVO JS MASK
-		js = (
-			"jquery.mask.min.js",
-			"mascara.js",
-			)
-
-admin.site.register(HistStatusFuncional, HistStatusFuncionalAdmin)
-
+@admin.register(Jornada)
 class JornadaAdmin(admin.ModelAdmin):
-	#autocomplete_fields = ["fk_servidor"]
-	list_filter = ('assiduidade','fk_equipe','fk_tipo_jornada')
-	list_display = ('data_jornada','fk_servidor', 'assiduidade','fk_equipe', 'fk_tipo_jornada')
+	change_form_template = 'admin/namp/jornada/change_form.html'
 
-	def formfield_for_foreignkey(self, db_field, request, **kwargs):
-		if db_field.name == "fk_equipe":
-			kwargs["queryset"] = Equipe.objects.none()		
-		return super(JornadaAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
-admin.site.register(Jornada, JornadaAdmin)
+	list_filter = ('assiduidade', 'fk_tipo_jornada')
 
+	list_display = ('get_matricula','get_vinculo','fk_servidor','get_cpf', 'get_codigo_setor','get_nome_setor','get_carga_horaria','get_inicio', 'get_fim')
+
+	def get_matricula(self, obj):
+		return obj.fk_servidor.id_matricula
+	get_matricula.short_description = 'matrícula'
+
+	def get_vinculo(self, obj):
+		return obj.fk_servidor.vinculo
+	get_vinculo.short_description = 'vínculo'
+	
+	def get_cpf(self, obj):
+		return obj.fk_servidor.cpf
+	get_cpf.short_description = 'cpf'
+
+	def get_codigo_setor(self, obj):
+		return obj.fk_equipe.fk_setor.id_setor
+	get_codigo_setor.short_description = 'código'
+
+	def get_nome_setor(self, obj):
+		return obj.fk_equipe.fk_setor.nome
+	get_nome_setor.short_description = 'setor'
+
+	def get_carga_horaria(self, obj):
+		return obj.fk_tipo_jornada.carga_horaria
+	get_carga_horaria.short_description = 'carga horária'
+
+	def get_inicio(self, obj):
+		inicio = obj.data_jornada.strftime("%d/%m/%Y") + " " +obj.fk_equipe.hora_inicial.strftime("%H:%M:%S")
+		return inicio
+	get_inicio.short_description = 'início'
+	
+	def get_fim(self, obj):
+		inicio = obj.data_jornada.strftime("%d/%m/%Y") + " " +obj.fk_equipe.hora_inicial.strftime("%H:%M:%S")
+
+		inicioDateTime = DateTime.strptime(inicio, '%d/%m/%Y %H:%M:%S')
+		fim = inicioDateTime + TimeDelta(hours=obj.fk_tipo_jornada.carga_horaria)
+		return fim.strftime('%d/%m/%Y %H:%M:%S')
+	get_fim.short_description = 'fim'
+
+@admin.register(Regiao)
 class RegiaoAdmin(admin.ModelAdmin):
 	change_list_template = 'admin/namp/regiao/change_list.html'
 	list_display = ('id_regiao','nome', 'get_setor_count')
@@ -158,18 +168,15 @@ class RegiaoAdmin(admin.ModelAdmin):
 		extra_context = extra_context or {"regioes": regioes_json, "setores": setores_json}
 
 		return super().changelist_view(request,extra_context=extra_context)
-admin.site.register(Regiao, RegiaoAdmin)
 
 @admin.register(Servidor)
-class ServidorAdmin(DjangoObjectActions, admin.ModelAdmin):
-	form = ServidorFormAdmin #Add para as mascaras
-
-	#change_form_template = 'admin/namp/servidor/change_form.html'
-	#change_list_template = 'admin/namp/servidor/change_list.html'
+class ServidorAdmin(DjangoObjectActions, admin.ModelAdmin):	
+	form = ServidorFormAdmin #add para as mascaras
+	change_form_template = 'admin/namp/servidor/change_form.html'
+	change_list_template = 'admin/namp/servidor/change_list.html'
 
 	list_per_page = 8
 	search_fields = ('nome','fk_equipe__nome', 'fk_equipe__fk_setor__nome')
-	#autocomplete_fields = ['fk_setor']
 	radio_fields = {'sexo': admin.HORIZONTAL, 'regime_juridico': admin.HORIZONTAL}
 	'''
 	Abaixo: apresentação dos forms da model ContatoServ dentro do form da model Servidor
@@ -185,11 +192,17 @@ class ServidorAdmin(DjangoObjectActions, admin.ModelAdmin):
 		}),
 	)
 	inlines = [EnderecoServInline, ContatoServInline]
+	class Media: #IMPORTAR ARQUIVO JS MASK
+		js = (
+			"jquery.mask.min.js",
+			"mascara.js",
+			)
 
-	def formfield_for_foreignkey(self, db_field, request, **kwargs):
-		if db_field.name == "fk_equipe":
-			kwargs["queryset"] = Equipe.objects.order_by('nome').values_list('nome', flat=True).distinct()
-		return super(ServidorAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
+	def change_view(self, request, object_id, form_url='', extra_context=None):
+		try:
+			return super(ServidorAdmin, self).change_view(request, object_id, form_url, extra_context)
+		except ValidationError as e:
+			return handle_exception(self, request, e)
 
 	def get_setor(self, obj):
 		return Setor.objects.get(id_setor=obj.fk_equipe.fk_setor.id_setor)
@@ -207,6 +220,7 @@ class EnderecoSetorInline(admin.StackedInline):
 	            }),
 	)
 
+@admin.register(Setor)
 class SetorAdmin(admin.ModelAdmin):
 	list_per_page = 8
 	list_filter = ('fk_regiao','status','setor_sede',)
@@ -215,21 +229,15 @@ class SetorAdmin(admin.ModelAdmin):
 	inlines = [EnderecoSetorInline,EquipeInline]
 	#search_fields = ['nome']
 
-
 	def get_total_servidor(self, obj):
 		return Servidor.objects.filter(fk_equipe__in=Equipe.objects.filter(fk_setor=obj)).count() #total servidores do setor
 	get_total_servidor.short_description = 'Servidores'  
 	get_total_servidor.admin_order_field = 'nome'
 
-admin.site.register(Setor, SetorAdmin)
-
+@admin.register(StatusFuncional)
 class StatusFuncionalAdmin(admin.ModelAdmin):
-	list_display = (str('tipificacao'),'descricao')
-admin.site.register(StatusFuncional, StatusFuncionalAdmin)
+	list_display = ('nome','descricao')
 
+@admin.register(TipoJornada)
 class TipoJornadaAdmin(admin.ModelAdmin):
 	list_display = ('carga_horaria', 'tipificacao', 'descricao')
-admin.site.register(TipoJornada, TipoJornadaAdmin)
-
-
-
