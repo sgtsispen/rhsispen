@@ -1,5 +1,4 @@
 from django.db import models
-
 # Create your models here.
 '''CLASSES SEM CHAVE ESTRANGEIRA'''
 
@@ -9,9 +8,9 @@ class Regiao(models.Model):
 	def __str__(self):
 		return self.nome
 	class Meta:
+		ordering = ["nome"]
 		verbose_name = "Região"
 		verbose_name_plural = "Regiões"
-		ordering = ["id_regiao"]
 
 class Funcao(models.Model):
 	id_funcao = models.CharField(primary_key=True, max_length=25) #Cod com a secad
@@ -19,17 +18,19 @@ class Funcao(models.Model):
 	def __str__(self):
 		return self.nome
 	class Meta:
+		ordering = ['nome']
 		verbose_name = "Função"
 		verbose_name_plural = "Funções"
 		unique_together = ('id_funcao','nome',)
 
 class Afastamento(models.Model):
 	id_afastamento = models.CharField('Código', primary_key=True, max_length=25) #Cod com a secad
-	tipificacao = models.CharField('Tipo de afastamento', max_length=50, unique=True)
+	tipificacao = models.CharField('Tipo de afastamento', max_length=100, unique=True)
 	descricao = models.TextField(max_length=100)
 	def __str__(self):
 		return self.tipificacao
 	class Meta:
+		ordering = ['tipificacao']
 		verbose_name = "Afastamento"
 		verbose_name_plural = "Afastamentos"
 
@@ -41,16 +42,18 @@ class TipoJornada(models.Model):
 	def __str__(self):
 		return self.tipificacao
 	class Meta:
+		ordering = ["tipificacao"]
 		verbose_name = "Tipo de Jornada"
 		verbose_name_plural = "Tipos de Jornadas"
 
 class StatusFuncional(models.Model):
 	id_status_funcional = models.AutoField(primary_key=True)
-	tipificacao = models.CharField(max_length=50,unique=True)
+	nome = models.CharField(max_length=50,unique=True)
 	descricao = models.TextField(max_length=100)
 	def __str__(self):
-		return self.nome_status	
+		return self.nome	
 	class Meta:
+		ordering = ["nome"]
 		verbose_name = "Status Funcional"
 		verbose_name_plural = "Status Funcionais"
 
@@ -72,6 +75,7 @@ class Setor(models.Model):
 	def __str__(self):
 		return self.nome
 	class Meta:
+		ordering = ['nome']
 		verbose_name = "Setor"
 		verbose_name_plural = "Setores"
 		#Campos que devem ser únicos juntos
@@ -91,6 +95,7 @@ class EnderecoSetor(models.Model):
 	def __str__(self):
 		return ' - '
 	class Meta:
+		ordering = ["uf","municipio", "endereco"]
 		verbose_name = "Endereço do Setor"
 		verbose_name_plural = "Enderecos dos Setores"
 
@@ -105,6 +110,7 @@ class Equipe(models.Model):
 	def __str__(self):
 		return self.nome
 	class Meta:
+		ordering = ["nome"]
 		verbose_name = "Equipe"
 		verbose_name_plural = "Equipes"
 		#Campos que devem ser únicos juntos
@@ -141,34 +147,36 @@ class Servidor(models.Model):
 	dt_nasc = models.DateField('Data de Nascimento')
 	cargo = models.CharField(max_length=50)
 
-	tipo_vinculo = models.CharField('Tipo de Vínculo',max_length=50)
-	regime_juridico = models.CharField('Regime Jurídico',max_length=50)
 
-	CHOICES_VINCULO =[
-	('Contrato', 'Contrato'),
-	('Concursado', 'Concursado'),
-	('Estágio', 'Estágio'),
-	('Jovem Aprendiz', 'Jovem Aprendiz'),
-	('Terceirizado', 'Terceirizado'),
+	CHOICES_CF = [
+		('I', 'I'),
+		('II', 'II'),
 	]
+	cf = models.CharField('Curso de Formação',max_length=2, choices=CHOICES_CF)
 
+	CHOICES_VINCULO = [
+		('Contrato', 'Contrato'),
+		('Concursado', 'Concursado'),
+		('Estágio', 'Estágio'),
+		('Jovem Aprendiz', 'Jovem Aprendiz'),
+		('Terceirizado', 'Terceirizado'),
+	]
 	tipo_vinculo = models.CharField('Tipo de Vínculo',max_length=25, choices=CHOICES_VINCULO)
 	
-	CHOICES_JURIDICO = [('C','CLT'),('E','Estatutário')]
-	regime_juridico = models.CharField('Regime Jurídico',max_length=25, choices=CHOICES_JURIDICO)
+	CHOICES_JURIDICO = [('CLT','CLT'),('Estatutário','Estatutário')]
+	regime_juridico = models.CharField('Regime Jurídico',max_length=11, choices=CHOICES_JURIDICO)
 
 	situacao = models.BooleanField('Servidor Ativo', default=False)
 
-	setor = models.ForeignKey(Setor, on_delete = models.RESTRICT, verbose_name='Setor')
+	fk_setor = models.ForeignKey(Setor, on_delete = models.RESTRICT, verbose_name='Setor')
 	
-	CHOICES_EQUIPES = (Equipe.objects.values('id_equipe','nome'),)
-
-	fk_equipe = models.CharField('Equipe', max_length=1,choices=CHOICES_EQUIPES)
+	fk_equipe = models.ForeignKey(Equipe, on_delete = models.RESTRICT, verbose_name='Equipe')
 	
 	def __str__(self):
 		return self.nome
 
 	class Meta:
+		ordering = ['nome']
 		verbose_name = "Servidor"
 		verbose_name_plural = "Servidores"
 		#Campos que devem ser únicos juntos
@@ -187,6 +195,7 @@ class EnderecoServ(models.Model):
 	def __str__(self):
 		return '-'
 	class Meta:
+		ordering = ["uf","municipio", "endereco"]
 		verbose_name = "Endereço do Servidor"
 		verbose_name_plural = "Endereço do Servidor"
 
@@ -240,6 +249,7 @@ class HistLotacao(models.Model):
 	data_inicial =	models.DateField()
 	data_final = models.DateField(blank=True, null=True)
 	fk_servidor = models.ForeignKey(Servidor, on_delete = models.RESTRICT, verbose_name='Servidor')
+	fk_setor = models.ForeignKey(Setor, on_delete = models.RESTRICT, verbose_name='Sertor')
 	fk_equipe = models.ForeignKey(Equipe, on_delete = models.RESTRICT, verbose_name='Equipe')
 	def __str__(self):
 		return str(self.id_hist_lotacao)
@@ -267,8 +277,10 @@ class Jornada(models.Model):
 	fk_servidor = models.ForeignKey(Servidor, on_delete = models.RESTRICT, verbose_name='Servidor')
 	fk_equipe = models.ForeignKey(Equipe, on_delete = models.RESTRICT, verbose_name='Equipe')
 	fk_tipo_jornada = models.ForeignKey(TipoJornada, on_delete = models.RESTRICT, verbose_name='Tipo Jornada')
+
 	def __str__(self):
 		return str(self.id_jornada) 
 	class Meta:
+		ordering = ["data_jornada"]
 		verbose_name = "Jornada"
 		verbose_name_plural = "Jornadas"
