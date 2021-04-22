@@ -42,7 +42,7 @@ class EnderecoServInline(admin.StackedInline):
 class ServidorInline(admin.TabularInline):
 	model=Servidor
 	fields = ('nome', 'id_matricula','cpf', 'cargo')
-	readonly_fields = ('nome', 'id_matricula','cpf', 'cargo')
+	#readonly_fields = ('nome', 'id_matricula','cpf', 'cargo')
 
 	def has_add_permission(self, request, obj=None):
 		return False
@@ -55,6 +55,7 @@ class EquipeAdmin(admin.ModelAdmin):
 	list_display = ('nome', 'fk_setor', 'status','hora_inicial','categoria', 'get_servidor')
 	list_filter = ('categoria',)
 	search_fields = ['nome']
+	list_per_page = 8
 	inlines=[ContatoEquipeInline, ServidorInline]
 	
 	def get_servidor(self, obj):
@@ -93,7 +94,7 @@ class HistStatusFuncionalAdmin(admin.ModelAdmin):
 @admin.register(Jornada)
 class JornadaAdmin(admin.ModelAdmin):
 	change_form_template = 'admin/namp/jornada/change_form.html'
-
+	autocomplete_fields = ['fk_servidor']
 	list_filter = ('assiduidade','fk_tipo_jornada')
 
 	list_display = ('get_matricula','get_vinculo','fk_servidor','get_cpf', 'get_codigo_setor','get_nome_setor','get_carga_horaria','get_inicio', 'get_fim')
@@ -171,7 +172,7 @@ class ServidorAdmin(DjangoObjectActions, admin.ModelAdmin):
 	'''
 
 	list_display = ('nome', 'id_matricula', 'vinculo','cpf','dt_nasc','cargo','cf','tipo_vinculo','regime_juridico','situacao', 'fk_equipe', 'get_setor')
-	list_filter = ('cargo','situacao','fk_equipe')
+	list_filter = ('cargo','situacao')
 
 	fieldsets = (
 		('Dados Pessoais',{
