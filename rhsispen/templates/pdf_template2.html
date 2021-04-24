@@ -1,0 +1,31 @@
+<html>
+
+<head>
+    <title>{{ obj.title }}</title>
+    <style>
+        body {
+            background-color: #f7f7f7;
+        }
+        
+        p {
+            text-align: justify;
+            text-justify: inter-word;
+        }
+        
+        .text-right {
+            text-align: right;
+        }
+    </style>
+</head>
+
+<body>
+    {% if jornadas %} {% for jornada in jornadas %}
+    <h3>Nome: {{ jornada.fk_servidor.nome }}</h1>
+        <p><b>Data inicio:</b> {{ jornada.data_jornada|date:'d-m-Y'}}</p>
+        <p><b>Carga Horária:</b> {{ jornada.fk_tipo_jornada.carga_horaria}}</p>
+        {% endfor %} {% else %}
+        <h1 class="text-right">Nenhuma jornada cadastrado!</h1>
+        {% endif%}
+</body>
+
+</html>

@@ -5,7 +5,9 @@ from django import forms
 from django.contrib import admin
 from django.core.serializers.json import DjangoJSONEncoder
 
-from namp.forms import ServidorFormAdmin, EnderecoFormAdmin, TextFormAdmin, HoraFormAdmin, HistStatusFuncionalFormAdmin, HistAfastamentoFormAdmin  # Formulario para mascara
+from namp.forms import (ServidorFormAdmin, EnderecoFormAdmin, TextFormAdmin,
+						HoraFormAdmin, HistStatusFuncionalFormAdmin,
+						HistAfastamentoFormAdmin, HistLotacaoFormAdmin)  # Formulario para mascara
 from namp.models import (Afastamento, ContatoEquipe, ContatoServ, EnderecoServ,
                          EnderecoSetor, Equipe, Funcao, HistAfastamento,
                          HistFuncao, HistLotacao, HistStatusFuncional, Jornada,
@@ -84,8 +86,15 @@ class FuncaoAdmin(admin.ModelAdmin):
 
 @admin.register(HistAfastamento)
 class HistAfastamentoAdmin(admin.ModelAdmin):
+	form = HistAfastamentoFormAdmin
 	search_fields = ('fk_afastamento__tipificacao','fk_servidor__nome', 'fk_afastamento__id_afastamento')
-	list_display = ('id_hist_afastamento','data_inicial','data_final','fk_afastamento','fk_servidor')
+	list_display = ('fk_servidor','data_inicial','data_final','fk_afastamento')
+
+	class Media: #IMPORTAR ARQUIVO JS MASK
+		js = (
+			"jquery.mask.min.js",
+			"mascara.js",
+			)
 
 @admin.register(HistFuncao)
 class HistFuncaoAdmin(admin.ModelAdmin):
@@ -94,20 +103,35 @@ class HistFuncaoAdmin(admin.ModelAdmin):
 
 @admin.register(HistLotacao)
 class HistLotacaoAdmin(admin.ModelAdmin):
+	form = HistLotacaoFormAdmin
 	change_form_template = 'admin/namp/histlotacao/change_form.html'
 	search_fields = ('fk_servidor__nome','fk_equipe__nome', 'fk_equipe__fk_setor__nome')
-	list_display = ('id_hist_lotacao','data_inicial','data_final','fk_servidor','fk_equipe', 'fk_setor')	
+	list_display = ('fk_servidor','data_inicial','data_final','fk_equipe', 'fk_setor')
+    
+	class Media: #IMPORTAR ARQUIVO JS MASK
+		js = (
+			"jquery.mask.min.js",
+			"mascara.js",
+			)
 
 @admin.register(HistStatusFuncional)
 class HistStatusFuncionalAdmin(admin.ModelAdmin):
-	list_display = ('id_hist_funcional','data_inicial', 'data_final', 'fk_servidor', 'fk_status_funcional')
+	form = HistStatusFuncionalFormAdmin
+	search_fields = ('fk_servidor__nome', )
+	list_display = ('fk_servidor', 'data_inicial', 'data_final', 'fk_status_funcional')
+
+	class Media: #IMPORTAR ARQUIVO JS MASK
+		js = (
+		"jquery.mask.min.js",
+		"mascara.js",
+		)
 
 @admin.register(Jornada)
 class JornadaAdmin(admin.ModelAdmin):
 	change_form_template = 'admin/namp/jornada/change_form.html'
+	change_list_template = 'admin/namp/jornada/change_list.html'
 
 	list_filter = ('assiduidade', 'fk_tipo_jornada')
-
 	list_display = ('get_matricula','get_vinculo','fk_servidor','get_cpf', 'get_codigo_setor','get_nome_setor','get_carga_horaria','get_inicio', 'get_fim')
 
 	def get_matricula(self, obj):
@@ -147,6 +171,13 @@ class JornadaAdmin(admin.ModelAdmin):
 		return fim.strftime('%d/%m/%Y %H:%M:%S')
 	get_fim.short_description = 'fim'
 
+	def change_view(self, request, object_id, form_url='', extra_context=None):
+		try:
+			return super(JornadaAdmin, self).change_view(request, object_id, form_url, extra_context)
+		except ValidationError as e:
+			return handle_exception(self, request, e)
+
+
 @admin.register(Regiao)
 class RegiaoAdmin(admin.ModelAdmin):
 	change_list_template = 'admin/namp/regiao/change_list.html'
@@ -182,13 +213,13 @@ class ServidorAdmin(DjangoObjectActions, admin.ModelAdmin):
 	Abaixo: apresentação dos forms da model ContatoServ dentro do form da model Servidor
 	'''
 	list_display = ('nome', 'id_matricula', 'vinculo','cpf','dt_nasc','cargo','tipo_vinculo','regime_juridico','situacao', 'fk_equipe', 'get_setor')
-	list_filter = ('cargo','situacao','fk_equipe')
+	list_filter = ('cargo','situacao', 'cf')
 	fieldsets = (
 		('Dados Pessoais',{
 				'fields': (('nome','cpf'), ('sexo','dt_nasc'))
 		}),
 		('Dados Funcionais',{
-				'fields': (('id_matricula','vinculo'), ('tipo_vinculo', 'regime_juridico'), ('cargo', 'situacao'),'fk_setor', 'fk_equipe')
+				'fields': (('id_matricula','vinculo'), ('tipo_vinculo', 'regime_juridico'), ('cargo', 'situacao'),'fk_setor', 'fk_equipe', 'cf')
 		}),
 	)
 	inlines = [EnderecoServInline, ContatoServInline]
