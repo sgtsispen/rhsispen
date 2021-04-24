@@ -41,3 +41,6 @@ def exportar_pdf(request):
 		return response
 	return response
 
+def gerarjornadaregular(request):
+	
+	return render(request, 'namp/setor/gerarjornadaregular.html', {})

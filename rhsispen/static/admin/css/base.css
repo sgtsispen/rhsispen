@@ -125,6 +125,8 @@ a:focus {
 
 a img {
     border: none;
+    /*espaçamento entre a loge o título*/
+    margin-right: 20px;
 }
 
 a.section:link, a.section:visited {
