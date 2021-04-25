@@ -1,15 +1,10 @@
-{% extends "admin/base.html" %}
-{% load static %}
-
-{% block title %} SECIJU {% endblock %}
-{% block branding %}
-    {{ block.super }}
-    <a href="{% url 'admin:index' %}">
-      <div>
+{% extends "admin/base.html" %} {% load static %} {% block title %} SECIJU {% endblock %} {% block branding %} {{ block.super }}
+<a href="{% url 'admin:index' %}">
+    <div>
         <img style="float: left;" src="{% static 'images/logoppto.png' %}" alt="logo" width="45" height="50">
-      </div>
-      <div>
-        <h1 id="head",  style="text-align: center"> Núcleo de Apoio à Movimentação de Pessoal </h1>
-      </div>
-	</a>
+    </div>
+    <div>
+        <h1 id="head" , style="text-align: center"> Núcleo de Apoio e Movimentação de Pessoas </h1>
+    </div>
+</a>
 {% endblock %}

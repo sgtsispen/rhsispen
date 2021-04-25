@@ -21,9 +21,11 @@
 <body>
     {% if jornadas %} {% for jornada in jornadas %}
     <h3>Nome: {{ jornada.fk_servidor.nome }}</h1>
-        <p><b>Data inicio:</b> {{ jornada.data_jornada|date:'d-m-Y'}}</p>
-        <p><b>Carga Horária:</b> {{ jornada.fk_tipo_jornada.carga_horaria}}</p>
-        {% endfor %} {% else %}
+        <b>Matricula:</b> {{ jordana.fk_servidor.id_matricula }}
+        <b>Vínculo:</b> {{ jornada.fk_servidor.vinculo }}
+        <b>CPF:</b> {{ jornada.fk_servidor.cpf }}
+        <b>Data inicio:</b> {{ jornada.data_jornada|date:'d-m-Y'}}
+        <b>Carga Horária:</b> {{ jornada.fk_tipo_jornada.carga_horaria}} {% endfor %} {% else %}
         <h1 class="text-right">Nenhuma jornada cadastrado!</h1>
         {% endif%}
 </body>

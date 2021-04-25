@@ -5,13 +5,16 @@ from django import forms
 from django.contrib import admin
 from django.core.serializers.json import DjangoJSONEncoder
 
-from namp.forms import (ServidorFormAdmin, EnderecoFormAdmin, TextFormAdmin,
-						HoraFormAdmin, HistStatusFuncionalFormAdmin,
-						HistAfastamentoFormAdmin, HistLotacaoFormAdmin)  # Formulario para mascara
+#REGISTRO DOS MODELS
 from namp.models import (Afastamento, ContatoEquipe, ContatoServ, EnderecoServ,
                          EnderecoSetor, Equipe, Funcao, HistAfastamento,
                          HistFuncao, HistLotacao, HistStatusFuncional, Jornada,
                          Regiao, Servidor, Setor, StatusFuncional, TipoJornada)
+#MASCARAS
+from namp.forms import (ServidorFormAdmin, EnderecoFormAdmin, TextFormAdmin,
+						HoraFormAdmin, HistStatusFuncionalFormAdmin,
+						HistAfastamentoFormAdmin, HistLotacaoFormAdmin,
+						HistFuncaoFormAdmin, JornadaFormAdmin) 
 #PDF
 from django.http import HttpResponse
 from django.template.loader import render_to_string
@@ -20,8 +23,10 @@ from weasyprint import HTML
 from django_object_actions import DjangoObjectActions
 from django.db.models import Count
 from django.core.exceptions import ValidationError
+
+#DATA
 from datetime import timedelta as TimeDelta, datetime as DateTime, date as Date
-# Register your models here.
+
 
 @admin.register(Afastamento)
 class AfastamentoAdmin(admin.ModelAdmin):
@@ -49,7 +54,7 @@ class EnderecoServInline(admin.StackedInline):
 class ServidorInline(admin.TabularInline):
 	model=Servidor
 	fields = ('nome', 'id_matricula','cpf', 'cargo')
-	readonly_fields = ('nome', 'id_matricula','cpf', 'cargo')
+	#readonly_fields = ('nome', 'id_matricula','cpf', 'cargo')
 
 	def has_add_permission(self, request, obj=None):
 		return False
@@ -63,6 +68,7 @@ class EquipeAdmin(admin.ModelAdmin):
 	list_display = ('nome', 'fk_setor', 'status','hora_inicial','categoria', 'get_servidor')
 	list_filter = ('categoria',)
 	search_fields = ['nome']
+	list_per_page = 8
 	inlines=[ContatoEquipeInline, ServidorInline]
 	
 	def get_servidor(self, obj):
@@ -87,6 +93,7 @@ class FuncaoAdmin(admin.ModelAdmin):
 @admin.register(HistAfastamento)
 class HistAfastamentoAdmin(admin.ModelAdmin):
 	form = HistAfastamentoFormAdmin
+	autocomplete_fields = ['fk_servidor', ]
 	search_fields = ('fk_afastamento__tipificacao','fk_servidor__nome', 'fk_afastamento__id_afastamento')
 	list_display = ('fk_servidor','data_inicial','data_final','fk_afastamento')
 
@@ -98,8 +105,16 @@ class HistAfastamentoAdmin(admin.ModelAdmin):
 
 @admin.register(HistFuncao)
 class HistFuncaoAdmin(admin.ModelAdmin):
+	form = HistFuncaoFormAdmin
+	autocomplete_fields = ['fk_servidor', ]
 	search_fields = ('fk_servidor__nome','fk_funcao__nome')
 	list_display = ('id_hist_funcao','data_inicio','data_final','fk_funcao','fk_servidor')
+	
+	class Media: #IMPORTAR ARQUIVO JS MASK
+		js = (
+			"jquery.mask.min.js",
+			"mascara.js",
+			)
 
 @admin.register(HistLotacao)
 class HistLotacaoAdmin(admin.ModelAdmin):
@@ -117,6 +132,7 @@ class HistLotacaoAdmin(admin.ModelAdmin):
 @admin.register(HistStatusFuncional)
 class HistStatusFuncionalAdmin(admin.ModelAdmin):
 	form = HistStatusFuncionalFormAdmin
+	autocomplete_fields = ['fk_servidor']
 	search_fields = ('fk_servidor__nome', )
 	list_display = ('fk_servidor', 'data_inicial', 'data_final', 'fk_status_funcional')
 
@@ -128,9 +144,12 @@ class HistStatusFuncionalAdmin(admin.ModelAdmin):
 
 @admin.register(Jornada)
 class JornadaAdmin(admin.ModelAdmin):
+	form = JornadaFormAdmin
+	autocomplete_fields = ['fk_servidor']
 	change_form_template = 'admin/namp/jornada/change_form.html'
 	change_list_template = 'admin/namp/jornada/change_list.html'
 
+	
 	list_filter = ('assiduidade', 'fk_tipo_jornada')
 	list_display = ('get_matricula','get_vinculo','fk_servidor','get_cpf', 'get_codigo_setor','get_nome_setor','get_carga_horaria','get_inicio', 'get_fim')
 
@@ -176,7 +195,13 @@ class JornadaAdmin(admin.ModelAdmin):
 			return super(JornadaAdmin, self).change_view(request, object_id, form_url, extra_context)
 		except ValidationError as e:
 			return handle_exception(self, request, e)
-
+	
+	class Media: #IMPORTAR ARQUIVO JS MASK
+		js = (
+			"jquery.mask.min.js",
+			"mascara.js",
+			)
+#FIM DE JORNADA
 
 @admin.register(Regiao)
 class RegiaoAdmin(admin.ModelAdmin):
@@ -219,7 +244,7 @@ class ServidorAdmin(DjangoObjectActions, admin.ModelAdmin):
 				'fields': (('nome','cpf'), ('sexo','dt_nasc'))
 		}),
 		('Dados Funcionais',{
-				'fields': (('id_matricula','vinculo'), ('tipo_vinculo', 'regime_juridico'), ('cargo', 'situacao'),'fk_setor', 'fk_equipe', 'cf')
+				'fields': (('id_matricula','vinculo'), ('tipo_vinculo', 'regime_juridico'), ('cargo','cf', 'situacao'),'fk_setor', 'fk_equipe')
 		}),
 	)
 	inlines = [EnderecoServInline, ContatoServInline]

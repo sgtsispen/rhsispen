@@ -26,7 +26,7 @@ class Funcao(models.Model):
 class Afastamento(models.Model):
 	id_afastamento = models.CharField('Código', primary_key=True, max_length=25) #Cod com a secad
 	nome = models.CharField('Tipo de afastamento', max_length=100, unique=True)
-	descricao = models.TextField('Descrição',max_length=100, blank=True)
+	descricao = models.TextField('Descrição',max_length=100)
 	def __str__(self):
 		return self.nome
 	class Meta:
@@ -154,6 +154,11 @@ class Servidor(models.Model):
 		('AES','Agente Especialista Socioeducativo'),
 	]
 	cargo = models.CharField(max_length=50, choices=CHOICES_CARGO)
+	CHOICES_CF = [
+		('I', 'I'),
+		('II', 'II'),
+	]
+	cf = models.CharField('Curso de Formação',max_length=2, choices=CHOICES_CF)
 	tipo_vinculo = models.CharField('Tipo de Vínculo',max_length=50)
 	regime_juridico = models.CharField('Regime Jurídico',max_length=50)
 	CHOICES_VINCULO = [

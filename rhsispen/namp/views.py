@@ -41,6 +41,9 @@ def exportar_pdf(request):
 		return response
 	return response
 
+def gerarjornadaregular(request):
+	return render(request, 'namp/setor/gerarjornadaregular.html', {})
+
 def add_noturno_pdf(request):
 	# Model data
 	jornadas = Jornada.objects.all()

@@ -26,13 +26,18 @@ def create_histlotacao(sender, instance, created, **kargs):
 @receiver(post_save, sender=Servidor)
 def update_histlotacao(sender, instance, created, **kargs):
 	if created == False:
-		# Recuperando a instância de HistLotação já existende, a qual tem o atributo data_final vazio
-		oldHistLotacao = HistLotacao.objects.get(fk_servidor=instance, data_final__isnull=True)
-
-		# Verificando se o atributo fk_equipe da instância de Servidor foi editada
-		if oldHistLotacao.fk_equipe != instance.fk_equipe or oldHistLotacao.fk_setor != instance.fk_setor:
-			# Atribuindo a data final para a atual instância de HistLotacao
-			oldHistLotacao.data_final = datetime.date.today()  # Returns 2018-01-15
-			oldHistLotacao.save()
+		if HistLotacao.objects.filter(fk_servidor=instance, data_final__isnull=True).count() != 0:
+			# Recuperando a instância de HistLotação já existende, a qual tem o atributo data_final vazio
+			oldHistLotacao = HistLotacao.objects.filter(fk_servidor=instance, data_final__isnull=True).order_by('-data_inicial').first()
+			print(oldHistLotacao)
+			
+			# Verificando se o atributo fk_equipe da instância de Servidor foi editada
+			if oldHistLotacao.fk_equipe != instance.fk_equipe or oldHistLotacao.fk_setor != instance.fk_setor:
+				# Atribuindo a data final para a atual instância de HistLotacao
+				oldHistLotacao.data_final = datetime.date.today()  # Returns 2018-01-15
+				oldHistLotacao.save()
+				# Criando uma instância de HistLotação, a qual faz referência à instância de Servidor editado
+				HistLotacao.objects.create(data_inicial=datetime.date.today(), fk_servidor=instance,fk_setor=instance.fk_setor,fk_equipe=instance.fk_equipe)
+		else:
 			# Criando uma instância de HistLotação, a qual faz referência à instância de Servidor editado
-			HistLotacao.objects.create(data_inicial=datetime.date.today(), fk_servidor=instance,fk_setor=instance.fk_setor,fk_equipe=instance.fk_equipe)
+			HistLotacao.objects.create(data_inicial=datetime.date.today(), fk_servidor=instance,fk_setor=instance.fk_setor,fk_equipe=instance.fk_equipe)			

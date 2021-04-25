@@ -9,5 +9,6 @@ urlpatterns = [
 	url('getEquipes/$', views.get_equipes),
 	url('getEquipeServidor/$', views.get_equipe_servidor),
 	url('exportar_pdf/', views.exportar_pdf, name='exportar_pdf'),
+	url('gerarjornadaregular/', views.gerarjornadaregular, name='gerarjornadaregular'),
 	url('add_noturno_pdf/', views.add_noturno_pdf, name='add_noturno_pdf'),
 ]

@@ -44,6 +44,14 @@ class HistAfastamentoFormAdmin(forms.ModelForm):
         self.fields['data_final'].widget.attrs = {"placeholder":"00/00/0000"}
         self.fields['data_final'].widget.attrs['class'] = 'mask-dt'
 
+class HistFuncaoFormAdmin(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(HistFuncaoFormAdmin, self).__init__(*args, **kwargs)
+        self.fields['data_inicio'].widget.attrs={"placeholder":"00/00/0000"}
+        self.fields['data_inicio'].widget.attrs['class'] = 'mask-dt'
+        self.fields['data_final'].widget.attrs = {"placeholder":"00/00/0000"}
+        self.fields['data_final'].widget.attrs['class'] = 'mask-dt'
+
 #class HistFuncaoFomAdmin(forms.ModelForm):
 class HistLotacaoFormAdmin(forms.ModelForm):
     def __init__(self, *args, **kwargs):
@@ -52,3 +60,9 @@ class HistLotacaoFormAdmin(forms.ModelForm):
         self.fields['data_inicial'].widget.attrs['class'] = 'mask-dt'
         self.fields['data_final'].widget.attrs = {"placeholder":"00/00/0000"}
         self.fields['data_final'].widget.attrs['class'] = 'mask-dt'
+
+class JornadaFormAdmin(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(JornadaFormAdmin, self).__init__(*args, **kwargs)
+        self.fields['data_jornada'].widget.attrs={"placeholder":"00/00/0000"}
+        self.fields['data_jornada'].widget.attrs['class'] = 'mask-dt'
