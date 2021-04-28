@@ -1,2 +1,88 @@
 {% extends "admin/base_site.html" %}
-{% load static %}
+{% load crispy_forms_tags %}
+{% load i18n static %}
+
+{% block extrahead %}{{ block.super }}
+<script src="{% url 'admin:jsi18n' %}"></script>
+<script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+<script src="http://code.jquery.com/ui/1.11.0/jquery-ui.js"></script>
+
+<script>
+$(document).ready(function() {
+    $('.datepicker').datepicker({
+    	minDate: '0', dateFormat: 'yy-mm-dd' 
+    });
+});
+</script>
+
+<script type="text/javascript">
+  $(function () {
+    // inspect html to check id of category select dropdown.
+    $(document).on("change", "#id_equipe", function () {
+      $.getJSON("/getTipoJornada/", { id_equipe: $("#id_equipe").val() }, function (j) {
+        var options = '<option value="">--Selecione--</option>';
+        for (var i = 0; i < j.length; i++) {
+          options +=
+          '<option value="' + j[i].carga_horaria + '">' + j[i].tipificacao + "</option>";
+        }
+        // inspect html to check id of subcategory select dropdown.
+        $("#id_tipo_jornada").html(options);
+      });
+    });
+  });
+</script>
+
+{{ media }}
+{% endblock %}
+
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" type="text/css" href="{% static 'admin/css/forms.css' %}">
+<link rel="stylesheet" href="http://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css"> 
+{% endblock %}
+
+
+{% block branding %}
+ 	<a href="{% url 'admin:index' %}">
+	<img style="float: left;" src="{% static 'images/logoppto.png' %}" alt="logo" width="45" height="50">
+	<h1>Núcleo de Apoio e Movimentação de Pessoal</h1>
+{% endblock %}
+
+{%block usertools %}
+	<div id="user-tools">
+		{% block welcome-msg %}
+		    {% trans 'Welcome,' %}
+		    <strong>{% firstof user.get_short_name user.get_username %}</strong>.
+		{% endblock %}
+
+		{% block userlinks %}
+			<a href="{% url 'admin:index' %}">{% trans 'Ver o site' %}</a> /
+		    {% url 'django-admindocs-docroot' as docsroot %}
+		    {% if docsroot %}
+		        <a href="{{ docsroot }}">{% trans 'Documentation' %}</a> /
+		    {% endif %}
+		    {% if user.has_usable_password %}
+		    <a href="{% url 'admin:password_change' %}">{% trans 'Change password' %}</a> /
+		    {% endif %}
+		    <a href="{% url 'admin:logout' %}">{% trans 'Log out' %}</a>
+		{% endblock %}
+	</div>
+{% endblock %}
+
+{% block breadcrumbs %}
+	<div class="breadcrumbs">
+	<a href="{% url 'admin:index' %}">{% translate 'Home' %}</a>
+	&rsaquo; {% translate 'Gerar Escala Regular' %}
+	</div>
+{% endblock %}
+
+{% block title %}{{ title }}{% endblock %}
+{% block content_title %}<h1>{{ title }}</h1>{% endblock %}
+
+{% block content %}
+<p>{% translate 'Vamos personalizar os métodos de gerar jornada regular de grupos e unidades.' %}</p>
+
+<form action="{% url 'namp:gerarescalaregular' %}" method="post">
+    {% csrf_token %}
+    {{ definirjornadaregularForm | crispy }}
+    <input type="submit" value="{% translate 'Gerar Escalas' %}">
+</form>
+{% endblock %}

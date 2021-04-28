@@ -16,6 +16,9 @@ from django.core.exceptions import ValidationError
 from datetime import timedelta as TimeDelta, datetime as DateTime, date as Date
 # Register your models here.
 
+admin.site.site_header = 'Núcleo de Apoio e Movimentação de Pessoal'
+
+
 @admin.register(Afastamento)
 class AfastamentoAdmin(admin.ModelAdmin):
 	list_display = ('id_afastamento','__str__','descricao')

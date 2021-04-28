@@ -40,6 +40,7 @@ DEFAULT_APPS = [
 
 THIRD_PARTY_APPS = [
     'django_object_actions',
+    'crispy_forms',
 ]
 
 LOCAL_APPS = [
@@ -47,6 +48,8 @@ LOCAL_APPS = [
 ]
 
 INSTALLED_APPS = LOCAL_APPS + THIRD_PARTY_APPS + DEFAULT_APPS
+
+CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
