@@ -90,6 +90,12 @@ class EquipeInline(admin.TabularInline):
 class FuncaoAdmin(admin.ModelAdmin):
 	list_display = ('id_funcao', 'nome')
 
+	#def has_add_permission(self, request, obj=None):
+		#return False
+
+	def has_delete_permission(self, request, obj=None):
+		return False
+
 @admin.register(HistAfastamento)
 class HistAfastamentoAdmin(admin.ModelAdmin):
 	form = HistAfastamentoFormAdmin
@@ -108,7 +114,7 @@ class HistFuncaoAdmin(admin.ModelAdmin):
 	form = HistFuncaoFormAdmin
 	autocomplete_fields = ['fk_servidor', ]
 	search_fields = ('fk_servidor__nome','fk_funcao__nome')
-	list_display = ('id_hist_funcao','data_inicio','data_final','fk_funcao','fk_servidor')
+	list_display = ('fk_servidor','data_inicio','data_final','fk_funcao')
 	
 	class Media: #IMPORTAR ARQUIVO JS MASK
 		js = (
@@ -233,7 +239,7 @@ class ServidorAdmin(DjangoObjectActions, admin.ModelAdmin):
 
 	list_per_page = 8
 	search_fields = ('nome','fk_equipe__nome', 'fk_equipe__fk_setor__nome')
-	radio_fields = {'sexo': admin.HORIZONTAL, 'regime_juridico': admin.HORIZONTAL}
+	radio_fields = {'sexo': admin.HORIZONTAL, 'regime_juridico': admin.HORIZONTAL, 'cf': admin.HORIZONTAL}
 	'''
 	Abaixo: apresentação dos forms da model ContatoServ dentro do form da model Servidor
 	'''

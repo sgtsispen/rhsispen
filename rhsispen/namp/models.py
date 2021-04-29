@@ -30,7 +30,7 @@ class Afastamento(models.Model):
 	def __str__(self):
 		return self.nome
 	class Meta:
-		ordering = ['nome']
+		ordering = ['id_afastamento']
 		verbose_name = "Afastamento"
 		verbose_name_plural = "Afastamentos"
 
@@ -157,8 +157,9 @@ class Servidor(models.Model):
 	CHOICES_CF = [
 		('I', 'I'),
 		('II', 'II'),
+		('N', 'Nenhum'),
 	]
-	cf = models.CharField('Curso de Formação',max_length=2, choices=CHOICES_CF)
+	cf = models.CharField('Curso de Formação',max_length=3, choices=CHOICES_CF)
 	tipo_vinculo = models.CharField('Tipo de Vínculo',max_length=50)
 	regime_juridico = models.CharField('Regime Jurídico',max_length=50)
 	CHOICES_VINCULO = [
@@ -172,7 +173,6 @@ class Servidor(models.Model):
 	CHOICES_JURIDICO = [('C','CLT'),('E','Estatutário')]
 	regime_juridico = models.CharField('Regime Jurídico',max_length=25, choices=CHOICES_JURIDICO)
 	situacao = models.BooleanField('Servidor Ativo', default=False)
-	cf = models.CharField('Curso de Formação', max_length=1, blank=True)
 	fk_setor = models.ForeignKey(Setor, on_delete = models.RESTRICT, verbose_name='Setor')
 	fk_equipe = models.ForeignKey(Equipe, on_delete = models.RESTRICT, verbose_name='Equipe')
 	
