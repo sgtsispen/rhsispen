@@ -288,3 +288,4 @@ class Jornada(models.Model):
 		ordering = ["data_jornada"]
 		verbose_name = "Jornada"
 		verbose_name_plural = "Jornadas"
+		unique_together = ('fk_servidor','data_jornada',)
