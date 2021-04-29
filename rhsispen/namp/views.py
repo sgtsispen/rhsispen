@@ -88,11 +88,11 @@ def gerarescalaregular(request):
 					#print (data_inicial)
 					#crias as intândcias de jornadas aqui para cada data do período
 					jornada = Jornada(
-						data_inicial, 
-						1, 
-						servidor, 
-						Equipe.objects.filter(id_equipe=form.cleaned_data['equipe']), 
-						TipoJornada.objects.filter(carga_horaria=form.cleaned_data['tipo_jornada'])
+						data_jornada=data_inicial, 
+						assiduidade=1, 
+						fk_servidor=servidor, 
+						fk_equipe=Equipe.objects.get(id_equipe=form.cleaned_data['equipe']), 
+						fk_tipo_jornada=TipoJornada.objects.get(carga_horaria=form.cleaned_data['tipo_jornada'])
 					)
 					jornada.save()
 					data_inicial += delta
