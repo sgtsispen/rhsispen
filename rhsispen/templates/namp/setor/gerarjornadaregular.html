@@ -18,6 +18,23 @@ $(document).ready(function() {
 <script type="text/javascript">
   $(function () {
     // inspect html to check id of category select dropdown.
+    $(document).on("focus", "#id_equipe", function () {
+      $.getJSON("/getEquipes/", { id_setor: $("#id_setor").val() }, function (j) {
+        var options = '<option value="">--Selecione--</option>';
+        for (var i = 0; i < j.length; i++) {
+          options +=
+          '<option value="' + j[i].id_equipe + '">' + j[i].nome + "</option>";
+        }
+        // inspect html to check id of subcategory select dropdown.
+        $("#id_equipe").html(options);
+      });
+    });
+  });
+</script>
+
+<script type="text/javascript">
+  $(function () {
+    // inspect html to check id of category select dropdown.
     $(document).on("change", "#id_equipe", function () {
       $.getJSON("/getTipoJornada/", { id_equipe: $("#id_equipe").val() }, function (j) {
         var options = '<option value="">--Selecione--</option>';
@@ -82,7 +99,7 @@ $(document).ready(function() {
 
 <form action="{% url 'namp:gerarescalaregular' %}" method="post">
     {% csrf_token %}
-    {{ definirjornadaregularForm | crispy }}
+    {{ definirjornadaregularForm.as_p }}
     <input type="submit" value="{% translate 'Gerar Escalas' %}">
 </form>
 {% endblock %}

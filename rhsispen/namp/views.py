@@ -11,7 +11,7 @@ from .forms import DefinirJornadaRegularForm
 from django.urls import resolve
 from urllib.parse import urlparse
 from datetime import timedelta as TimeDelta, datetime as DateTime, date as Date
-
+from django.contrib import messages
 '''
 	Recuperar do banco as equipes da unidade penal escolhida no momento do cadastro de servidor e
 	as envia para a página populando o campo select fk_equipe
@@ -70,36 +70,71 @@ def definirjornadaregular(request):
 	}
 	return render(request, 'namp/setor/gerarjornadaregular.html', contexto)
 
-def gerarescalaregular(request):
+'''def gerarescalaregular(request):
 	if request.method == "POST":
 		form = DefinirJornadaRegularForm(request.POST)
 		if form.is_valid():
-			#print(form.cleaned_data)
-			
-			#{'setor': '040.CMEPARG', 'data_inicial': datetime.date(2021, 4, 28), 'data_final': datetime.date(2021, 4, 30), 'equipe': '40', 'tipo_jornada': '8'}
-
 			servidores = Servidor.objects.filter(fk_equipe=form.cleaned_data['equipe'])
-			#print(servidores)
 			for servidor in servidores:
 				data_inicial = form.cleaned_data['data_inicial']
 				data_final = form.cleaned_data['data_final']
 				delta = TimeDelta(days=1)
 				while data_inicial <= data_final:
-					#print (data_inicial)
-					#crias as intândcias de jornadas aqui para cada data do período
-					jornada = Jornada(
-						data_jornada=data_inicial, 
-						assiduidade=1, 
-						fk_servidor=servidor, 
-						fk_equipe=Equipe.objects.get(id_equipe=form.cleaned_data['equipe']), 
-						fk_tipo_jornada=TipoJornada.objects.get(carga_horaria=form.cleaned_data['tipo_jornada'])
-					)
+					jornada = Jornada(data_jornada=data_inicial, assiduidade=1, fk_servidor=servidor, fk_equipe=Equipe.objects.get(id_equipe=form.cleaned_data['equipe']), fk_tipo_jornada=TipoJornada.objects.get(carga_horaria=form.cleaned_data['tipo_jornada']))
 					jornada.save()
 					data_inicial += delta
 			return HttpResponseRedirect('/admin/namp/setor/')
 		else:
-			print ("Erro no formulário!")
-			return render(request, 'namp/setor/gerarjornadaregular.html', {'definirjornadaregularForm': form})
+			return render(request, 'namp/setor/gerarjornadaregular.html', {'definirjornadaregularForm': form})'''
+
+
+def datasportipodejornada(data_inicial, data_final, tipo_jornada):
+	datas = []
+	if tipo_jornada == 6 or tipo_jornada == 8:
+		intervalo = TimeDelta(days=1)
+		while data_inicial <= data_final:
+			if data_inicial.weekday() < 5: 
+				datas.append(data_inicial)
+			data_inicial+= intervalo
+		return datas
+	elif tipo_jornada == 24:
+		intervalo = TimeDelta(days=4)
+		while data_inicial <= data_final:
+			datas.append(data_inicial)
+			data_inicial+= intervalo
+		return datas
+	elif tipo_jornada == 48:
+		intervalo = TimeDelta(days=8)
+		while data_inicial <= data_final:
+			datas.append(data_inicial)
+			datas.append(Date.fromordinal(data_inicial.toordinal()+1))
+			data_inicial+= intervalo
+		return datas
+
+def gerarescalaregular(request):
+	if request.method == "POST":
+		form = DefinirJornadaRegularForm(request.POST)
+		if form.is_valid():
+			equipe = Equipe.objects.get(id_equipe=form.cleaned_data['equipe'])
+			servidores = Servidor.objects.filter(fk_equipe=form.cleaned_data['equipe'])
+			for servidor in servidores:
+				data_inicial = Date.fromordinal(min(form.cleaned_data['data_inicial'].toordinal(), form.cleaned_data['data_final'].toordinal()))
+				data_final = Date.fromordinal(max(form.cleaned_data['data_inicial'].toordinal(), form.cleaned_data['data_final'].toordinal()))
+				datas = datasportipodejornada(data_inicial, data_final, int(form.cleaned_data['tipo_jornada']))
+				print(datas)
+				for data in datas:
+					jornada = Jornada(data_jornada=data, assiduidade=1, fk_servidor=servidor, fk_equipe=Equipe.objects.get(id_equipe=form.cleaned_data['equipe']), fk_tipo_jornada=TipoJornada.objects.get(carga_horaria=form.cleaned_data['tipo_jornada']))
+					jornadas = Jornada.objects.filter(fk_servidor=jornada.fk_servidor).filter(data_jornada=jornada.data_jornada)
+					if jornadas:
+						continue
+					jornada.save()
+			messages.success(request, 'As jornadas da equipe ' + equipe.nome.upper() + ' foram atualizadas com suceso!')
+			return HttpResponseRedirect('/admin/namp/setor/'+ form.cleaned_data['setor'] + '/change')
+		else:
+			messages.warning(request, 'Ops! Verifique os campos do formulário!')
+			return render(request, 'namp/setor/gerarjornadaregular.html', {'definirjornadaregularForm': DefinirJornadaRegularForm(initial={'setor':form.cleaned_data['setor']})})
+	else:
+		return render(request, 'namp/setor/gerarjornadaregular.html', {'definirjornadaregularForm': DefinirJornadaRegularForm(initial={'setor':form.cleaned_data['setor']})})
 
 
 def add_noturno_pdf(request):
