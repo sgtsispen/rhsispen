@@ -123,6 +123,8 @@ class JornadaAdmin(admin.ModelAdmin):
 	get_nome_setor.short_description = 'setor'
 
 	def get_carga_horaria(self, obj):
+		if obj.fk_tipo_jornada.carga_horaria == 48:
+			return 24
 		return obj.fk_tipo_jornada.carga_horaria
 	get_carga_horaria.short_description = 'carga horária'
 
