@@ -44,7 +44,6 @@ THIRD_PARTY_APPS = [
 
 LOCAL_APPS = [
     'namp.apps.NampConfig',
-    #'django_object_actions', #add depois
 ]
 
 INSTALLED_APPS = LOCAL_APPS + THIRD_PARTY_APPS + DEFAULT_APPS
