@@ -1,0 +1,29 @@
+<html>
+<head>
+  <title>{{ obj.title }}</title>
+  <style>
+    body {
+      background-color: #f7f7f7;
+    }
+    p {
+      text-align: justify;
+      text-justify: inter-word;
+    }
+    .text-right {
+      text-align: right;
+    }
+  </style>
+</head>
+  <body>
+    {% if servidores %}
+      {% for servidor in servidores %}
+        <h3>Nome: {{ servidor.nome }}</h1>
+        <p><b>CPF:</b> {{ servidor.cpf }}</p>
+        <p><b>Matrícula:</b> {{ servidor.id_matricula}}</p>
+        <p><b>Vínculo:</b> {{ servidor.vinculo}}</p>
+      {% endfor %}
+    {% else %}
+      <h1 class="text-right">Nenhum servidor cadastrado!</h1>
+    {% endif%}
+  </body>
+</html>

@@ -137,7 +137,11 @@ class JornadaAdmin(admin.ModelAdmin):
 		inicio = obj.data_jornada.strftime("%d/%m/%Y") + " " +obj.fk_equipe.hora_inicial.strftime("%H:%M:%S")
 
 		inicioDateTime = DateTime.strptime(inicio, '%d/%m/%Y %H:%M:%S')
-		fim = inicioDateTime + TimeDelta(hours=obj.fk_tipo_jornada.carga_horaria)
+
+		if  obj.fk_tipo_jornada.carga_horaria!=48:
+			fim = inicioDateTime + TimeDelta(hours=obj.fk_tipo_jornada.carga_horaria)
+		else:
+			fim = inicioDateTime + TimeDelta(hours=(obj.fk_tipo_jornada.carga_horaria/2))
 		return fim.strftime('%d/%m/%Y %H:%M:%S')
 	get_fim.short_description = 'fim'
 

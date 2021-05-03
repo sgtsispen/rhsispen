@@ -285,7 +285,7 @@ class Jornada(models.Model):
 	def __str__(self):
 		return str(self.id_jornada) 
 	class Meta:
-		ordering = ["data_jornada"]
+		ordering = ["-fk_equipe__nome", "-fk_servidor__nome", "data_jornada"]
 		verbose_name = "Jornada"
 		verbose_name_plural = "Jornadas"
 		unique_together = ('fk_servidor','data_jornada',)

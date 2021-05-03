@@ -5,7 +5,13 @@
 {% block object-tools-items %}{{ block.super }}
 <li>
     <a href="{% url 'namp:add_noturno_pdf'%}" class="historylink">    
-        {% trans 'Exportar PDF' %}
+        {% trans 'Adicional Noturno' %}
+    </a>
+</li>
+
+<li>
+    <a href="{% url 'namp:exportar_jornadas_excel' %}" class="historylink">    
+        {% trans 'Baixar Jornadas Excel' %}
     </a>
 </li>
 {% endblock %}

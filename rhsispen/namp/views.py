@@ -1,12 +1,13 @@
 # Create your views here.
+import tempfile
+import json
+import xlwt
 from django.shortcuts import render, redirect
 from .models import Setor, Equipe, Servidor, TipoJornada, Jornada
 from django.http import HttpResponse, HttpResponseRedirect
 from weasyprint import HTML
 from django.template.loader import render_to_string
-import tempfile
 from django.core.files.storage import FileSystemStorage
-import json
 from .forms import DefinirJornadaRegularForm
 from django.urls import resolve
 from urllib.parse import urlparse
@@ -70,24 +71,6 @@ def definirjornadaregular(request):
 	}
 	return render(request, 'namp/setor/gerarjornadaregular.html', contexto)
 
-'''def gerarescalaregular(request):
-	if request.method == "POST":
-		form = DefinirJornadaRegularForm(request.POST)
-		if form.is_valid():
-			servidores = Servidor.objects.filter(fk_equipe=form.cleaned_data['equipe'])
-			for servidor in servidores:
-				data_inicial = form.cleaned_data['data_inicial']
-				data_final = form.cleaned_data['data_final']
-				delta = TimeDelta(days=1)
-				while data_inicial <= data_final:
-					jornada = Jornada(data_jornada=data_inicial, assiduidade=1, fk_servidor=servidor, fk_equipe=Equipe.objects.get(id_equipe=form.cleaned_data['equipe']), fk_tipo_jornada=TipoJornada.objects.get(carga_horaria=form.cleaned_data['tipo_jornada']))
-					jornada.save()
-					data_inicial += delta
-			return HttpResponseRedirect('/admin/namp/setor/')
-		else:
-			return render(request, 'namp/setor/gerarjornadaregular.html', {'definirjornadaregularForm': form})'''
-
-
 def datasportipodejornada(data_inicial, data_final, tipo_jornada):
 	datas = []
 	feriados = {
@@ -147,6 +130,65 @@ def gerarescalaregular(request):
 	else:
 		return render(request, 'namp/setor/gerarjornadaregular.html', {'definirjornadaregularForm': DefinirJornadaRegularForm(initial={'setor':form.cleaned_data['setor']})})
 
+
+def exportar_jornadas_excel(request):
+	response = HttpResponse(content_type='application/ms-excel')
+	response['Content-Disposition'] = 'attachment; filename="jornadas.xls"'
+
+	wb = xlwt.Workbook(encoding='utf-8')
+	ws = wb.add_sheet('Jornadas')
+
+	# largura das colunas
+	ws.col(0).width = 256 * 12
+	ws.col(1).width = 256 * 9
+	ws.col(2).width = 256 * 50
+	ws.col(3).width = 256 * 12
+	ws.col(4).width = 256 * 15
+	ws.col(5).width = 256 * 50
+	ws.col(6).width = 256 * 17
+	ws.col(7).width = 256 * 18
+	ws.col(8).width = 256 * 18
+	
+	# Sheet header, first row
+	row_num = 0
+
+	font_style = xlwt.XFStyle()
+	font_style.font.bold = True
+
+	columns = ['MATRICULA', 'VINCULO', 'SERVIDOR', 'CPF', 'CODIGO', 'SETOR', 'CARGA_HORARIA', 'INICIO', 'FIM' ]
+
+	for col_num in range(len(columns)):
+		ws.write(row_num, col_num, columns[col_num], font_style)
+
+	# Sheet body, remaining rows
+	font_style = xlwt.XFStyle()
+
+	#recuperando as jornadas do banco. OBS: apenas as jornadas do mês corrente
+	jornadas = Jornada.objects.filter(data_jornada__month=Date.today().month).order_by('fk_equipe__fk_setor__nome', 'data_jornada', 'fk_servidor__nome')
+	
+	#aplicando os atributos das jornadas nas células da planilha
+	for jornada in jornadas:
+		row_num += 1   
+		ws.write(row_num, 0, jornada.fk_servidor.id_matricula, font_style)
+		ws.write(row_num, 1, jornada.fk_servidor.vinculo, font_style)
+		ws.write(row_num, 2, jornada.fk_servidor.nome, font_style)
+		ws.write(row_num, 3, jornada.fk_servidor.cpf, font_style)
+		ws.write(row_num, 4, jornada.fk_equipe.fk_setor.id_setor, font_style)
+		ws.write(row_num, 5, jornada.fk_equipe.fk_setor.nome, font_style)
+		if jornada.fk_tipo_jornada.carga_horaria != 48:
+			ws.write(row_num, 6, jornada.fk_tipo_jornada.carga_horaria, font_style)
+		else:
+			ws.write(row_num, 6, jornada.fk_tipo_jornada.carga_horaria/2, font_style)
+		inicio = jornada.data_jornada.strftime("%d/%m/%Y") + " " +jornada.fk_equipe.hora_inicial.strftime("%H:%M:%S")
+		ws.write(row_num, 7, DateTime.strptime(inicio, '%d/%m/%Y %H:%M:%S').strftime("%d/%m/%Y %H:%M:%S"), font_style)
+		if jornada.fk_tipo_jornada.carga_horaria != 48:
+			fim = DateTime.strptime(inicio, '%d/%m/%Y %H:%M:%S') + TimeDelta(hours=jornada.fk_tipo_jornada.carga_horaria)
+			ws.write(row_num, 8, fim.strftime('%d/%m/%Y %H:%M:%S'), font_style)
+		else:
+			fim = DateTime.strptime(inicio, '%d/%m/%Y %H:%M:%S') + TimeDelta(hours=jornada.fk_tipo_jornada.carga_horaria/2)
+			ws.write(row_num, 8, fim.strftime('%d/%m/%Y %H:%M:%S'), font_style)
+	wb.save(response)
+	return response
 
 def add_noturno_pdf(request):
 	# Model data
