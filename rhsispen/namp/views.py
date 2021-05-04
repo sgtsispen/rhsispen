@@ -102,7 +102,7 @@ def datasportipodejornada(data_inicial, data_final, tipo_jornada):
 		intervalo = TimeDelta(days=8)
 		while data_inicial <= data_final:
 			datas.append(data_inicial)
-			datas.append(Date.fromordinal(data_inicial.toordinal()+1))
+			#datas.append(Date.fromordinal(data_inicial.toordinal()+1))
 			data_inicial+= intervalo
 		return datas
 
@@ -116,7 +116,7 @@ def gerarescalaregular(request):
 				data_inicial = Date.fromordinal(min(form.cleaned_data['data_inicial'].toordinal(), form.cleaned_data['data_final'].toordinal()))
 				data_final = Date.fromordinal(max(form.cleaned_data['data_inicial'].toordinal(), form.cleaned_data['data_final'].toordinal()))
 				datas = datasportipodejornada(data_inicial, data_final, int(form.cleaned_data['tipo_jornada']))
-				print(datas)
+				#print(datas)
 				for data in datas:
 					jornada = Jornada(data_jornada=data, assiduidade=1, fk_servidor=servidor, fk_equipe=Equipe.objects.get(id_equipe=form.cleaned_data['equipe']), fk_tipo_jornada=TipoJornada.objects.get(carga_horaria=form.cleaned_data['tipo_jornada']))
 					jornadas = Jornada.objects.filter(fk_servidor=jornada.fk_servidor).filter(data_jornada=jornada.data_jornada)
@@ -124,7 +124,8 @@ def gerarescalaregular(request):
 						continue
 					jornada.save()
 			messages.success(request, 'As jornadas da equipe ' + equipe.nome.upper() + ' foram atualizadas com suceso!')
-			return HttpResponseRedirect('/admin/namp/setor/'+ form.cleaned_data['setor'] + '/change')
+			return HttpResponseRedirect('/admin/namp/setor/'+ form.cleaned_data['setor'] + '/change/')
+			#return render(request, 'namp/setor/gerarjornadaregular.html', {'definirjornadaregularForm': DefinirJornadaRegularForm(initial={'setor':form.cleaned_data['setor']})})
 		else:
 			messages.warning(request, 'Ops! Verifique os campos do formulário!')
 			return render(request, 'namp/setor/gerarjornadaregular.html', {'definirjornadaregularForm': DefinirJornadaRegularForm(initial={'setor':form.cleaned_data['setor']})})
@@ -133,63 +134,61 @@ def gerarescalaregular(request):
 
 
 def exportar_jornadas_excel(request):
-	response = HttpResponse(content_type='application/ms-excel')
-	response['Content-Disposition'] = 'attachment; filename="jornadas.xls"'
-
-	wb = xlwt.Workbook(encoding='utf-8')
-	ws = wb.add_sheet('Jornadas')
-
-	# largura das colunas
-	ws.col(0).width = 256 * 12
-	ws.col(1).width = 256 * 9
-	ws.col(2).width = 256 * 50
-	ws.col(3).width = 256 * 12
-	ws.col(4).width = 256 * 15
-	ws.col(5).width = 256 * 50
-	ws.col(6).width = 256 * 17
-	ws.col(7).width = 256 * 18
-	ws.col(8).width = 256 * 18
-	
-	# Sheet header, first row
-	row_num = 0
-
-	font_style = xlwt.XFStyle()
-	font_style.font.bold = True
-
-	columns = ['MATRICULA', 'VINCULO', 'SERVIDOR', 'CPF', 'CODIGO', 'SETOR', 'CARGA_HORARIA', 'INICIO', 'FIM' ]
-
-	for col_num in range(len(columns)):
-		ws.write(row_num, col_num, columns[col_num], font_style)
-
-	# Sheet body, remaining rows
-	font_style = xlwt.XFStyle()
-
 	#recuperando as jornadas do banco. OBS: apenas as jornadas do mês corrente
-	jornadas = Jornada.objects.filter(data_jornada__month=Date.today().month).order_by('fk_equipe__fk_setor__nome', 'data_jornada', 'fk_servidor__nome')
-	
-	#aplicando os atributos das jornadas nas células da planilha
-	for jornada in jornadas:
-		row_num += 1   
-		ws.write(row_num, 0, jornada.fk_servidor.id_matricula, font_style)
-		ws.write(row_num, 1, jornada.fk_servidor.vinculo, font_style)
-		ws.write(row_num, 2, jornada.fk_servidor.nome, font_style)
-		ws.write(row_num, 3, jornada.fk_servidor.cpf, font_style)
-		ws.write(row_num, 4, jornada.fk_equipe.fk_setor.id_setor, font_style)
-		ws.write(row_num, 5, jornada.fk_equipe.fk_setor.nome, font_style)
-		if jornada.fk_tipo_jornada.carga_horaria != 48:
-			ws.write(row_num, 6, jornada.fk_tipo_jornada.carga_horaria, font_style)
-		else:
-			ws.write(row_num, 6, jornada.fk_tipo_jornada.carga_horaria/2, font_style)
-		inicio = jornada.data_jornada.strftime("%d/%m/%Y") + " " +jornada.fk_equipe.hora_inicial.strftime("%H:%M:%S")
-		ws.write(row_num, 7, DateTime.strptime(inicio, '%d/%m/%Y %H:%M:%S').strftime("%d/%m/%Y %H:%M:%S"), font_style)
-		if jornada.fk_tipo_jornada.carga_horaria != 48:
+	jornadas = Jornada.objects.filter(data_jornada__month=Date.today().month).order_by('fk_equipe__fk_setor__nome', 'fk_equipe__nome','fk_servidor__nome','data_jornada')
+	if jornadas:
+		response = HttpResponse(content_type='application/ms-excel')
+		response['Content-Disposition'] = 'attachment; filename="jornadas.xls"'
+
+		wb = xlwt.Workbook(encoding='utf-8')
+		ws = wb.add_sheet('Jornadas')
+
+		# largura das colunas
+		ws.col(0).width = 256 * 12
+		ws.col(1).width = 256 * 9
+		ws.col(2).width = 256 * 50
+		ws.col(3).width = 256 * 12
+		ws.col(4).width = 256 * 15
+		ws.col(5).width = 256 * 18
+		ws.col(6).width = 256 * 18
+		ws.col(7).width = 256 * 18
+		
+		# Sheet header, first row
+		row_num = 0
+
+		font_style = xlwt.XFStyle()
+		font_style.font.bold = True
+
+		columns = ['MATRICULA', 'VINCULO', 'SERVIDOR', 'CPF', 'CODIGO', 'CARGA_HORARIA', 'INICIO', 'FIM' ]
+
+		for col_num in range(len(columns)):
+			ws.write(row_num, col_num, columns[col_num], font_style)
+
+		# Sheet body, remaining rows
+		font_style = xlwt.XFStyle()
+
+		#aplicando os atributos das jornadas nas células da planilha
+		for jornada in jornadas:
+			row_num += 1   
+			ws.write(row_num, 0, jornada.fk_servidor.id_matricula, font_style)
+			ws.write(row_num, 1, jornada.fk_servidor.vinculo, font_style)
+			ws.write(row_num, 2, jornada.fk_servidor.nome, font_style)
+			ws.write(row_num, 3, jornada.fk_servidor.cpf, font_style)
+			ws.write(row_num, 4, jornada.fk_equipe.fk_setor.id_setor, font_style)
+			ws.write(row_num, 5, jornada.fk_tipo_jornada.carga_horaria, font_style)
+			
+			inicio = jornada.data_jornada.strftime("%d/%m/%Y") + " " +jornada.fk_equipe.hora_inicial.strftime("%H:%M:%S")
+			ws.write(row_num, 6, DateTime.strptime(inicio, '%d/%m/%Y %H:%M:%S').strftime("%d/%m/%Y %H:%M:%S"), font_style)
+			#if jornada.fk_tipo_jornada.carga_horaria != 48:
 			fim = DateTime.strptime(inicio, '%d/%m/%Y %H:%M:%S') + TimeDelta(hours=jornada.fk_tipo_jornada.carga_horaria)
-			ws.write(row_num, 8, fim.strftime('%d/%m/%Y %H:%M:%S'), font_style)
-		else:
-			fim = DateTime.strptime(inicio, '%d/%m/%Y %H:%M:%S') + TimeDelta(hours=jornada.fk_tipo_jornada.carga_horaria/2)
-			ws.write(row_num, 8, fim.strftime('%d/%m/%Y %H:%M:%S'), font_style)
-	wb.save(response)
-	return response
+			ws.write(row_num, 7, fim.strftime('%d/%m/%Y %H:%M:%S'), font_style)
+			#else:
+			#	fim = DateTime.strptime(inicio, '%d/%m/%Y %H:%M:%S') + TimeDelta(hours=jornada.fk_tipo_jornada.carga_horaria/2)
+			#	ws.write(row_num, 7, fim.strftime('%d/%m/%Y %H:%M:%S'), font_style)
+		wb.save(response)
+		return response
+	messages.warning(request, 'Ops! Não há jornadas registradas no mês corrente!')
+	return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 def add_noturno_pdf(request):
 	# Model data
@@ -224,51 +223,66 @@ def add_noturno_pdf(request):
 
 #Rodina em desenvolvimento
 def exportar_noturno_excel(request):
-	response = HttpResponse(content_type='application/ms-excel')
-	response['Content-Disposition'] = 'attachment; filename="adicional-noturno.xls"'
-
-	wb = xlwt.Workbook(encoding='utf-8')
-	ws = wb.add_sheet('Adicional')
-
-	# largura das colunas
-	ws.col(0).width = 256 * 12
-	ws.col(1).width = 256 * 9
-	ws.col(2).width = 256 * 30
-	ws.col(3).width = 256 * 12
-	ws.col(4).width = 256 * 50
-	ws.col(5).width = 256 * 15
-	ws.col(6).width = 256 * 12
-	ws.col(7).width = 256 * 12
-	ws.col(8).width = 256 * 25
-	
-	# Sheet header, first row
-	row_num = 0
-
-	font_style = xlwt.XFStyle()
-	font_style.font.bold = True
-
-	columns = ['NUMFUNC', 'NUMVINC', 'CARGO', 'CPF', 'NOME', 'QUANT(HORAS)', 'DINI', 'DTFIM', 'OBS']
-
-	for col_num in range(len(columns)):
-		ws.write(row_num, col_num, columns[col_num], font_style)
-
-	# Sheet body, remaining rows
-	font_style = xlwt.XFStyle()
 
 	#recuperando as jornadas do banco. OBS: apenas as jornadas do mês corrente
-	jornadas = Jornada.objects.filter(fk_tipo_jornada__carga_horaria__in=[24,48]).filter(data_jornada__month=Date.today().month).order_by('fk_equipe__fk_setor__nome', 'data_jornada', 'fk_servidor__nome')
-	
-	#aplicando os atributos das jornadas nas células da planilha
-	for jornada in jornadas:
-		row_num += 1   
-		ws.write(row_num, 0, jornada.fk_servidor.id_matricula, font_style)
-		ws.write(row_num, 1, jornada.fk_servidor.vinculo, font_style)
-		ws.write(row_num, 2, jornada.fk_servidor.cargo, font_style)
-		ws.write(row_num, 3, jornada.fk_servidor.cpf, font_style)
-		ws.write(row_num, 4, jornada.fk_servidor.nome, font_style)
-		ws.write(row_num, 5, "", font_style)		
-		ws.write(row_num, 6, jornada.data_jornada.strftime("%d/%m/%Y"), font_style)
-		ws.write(row_num, 7, jornada.data_jornada.strftime("%d/%m/%Y"), font_style)
-		ws.write(row_num, 8, "", font_style)
-	wb.save(response)
-	return response
+	jornadas = Jornada.objects.filter(fk_tipo_jornada__carga_horaria__in=[24,48]).filter(data_jornada__month=Date.today().month).order_by('fk_equipe__fk_setor__nome', 'fk_equipe__nome','fk_servidor__nome','data_jornada')
+	if jornadas:
+		response = HttpResponse(content_type='application/ms-excel')
+		response['Content-Disposition'] = 'attachment; filename="adicional-noturno.xls"'
+
+		wb = xlwt.Workbook(encoding='utf-8')
+		ws = wb.add_sheet('Adicional')
+
+		# largura das colunas
+		ws.col(0).width = 256 * 12
+		ws.col(1).width = 256 * 9
+		ws.col(2).width = 256 * 30
+		ws.col(3).width = 256 * 12
+		ws.col(4).width = 256 * 50
+		ws.col(5).width = 256 * 15
+		ws.col(6).width = 256 * 12
+		ws.col(7).width = 256 * 12
+		ws.col(8).width = 256 * 25
+		
+		# Sheet header, first row
+		row_num = 0
+
+		font_style = xlwt.XFStyle()
+		font_style.font.bold = True
+
+		columns = ['NUMFUNC', 'NUMVINC', 'CARGO', 'CPF', 'NOME', 'QUANT(HORAS)', 'DINI', 'DTFIM', 'OBS']
+
+		for col_num in range(len(columns)):
+			ws.write(row_num, col_num, columns[col_num], font_style)
+
+		# Sheet body, remaining rows
+		font_style = xlwt.XFStyle()
+
+		def setRow(jornada, hora, dt):
+			ws.write(row_num, 0, jornada.fk_servidor.id_matricula, font_style)
+			ws.write(row_num, 1, jornada.fk_servidor.vinculo, font_style)
+			ws.write(row_num, 2, jornada.fk_servidor.cargo, font_style)
+			ws.write(row_num, 3, jornada.fk_servidor.cpf, font_style)
+			ws.write(row_num, 4, jornada.fk_servidor.nome, font_style)
+			ws.write(row_num, 5, hora, font_style)
+			ws.write(row_num, 6, dt, font_style)
+			ws.write(row_num, 7, dt, font_style)
+			ws.write(row_num, 8, "", font_style)
+			
+		#aplicando os atributos das jornadas nas células da planilha
+		for jornada in jornadas:
+			row_num += 1
+			if jornada.fk_tipo_jornada.carga_horaria == 24:
+				setRow(jornada, 2,jornada.data_jornada.strftime("%d/%m/%Y"))
+				row_num += 1
+				setRow(jornada, 5,Date.fromordinal(jornada.data_jornada.toordinal()+1).strftime("%d/%m/%Y"))			
+			else:
+				setRow(jornada, 2,jornada.data_jornada.strftime("%d/%m/%Y"))
+				row_num += 1
+				setRow(jornada, 7,Date.fromordinal(jornada.data_jornada.toordinal()+1).strftime("%d/%m/%Y"))
+				row_num += 1
+				setRow(jornada, 5,Date.fromordinal(jornada.data_jornada.toordinal()+2).strftime("%d/%m/%Y"))
+		wb.save(response)
+		return response
+	messages.warning(request, 'Ops! Não há jornadas registradas no mês corrente!')
+	return HttpResponseRedirect(request.META.get('HTTP_REFERER'))

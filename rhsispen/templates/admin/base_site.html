@@ -1,3 +1,5 @@
 {% extends "admin/base_site.html" %} {% load static %} {% block branding %}
-<a href="{% url 'admin:index' %}">
-    <img style="float: left;" src="{% static 'images/logoppto.png' %}" alt="logo" width="45" height="50"> {{ block.super }} {% endblock %}
+	<a href="{% url 'admin:index' %}">
+    <img style="float: left;" src="{% static 'images/logoppto.png' %}" alt="logo" width="45" height="50"></a>
+    {{ block.super }} 
+{% endblock %}

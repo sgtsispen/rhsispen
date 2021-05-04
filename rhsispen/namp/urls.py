@@ -10,7 +10,7 @@ urlpatterns = [
 	url('getTipoJornada/', views.get_tipo_jornada),
 	url('getEquipeServidor/$', views.get_equipe_servidor),
 	url('exportar_pdf/', views.exportar_pdf, name='exportar_pdf'),
-	url('admin/namp/setor/040.CMEPARG/change/escala-regular/', views.definirjornadaregular, name='definirjornadaregular'),
+	url('escala-regular/', views.definirjornadaregular, name='definirjornadaregular'),
 	url('gerarescalaregular/', views.gerarescalaregular, name='gerarescalaregular'),
 
 	url(r'^jornadas-excel/xls/$', views.exportar_jornadas_excel, name='exportar_jornadas_excel'),
