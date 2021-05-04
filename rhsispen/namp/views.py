@@ -102,7 +102,6 @@ def datasportipodejornada(data_inicial, data_final, tipo_jornada):
 		intervalo = TimeDelta(days=8)
 		while data_inicial <= data_final:
 			datas.append(data_inicial)
-			#datas.append(Date.fromordinal(data_inicial.toordinal()+1))
 			data_inicial+= intervalo
 		return datas
 
@@ -116,7 +115,6 @@ def gerarescalaregular(request):
 				data_inicial = Date.fromordinal(min(form.cleaned_data['data_inicial'].toordinal(), form.cleaned_data['data_final'].toordinal()))
 				data_final = Date.fromordinal(max(form.cleaned_data['data_inicial'].toordinal(), form.cleaned_data['data_final'].toordinal()))
 				datas = datasportipodejornada(data_inicial, data_final, int(form.cleaned_data['tipo_jornada']))
-				#print(datas)
 				for data in datas:
 					jornada = Jornada(data_jornada=data, assiduidade=1, fk_servidor=servidor, fk_equipe=Equipe.objects.get(id_equipe=form.cleaned_data['equipe']), fk_tipo_jornada=TipoJornada.objects.get(carga_horaria=form.cleaned_data['tipo_jornada']))
 					jornadas = Jornada.objects.filter(fk_servidor=jornada.fk_servidor).filter(data_jornada=jornada.data_jornada)
@@ -125,7 +123,6 @@ def gerarescalaregular(request):
 					jornada.save()
 			messages.success(request, 'As jornadas da equipe ' + equipe.nome.upper() + ' foram atualizadas com suceso!')
 			return HttpResponseRedirect('/admin/namp/setor/'+ form.cleaned_data['setor'] + '/change/')
-			#return render(request, 'namp/setor/gerarjornadaregular.html', {'definirjornadaregularForm': DefinirJornadaRegularForm(initial={'setor':form.cleaned_data['setor']})})
 		else:
 			messages.warning(request, 'Ops! Verifique os campos do formulário!')
 			return render(request, 'namp/setor/gerarjornadaregular.html', {'definirjornadaregularForm': DefinirJornadaRegularForm(initial={'setor':form.cleaned_data['setor']})})
@@ -179,12 +176,8 @@ def exportar_jornadas_excel(request):
 			
 			inicio = jornada.data_jornada.strftime("%d/%m/%Y") + " " +jornada.fk_equipe.hora_inicial.strftime("%H:%M:%S")
 			ws.write(row_num, 6, DateTime.strptime(inicio, '%d/%m/%Y %H:%M:%S').strftime("%d/%m/%Y %H:%M:%S"), font_style)
-			#if jornada.fk_tipo_jornada.carga_horaria != 48:
 			fim = DateTime.strptime(inicio, '%d/%m/%Y %H:%M:%S') + TimeDelta(hours=jornada.fk_tipo_jornada.carga_horaria)
 			ws.write(row_num, 7, fim.strftime('%d/%m/%Y %H:%M:%S'), font_style)
-			#else:
-			#	fim = DateTime.strptime(inicio, '%d/%m/%Y %H:%M:%S') + TimeDelta(hours=jornada.fk_tipo_jornada.carga_horaria/2)
-			#	ws.write(row_num, 7, fim.strftime('%d/%m/%Y %H:%M:%S'), font_style)
 		wb.save(response)
 		return response
 	messages.warning(request, 'Ops! Não há jornadas registradas no mês corrente!')
