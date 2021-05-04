@@ -71,6 +71,7 @@ def definirjornadaregular(request):
 	}
 	return render(request, 'namp/setor/gerarjornadaregular.html', contexto)
 
+# métodos que retorna os dias do intervalo a partir do tipo de jornada
 def datasportipodejornada(data_inicial, data_final, tipo_jornada):
 	datas = []
 	feriados = {
@@ -220,3 +221,54 @@ def add_noturno_pdf(request):
 	#Calculo = quant de plantoes X 7 hrs
 	return response
 """
+
+#Rodina em desenvolvimento
+def exportar_noturno_excel(request):
+	response = HttpResponse(content_type='application/ms-excel')
+	response['Content-Disposition'] = 'attachment; filename="adicional-noturno.xls"'
+
+	wb = xlwt.Workbook(encoding='utf-8')
+	ws = wb.add_sheet('Adicional')
+
+	# largura das colunas
+	ws.col(0).width = 256 * 12
+	ws.col(1).width = 256 * 9
+	ws.col(2).width = 256 * 30
+	ws.col(3).width = 256 * 12
+	ws.col(4).width = 256 * 50
+	ws.col(5).width = 256 * 15
+	ws.col(6).width = 256 * 12
+	ws.col(7).width = 256 * 12
+	ws.col(8).width = 256 * 25
+	
+	# Sheet header, first row
+	row_num = 0
+
+	font_style = xlwt.XFStyle()
+	font_style.font.bold = True
+
+	columns = ['NUMFUNC', 'NUMVINC', 'CARGO', 'CPF', 'NOME', 'QUANT(HORAS)', 'DINI', 'DTFIM', 'OBS']
+
+	for col_num in range(len(columns)):
+		ws.write(row_num, col_num, columns[col_num], font_style)
+
+	# Sheet body, remaining rows
+	font_style = xlwt.XFStyle()
+
+	#recuperando as jornadas do banco. OBS: apenas as jornadas do mês corrente
+	jornadas = Jornada.objects.filter(fk_tipo_jornada__carga_horaria__in=[24,48]).filter(data_jornada__month=Date.today().month).order_by('fk_equipe__fk_setor__nome', 'data_jornada', 'fk_servidor__nome')
+	
+	#aplicando os atributos das jornadas nas células da planilha
+	for jornada in jornadas:
+		row_num += 1   
+		ws.write(row_num, 0, jornada.fk_servidor.id_matricula, font_style)
+		ws.write(row_num, 1, jornada.fk_servidor.vinculo, font_style)
+		ws.write(row_num, 2, jornada.fk_servidor.cargo, font_style)
+		ws.write(row_num, 3, jornada.fk_servidor.cpf, font_style)
+		ws.write(row_num, 4, jornada.fk_servidor.nome, font_style)
+		ws.write(row_num, 5, "", font_style)		
+		ws.write(row_num, 6, jornada.data_jornada.strftime("%d/%m/%Y"), font_style)
+		ws.write(row_num, 7, jornada.data_jornada.strftime("%d/%m/%Y"), font_style)
+		ws.write(row_num, 8, "", font_style)
+	wb.save(response)
+	return response
