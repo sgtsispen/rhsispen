@@ -21,7 +21,7 @@ admin.site.site_header = 'Núcleo de Apoio e Movimentação de Pessoal'
 
 @admin.register(Afastamento)
 class AfastamentoAdmin(admin.ModelAdmin):
-	list_display = ('id_afastamento','__str__','descricao')
+	list_display = ('id_afastamento','codigo_afastamento','tipificacao','descricao')
 	#inlines = [descricaoInline]
 
 class ContatoEquipeInline(admin.TabularInline):

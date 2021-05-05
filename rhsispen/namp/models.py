@@ -24,13 +24,14 @@ class Funcao(models.Model):
 		unique_together = ('id_funcao','nome',)
 
 class Afastamento(models.Model):
-	id_afastamento = models.CharField('Código', primary_key=True, max_length=25) #Cod com a secad
+	id_afastamento = models.AutoField(primary_key=True)
+	codigo_afastamento = models.CharField('Código', max_length=10) #Cod com a secad
 	tipificacao = models.CharField('Tipo de afastamento', max_length=100, unique=True)
 	descricao = models.TextField('Descrição',max_length=100)
 	def __str__(self):
-		return self.nome
+		return self.tipificacao
 	class Meta:
-		ordering = ['id_afastamento']
+		ordering = ['codigo_afastamento']
 		verbose_name = "Afastamento"
 		verbose_name_plural = "Afastamentos"
 
