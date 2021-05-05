@@ -145,21 +145,21 @@ class Servidor(models.Model):
 	sexo = models.CharField('Sexo', max_length=1, choices=CHOICES_SEXO)
 	dt_nasc = models.DateField('Data de Nascimento')
 	CHOICES_CARGO = [
-		('AEP','Agente de Execução Penal'),
-		('AAE','Agente Analista em Execução Penal'),
-		('AA','Assistente Administrativo'),
-		('AXA','Auxiliar Administrativo'),
-		('ASG','Auxiliar de Serviços Gerais'),
-		('ASS','Agente de Segurança Socioeducativo'),
-		('AES','Agente Especialista Socioeducativo'),
+		('Agente de Execução Penal','Agente de Execução Penal'),
+		('Agente Analista em Execução Penal','Agente Analista em Execução Penal'),
+		('Assistente Administrativo','Assistente Administrativo'),
+		('Auxiliar Administrativo','Auxiliar Administrativo'),
+		('Auxiliar de Serviços Gerais','Auxiliar de Serviços Gerais'),
+		('Agente de Segurança Socioeducativo','Agente de Segurança Socioeducativo'),
+		('Agente Especialista Socioeducativo','Agente Especialista Socioeducativo'),
 	]
 	cargo = models.CharField(max_length=50, choices=CHOICES_CARGO)
 	CHOICES_CF = [
 		('I', 'I'),
 		('II', 'II'),
-		('N', 'Nenhum'),
+		('Nenhum', 'Nenhum'),
 	]
-	cf = models.CharField('Curso de Formação',max_length=3, choices=CHOICES_CF)
+	cf = models.CharField('Curso de Formação',max_length=10, choices=CHOICES_CF)
 	tipo_vinculo = models.CharField('Tipo de Vínculo',max_length=50)
 	regime_juridico = models.CharField('Regime Jurídico',max_length=50)
 	CHOICES_VINCULO = [
@@ -170,7 +170,7 @@ class Servidor(models.Model):
 		('Terceirizado', 'Terceirizado'),
 	]
 	tipo_vinculo = models.CharField('Tipo de Vínculo',max_length=25, choices=CHOICES_VINCULO)
-	CHOICES_JURIDICO = [('C','CLT'),('E','Estatutário')]
+	CHOICES_JURIDICO = [('CLT','CLT'),('Estatutário','Estatutário')]
 	regime_juridico = models.CharField('Regime Jurídico',max_length=25, choices=CHOICES_JURIDICO)
 	situacao = models.BooleanField('Servidor Ativo', default=False)
 	fk_setor = models.ForeignKey(Setor, on_delete = models.RESTRICT, verbose_name='Setor')
