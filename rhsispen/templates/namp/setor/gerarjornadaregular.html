@@ -8,6 +8,12 @@
 <script src="http://code.jquery.com/ui/1.11.0/jquery-ui.js"></script>
 
 <script>
+function goBack() {
+    window.history.back()
+}
+</script>
+
+<script>
 $(document).ready(function() {
     $('.datepicker').datepicker({
     	minDate: '0', dateFormat: 'yy-mm-dd' 
@@ -95,11 +101,53 @@ $(document).ready(function() {
 {% block content_title %}<h1>{{ title }}</h1>{% endblock %}
 
 {% block content %}
-<p>{% translate 'Vamos personalizar os métodos de gerar jornada regular de grupos e unidades.' %}</p>
+<div class="content">
+  <div id="content" class="colM">
+    <h1>{% translate 'Gerar jornadas.' %}</h1>
+    <h2>{% translate 'Selecione o intervalo de datas, a equipe e seu respectivo tipo de jornada de trabalho.' %}</h2>
+    <form action="{% url 'namp:gerarescalaregular' %}" method="post">
+        {% csrf_token %}
 
-<form action="{% url 'namp:gerarescalaregular' %}" method="post">
-    {% csrf_token %}
-    {{ definirjornadaregularForm.as_p }}
-    <input type="submit" value="{% translate 'Gerar Escalas' %}">
-</form>
+        <div class="form-row field-setor">
+          <div>
+            <label>Código do Setor: </label>
+            {{ definirjornadaregularForm.setor }}
+          </div>
+        </div>
+
+        <div class="form-row field-data_inicial">
+          <div>
+            <label>Data Inicial: </label>
+            {{ definirjornadaregularForm.data_inicial }}
+          </div>
+        </div>
+
+        <div class="form-row field-data_final">
+          <div>
+            <label>Data Final: </label>
+            {{ definirjornadaregularForm.data_final }}
+          </div>
+        </div>
+
+        <div class="form-row field-equipe">
+          <div>
+            <label>Equipe: </label>
+            {{ definirjornadaregularForm.equipe }}
+          </div>
+        </div>
+
+        <div class="form-row field-tipo_jornada">
+          <div>
+            <label>Tipor de Jornada: </label>
+            {{ definirjornadaregularForm.tipo_jornada }}
+          </div>
+        </div>
+
+        <div class="submit-row">
+          <input type="submit" value="{% translate 'Gerar Escalas' %}">
+          <input type="button" value="{% translate 'Voltar' %}" onclick="goBack()">
+        </div>
+    </form>
+  </div>
+</div>
 {% endblock %}

@@ -10,6 +10,7 @@ weasyprint = "*"
 django-object-actions = "==3.0.2"
 reportlab = "*"
 django-crispy-forms = "*"
+xlwt = "*"
 
 [dev-packages]
 

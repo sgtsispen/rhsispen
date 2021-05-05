@@ -10,7 +10,6 @@ from django.core.files.storage import FileSystemStorage
 from django.http import HttpResponse
 from django.template.loader import render_to_string
 from weasyprint import HTML
-from django_object_actions import DjangoObjectActions
 from django.db.models import Count
 from django.core.exceptions import ValidationError
 from datetime import timedelta as TimeDelta, datetime as DateTime, date as Date
@@ -22,13 +21,10 @@ admin.site.site_header = 'Núcleo de Apoio e Movimentação de Pessoal'
 @admin.register(Afastamento)
 class AfastamentoAdmin(admin.ModelAdmin):
 	list_display = ('id_afastamento','__str__','descricao')
-	#inlines = [descricaoInline]
 
 class ContatoEquipeInline(admin.TabularInline):
     model = ContatoEquipe
     extra = 0
-	#def __str__(self):
-	#	return ''
 
 class ContatoServInline(admin.TabularInline):
     model = ContatoServ
@@ -123,8 +119,6 @@ class JornadaAdmin(admin.ModelAdmin):
 	get_nome_setor.short_description = 'setor'
 
 	def get_carga_horaria(self, obj):
-		if obj.fk_tipo_jornada.carga_horaria == 48:
-			return 24
 		return obj.fk_tipo_jornada.carga_horaria
 	get_carga_horaria.short_description = 'carga horária'
 
@@ -137,7 +131,11 @@ class JornadaAdmin(admin.ModelAdmin):
 		inicio = obj.data_jornada.strftime("%d/%m/%Y") + " " +obj.fk_equipe.hora_inicial.strftime("%H:%M:%S")
 
 		inicioDateTime = DateTime.strptime(inicio, '%d/%m/%Y %H:%M:%S')
-		fim = inicioDateTime + TimeDelta(hours=obj.fk_tipo_jornada.carga_horaria)
+
+		if  obj.fk_tipo_jornada.carga_horaria!=48:
+			fim = inicioDateTime + TimeDelta(hours=obj.fk_tipo_jornada.carga_horaria)
+		else:
+			fim = inicioDateTime + TimeDelta(hours=(obj.fk_tipo_jornada.carga_horaria/2))
 		return fim.strftime('%d/%m/%Y %H:%M:%S')
 	get_fim.short_description = 'fim'
 
@@ -164,7 +162,7 @@ class RegiaoAdmin(admin.ModelAdmin):
 		return super().changelist_view(request,extra_context=extra_context)
 
 @admin.register(Servidor)
-class ServidorAdmin(DjangoObjectActions, admin.ModelAdmin):	
+class ServidorAdmin(admin.ModelAdmin): 	
 	change_form_template = 'admin/namp/servidor/change_form.html'
 	change_list_template = 'admin/namp/servidor/change_list.html'
 
