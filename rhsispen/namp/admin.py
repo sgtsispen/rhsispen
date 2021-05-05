@@ -57,7 +57,8 @@ class ServidorInline(admin.TabularInline):
 class EquipeAdmin(admin.ModelAdmin):
 	list_display = ('nome', 'fk_setor', 'status','hora_inicial','categoria', 'get_servidor')
 	list_filter = ('categoria',)
-	search_fields = ['nome']
+	search_fields = ['nome', 'fk_setor__nome']
+	autocomplete_fields = ['fk_setor']
 	list_per_page = 8
 	inlines=[ContatoEquipeInline, ServidorInline]
 	
@@ -123,8 +124,6 @@ class JornadaAdmin(admin.ModelAdmin):
 	get_nome_setor.short_description = 'setor'
 
 	def get_carga_horaria(self, obj):
-		#if obj.fk_tipo_jornada.carga_horaria == 48:
-		#	return 24
 		return obj.fk_tipo_jornada.carga_horaria
 	get_carga_horaria.short_description = 'carga horária'
 
@@ -135,13 +134,8 @@ class JornadaAdmin(admin.ModelAdmin):
 	
 	def get_fim(self, obj):
 		inicio = obj.data_jornada.strftime("%d/%m/%Y") + " " +obj.fk_equipe.hora_inicial.strftime("%H:%M:%S")
-
 		inicioDateTime = DateTime.strptime(inicio, '%d/%m/%Y %H:%M:%S')
-
-		if  obj.fk_tipo_jornada.carga_horaria!=48:
-			fim = inicioDateTime + TimeDelta(hours=obj.fk_tipo_jornada.carga_horaria)
-		else:
-			fim = inicioDateTime + TimeDelta(hours=(obj.fk_tipo_jornada.carga_horaria/2))
+		fim = inicioDateTime + TimeDelta(hours=(obj.fk_tipo_jornada.carga_horaria))
 		return fim.strftime('%d/%m/%Y %H:%M:%S')
 	get_fim.short_description = 'fim'
 
@@ -172,7 +166,7 @@ class ServidorAdmin(DjangoObjectActions, admin.ModelAdmin):
 	change_form_template = 'admin/namp/servidor/change_form.html'
 	change_list_template = 'admin/namp/servidor/change_list.html'
 
-	list_per_page = 8
+	list_per_page = 20
 	search_fields = ('nome','fk_equipe__nome', 'fk_equipe__fk_setor__nome')
 
 	radio_fields = {'sexo': admin.HORIZONTAL, 'regime_juridico': admin.HORIZONTAL, 'tipo_vinculo': admin.VERTICAL}

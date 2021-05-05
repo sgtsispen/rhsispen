@@ -265,6 +265,7 @@ def exportar_noturno_excel(request):
 		#aplicando os atributos das jornadas nas células da planilha
 		for jornada in jornadas:
 			row_num += 1
+			
 			if jornada.fk_tipo_jornada.carga_horaria == 24:
 				setRow(jornada, 2,jornada.data_jornada.strftime("%d/%m/%Y"))
 				row_num += 1
