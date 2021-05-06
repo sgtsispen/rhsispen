@@ -118,8 +118,15 @@ def gerarescalaregular(request):
 					jornada = Jornada(data_jornada=data, assiduidade=1, fk_servidor=servidor, fk_equipe=Equipe.objects.get(id_equipe=form.cleaned_data['equipe']), fk_tipo_jornada=TipoJornada.objects.get(carga_horaria=form.cleaned_data['tipo_jornada']))
 					jornadas = Jornada.objects.filter(fk_servidor=jornada.fk_servidor).filter(data_jornada=jornada.data_jornada)
 					#não salvar afastamentos
-					if jornadas:
-						continue
+					#histAfastamento = histAfastamento.objects.get(id_hist_afastamento=form.data_inicial['data_inicial'])
+					#if jornada.fk_servidor__nome == histAfastamento.fk_servidor__nome:
+					#	data_inicial = Date.fromordinal(min(form.cleaned_data['data_inicial'].toordinal(), form.cleaned_data['data_final'].toordinal()))
+					#	data_final = Date.fromordinal(max(form.cleaned_data['data_inicial'].toordinal(), form.cleaned_data['data_final'].toordinal()))
+					#	data_total = Data.fromordinal(data_inicial, data_final, int)
+					#	diferenca = jornada - data_total
+					#	jornada.save()
+				if jornadas:
+					continue
 					jornada.save()
 			messages.success(request, 'As jornadas da equipe ' + equipe.nome.upper() + ' foram atualizadas com suceso!')
 			return HttpResponseRedirect('/admin/namp/setor/'+ form.cleaned_data['setor'] + '/change/')

@@ -20,7 +20,8 @@ admin.site.site_header = 'Núcleo de Apoio e Movimentação de Pessoal'
 
 @admin.register(Afastamento)
 class AfastamentoAdmin(admin.ModelAdmin):
-	list_display = ('id_afastamento','__str__','descricao')
+	list_display = ('codigo_afastamento','tipificacao','descricao')
+	#inlines = [descricaoInline]
 
 class ContatoEquipeInline(admin.TabularInline):
     model = ContatoEquipe
@@ -53,7 +54,8 @@ class ServidorInline(admin.TabularInline):
 class EquipeAdmin(admin.ModelAdmin):
 	list_display = ('nome', 'fk_setor', 'status','hora_inicial','categoria', 'get_servidor')
 	list_filter = ('categoria',)
-	search_fields = ['nome']
+	search_fields = ['nome', 'fk_setor__nome']
+	autocomplete_fields = ['fk_setor']
 	list_per_page = 8
 	inlines=[ContatoEquipeInline, ServidorInline]
 	
@@ -68,12 +70,12 @@ class EquipeInline(admin.TabularInline):
 
 @admin.register(Funcao)
 class FuncaoAdmin(admin.ModelAdmin):
-	list_display = ('id_funcao', 'nome')
+	list_display = ('simbolo','nome',)
 
 @admin.register(HistAfastamento)
 class HistAfastamentoAdmin(admin.ModelAdmin):
 	search_fields = ('fk_afastamento__tipificacao','fk_servidor__nome', 'fk_afastamento__id_afastamento')
-	list_display = ('id_hist_afastamento','data_inicial','data_final','fk_afastamento','fk_servidor')
+	list_display = ('fk_servidor','data_inicial','data_final','fk_afastamento')
 
 @admin.register(HistFuncao)
 class HistFuncaoAdmin(admin.ModelAdmin):
@@ -129,13 +131,8 @@ class JornadaAdmin(admin.ModelAdmin):
 	
 	def get_fim(self, obj):
 		inicio = obj.data_jornada.strftime("%d/%m/%Y") + " " +obj.fk_equipe.hora_inicial.strftime("%H:%M:%S")
-
 		inicioDateTime = DateTime.strptime(inicio, '%d/%m/%Y %H:%M:%S')
-
-		if  obj.fk_tipo_jornada.carga_horaria!=48:
-			fim = inicioDateTime + TimeDelta(hours=obj.fk_tipo_jornada.carga_horaria)
-		else:
-			fim = inicioDateTime + TimeDelta(hours=(obj.fk_tipo_jornada.carga_horaria/2))
+		fim = inicioDateTime + TimeDelta(hours=(obj.fk_tipo_jornada.carga_horaria))
 		return fim.strftime('%d/%m/%Y %H:%M:%S')
 	get_fim.short_description = 'fim'
 
@@ -166,7 +163,7 @@ class ServidorAdmin(admin.ModelAdmin):
 	change_form_template = 'admin/namp/servidor/change_form.html'
 	change_list_template = 'admin/namp/servidor/change_list.html'
 
-	list_per_page = 8
+	list_per_page = 20
 	search_fields = ('nome','fk_equipe__nome', 'fk_equipe__fk_setor__nome')
 
 	radio_fields = {'sexo': admin.HORIZONTAL, 'regime_juridico': admin.HORIZONTAL, 'tipo_vinculo': admin.VERTICAL}

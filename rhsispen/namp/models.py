@@ -13,24 +13,26 @@ class Regiao(models.Model):
 		verbose_name_plural = "Regiões"
 
 class Funcao(models.Model):
-	id_funcao = models.CharField(primary_key=True, max_length=25) #Cod com a secad
-	nome = models.CharField(max_length=100,unique=True)
+	id_funcao = models.AutoField(primary_key=True) #Cod com a secad
+	simbolo = models.CharField('Símbolo',max_length=25)
+	nome = models.CharField(max_length=150,unique=True)
 	def __str__(self):
 		return self.nome
 	class Meta:
-		ordering = ['nome']
+		ordering = ['simbolo']
 		verbose_name = "Função"
 		verbose_name_plural = "Funções"
-		unique_together = ('id_funcao','nome',)
+		unique_together = ('nome',)
 
 class Afastamento(models.Model):
-	id_afastamento = models.CharField('Código', primary_key=True, max_length=25) #Cod com a secad
+	id_afastamento = models.AutoField(primary_key=True)
+	codigo_afastamento = models.CharField('Código', max_length=10) #Cod com a secad
 	tipificacao = models.CharField('Tipo de afastamento', max_length=100, unique=True)
 	descricao = models.TextField('Descrição',max_length=100)
 	def __str__(self):
-		return self.nome
+		return self.tipificacao
 	class Meta:
-		ordering = ['id_afastamento']
+		ordering = ['codigo_afastamento']
 		verbose_name = "Afastamento"
 		verbose_name_plural = "Afastamentos"
 
@@ -281,11 +283,10 @@ class Jornada(models.Model):
 	fk_servidor = models.ForeignKey(Servidor, on_delete = models.RESTRICT, verbose_name='Servidor')
 	fk_equipe = models.ForeignKey(Equipe, on_delete = models.RESTRICT, verbose_name='Equipe')
 	fk_tipo_jornada = models.ForeignKey(TipoJornada, on_delete = models.RESTRICT, verbose_name='Tipo Jornada')
-
 	def __str__(self):
 		return str(self.id_jornada) 
 	class Meta:
-		ordering = ["-fk_equipe__nome", "-fk_servidor__nome", "data_jornada"]
+		ordering = ["fk_equipe__fk_setor__nome","fk_equipe__nome","fk_servidor__nome", "data_jornada"]
 		verbose_name = "Jornada"
 		verbose_name_plural = "Jornadas"
 		unique_together = ('fk_servidor','data_jornada',)
