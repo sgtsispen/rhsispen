@@ -32,7 +32,7 @@ class Afastamento(models.Model):
 	def __str__(self):
 		return self.tipificacao
 	class Meta:
-		ordering = ['codigo_afastamento']
+		ordering = ['id_afastamento']
 		verbose_name = "Afastamento"
 		verbose_name_plural = "Afastamentos"
 
@@ -280,6 +280,7 @@ class Jornada(models.Model):
 	id_jornada = models.AutoField(primary_key=True)
 	data_jornada = models.DateField()
 	assiduidade = models.BooleanField(default=False)
+	fk_afastamento = models.ForeignKey(Afastamento, on_delete = models.RESTRICT,verbose_name='Motivo da Ausência',blank=True, null=True)
 	fk_servidor = models.ForeignKey(Servidor, on_delete = models.RESTRICT, verbose_name='Servidor')
 	fk_equipe = models.ForeignKey(Equipe, on_delete = models.RESTRICT, verbose_name='Equipe')
 	fk_tipo_jornada = models.ForeignKey(TipoJornada, on_delete = models.RESTRICT, verbose_name='Tipo Jornada')

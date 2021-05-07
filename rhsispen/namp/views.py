@@ -116,16 +116,7 @@ def gerarescalaregular(request):
 				datas = datasportipodejornada(data_inicial, data_final, int(form.cleaned_data['tipo_jornada']))
 				for data in datas:
 					jornada = Jornada(data_jornada=data, assiduidade=1, fk_servidor=servidor, fk_equipe=Equipe.objects.get(id_equipe=form.cleaned_data['equipe']), fk_tipo_jornada=TipoJornada.objects.get(carga_horaria=form.cleaned_data['tipo_jornada']))
-					jornadas = Jornada.objects.filter(fk_servidor=jornada.fk_servidor).filter(data_jornada=jornada.data_jornada)
-					#não salvar afastamentos
-					#histAfastamento = histAfastamento.objects.get(id_hist_afastamento=form.data_inicial['data_inicial'])
-					#if jornada.fk_servidor__nome == histAfastamento.fk_servidor__nome:
-					#	data_inicial = Date.fromordinal(min(form.cleaned_data['data_inicial'].toordinal(), form.cleaned_data['data_final'].toordinal()))
-					#	data_final = Date.fromordinal(max(form.cleaned_data['data_inicial'].toordinal(), form.cleaned_data['data_final'].toordinal()))
-					#	data_total = Data.fromordinal(data_inicial, data_final, int)
-					#	diferenca = jornada - data_total
-					#	jornada.save()
-					
+					jornadas = Jornada.objects.filter(fk_servidor=jornada.fk_servidor).filter(data_jornada=jornada.data_jornada)					
 				if jornadas:
 					continue
 					jornada.save()
@@ -140,7 +131,7 @@ def gerarescalaregular(request):
 
 def exportar_jornadas_excel(request):
 	#recuperando as jornadas do banco. OBS: apenas as jornadas do mês corrente
-	jornadas = Jornada.objects.filter(data_jornada__month=Date.today().month).order_by('fk_equipe__fk_setor__nome', 'fk_equipe__nome','fk_servidor__nome','data_jornada')
+	jornadas = Jornada.objects.filter(assiduidade=True).filter(data_jornada__month=Date.today().month).order_by('fk_equipe__fk_setor__nome', 'fk_equipe__nome','fk_servidor__nome','data_jornada')
 	if jornadas:
 		response = HttpResponse(content_type='application/ms-excel')
 		response['Content-Disposition'] = 'attachment; filename="jornadas.xls"'
@@ -207,7 +198,7 @@ def exportar_jornadas_excel(request):
 #Rotina em desenvolvimento
 def exportar_noturno_excel(request):
 	#recuperando as jornadas do banco. OBS: apenas as jornadas do mês corrente
-	jornadas = Jornada.objects.filter(fk_tipo_jornada__carga_horaria__in=[24,48]).filter(data_jornada__month=Date.today().month).order_by('fk_equipe__fk_setor__nome', 'fk_equipe__nome','fk_servidor__nome','data_jornada')
+	jornadas = Jornada.objects.filter(assiduidade=True).filter(fk_tipo_jornada__carga_horaria__in=[24,48]).order_by('data_jornada','fk_equipe__fk_setor__nome', 'fk_equipe__nome','fk_servidor__nome')
 	if jornadas:
 		response = HttpResponse(content_type='application/ms-excel')
 		response['Content-Disposition'] = 'attachment; filename="adicional-noturno.xls"'
@@ -217,7 +208,7 @@ def exportar_noturno_excel(request):
 
 		# largura das colunas
 		ws.col(0).width = 256 * 12
-		ws.col(1).width = 256 * 9
+		ws.col(1).width = 256 * 10
 		ws.col(2).width = 256 * 30
 		ws.col(3).width = 256 * 12
 		ws.col(4).width = 256 * 50
@@ -253,20 +244,23 @@ def exportar_noturno_excel(request):
 
 		#calculo do add
 		for jornada in jornadas:
-			row_num += 1
 			if jornada.fk_tipo_jornada.carga_horaria == 24:
-				setRow(jornada, 2,jornada.data_jornada.strftime("%d/%m/%Y"))
-				row_num += 1
-				#if jornada > data_final(ñ salvar) -> next mouth
-				setRow(jornada, 5,Date.fromordinal(jornada.data_jornada.toordinal()+1).strftime("%d/%m/%Y"))			
-			else:
-				setRow(jornada, 2,jornada.data_jornada.strftime("%d/%m/%Y"))
-				row_num += 1
-				#if jornada > data_final() -> next mouth
-				setRow(jornada, 7,Date.fromordinal(jornada.data_jornada.toordinal()+1).strftime("%d/%m/%Y"))
-				row_num += 1
-				#if
-				setRow(jornada, 5,Date.fromordinal(jornada.data_jornada.toordinal()+2).strftime("%d/%m/%Y"))
+				if jornada.data_jornada.month==Date.today().month:
+					row_num += 1
+					setRow(jornada, 2,jornada.data_jornada.strftime("%d/%m/%Y"))
+				if Date.fromordinal(jornada.data_jornada.toordinal()+1).month==Date.today().month:
+					row_num += 1
+					setRow(jornada, 5,Date.fromordinal(jornada.data_jornada.toordinal()+1).strftime("%d/%m/%Y"))			
+			elif jornada.fk_tipo_jornada.carga_horaria == 48:
+				if jornada.data_jornada.month==Date.today().month:
+					row_num += 1
+					setRow(jornada, 2,jornada.data_jornada.strftime("%d/%m/%Y"))
+				if Date.fromordinal(jornada.data_jornada.toordinal()+1).month==Date.today().month:
+					row_num += 1
+					setRow(jornada, 7,Date.fromordinal(jornada.data_jornada.toordinal()+1).strftime("%d/%m/%Y"))
+				if Date.fromordinal(jornada.data_jornada.toordinal()+2).month==Date.today().month:
+					row_num += 1
+					setRow(jornada, 5,Date.fromordinal(jornada.data_jornada.toordinal()+2).strftime("%d/%m/%Y"))
 		wb.save(response)
 		return response
 	messages.warning(request, 'Ops! Não há jornadas registradas no mês corrente, para o calculo do adicional noturno!')
