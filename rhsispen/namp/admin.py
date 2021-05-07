@@ -79,7 +79,7 @@ class FuncaoAdmin(admin.ModelAdmin):
 class HistAfastamentoAdmin(admin.ModelAdmin):
 	search_fields = ('fk_afastamento__tipificacao','fk_servidor__nome', 'fk_afastamento__id_afastamento')
 	list_display = ('id_hist_afastamento','data_inicial','data_final','fk_afastamento','fk_servidor')
-
+	autocomplete_fields = ['fk_servidor']
 @admin.register(HistFuncao)
 class HistFuncaoAdmin(admin.ModelAdmin):
 	search_fields = ('fk_servidor__nome','fk_funcao__nome')
@@ -98,14 +98,17 @@ class HistStatusFuncionalAdmin(admin.ModelAdmin):
 @admin.register(Jornada)
 class JornadaAdmin(admin.ModelAdmin):
 	change_form_template = 'admin/namp/jornada/change_form.html'
+	search_fields = ['fk_servidor__nome','fk_equipe__fk_setor__nome']
 	autocomplete_fields = ['fk_servidor']
 	list_filter = ('assiduidade','fk_tipo_jornada')
-
+	date_hierarchy = 'data_jornada'
 	list_display = ('get_matricula','get_vinculo','fk_servidor','get_cpf', 'get_codigo_setor','get_nome_setor','get_carga_horaria','get_inicio', 'get_fim')
+
+	admin.site.disable_action('delete_selected')
 
 	def get_matricula(self, obj):
 		return obj.fk_servidor.id_matricula
-	get_matricula.short_description = 'matrícula'
+	get_matricula.short_description = 'matrícula' 
 
 	def get_vinculo(self, obj):
 		return obj.fk_servidor.vinculo

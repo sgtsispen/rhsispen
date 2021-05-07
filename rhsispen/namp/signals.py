@@ -1,6 +1,6 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from namp.models import Servidor, HistLotacao
+from namp.models import Servidor, HistLotacao, HistAfastamento, Jornada
 import datetime
 
 '''
@@ -41,3 +41,14 @@ def update_histlotacao(sender, instance, created, **kargs):
 		else:
 			# Criando uma instância de HistLotação, a qual faz referência à instância de Servidor editado
 			HistLotacao.objects.create(data_inicial=datetime.date.today(), fk_servidor=instance,fk_setor=instance.fk_setor,fk_equipe=instance.fk_equipe)			
+
+@receiver(post_save, sender=HistAfastamento)
+def create_histafastamento(sender, instance, created, **kargs):
+	if created:
+		jornadas = Jornada.objects.filter(fk_servidor=instance.fk_servidor).filter(data_jornada__range=[instance.data_inicial, instance.data_final])
+		if jornadas:
+			for jornada in jornadas:
+				jornada.assiduidade = False
+				jornada.fk_afastamento = instance.fk_afastamento
+				jornada.save()
+
