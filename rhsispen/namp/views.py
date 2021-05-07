@@ -125,6 +125,7 @@ def gerarescalaregular(request):
 					#	data_total = Data.fromordinal(data_inicial, data_final, int)
 					#	diferenca = jornada - data_total
 					#	jornada.save()
+					
 				if jornadas:
 					continue
 					jornada.save()

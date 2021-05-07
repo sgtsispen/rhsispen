@@ -80,16 +80,19 @@ class HistAfastamentoAdmin(admin.ModelAdmin):
 @admin.register(HistFuncao)
 class HistFuncaoAdmin(admin.ModelAdmin):
 	search_fields = ('fk_servidor__nome','fk_funcao__nome')
-	list_display = ('id_hist_funcao','data_inicio','data_final','fk_funcao','fk_servidor')
+	list_display = ('fk_funcao','data_inicio','data_final','fk_servidor')
 
 @admin.register(HistLotacao)
 class HistLotacaoAdmin(admin.ModelAdmin):
 	change_form_template = 'admin/namp/histlotacao/change_form.html'
 	search_fields = ('fk_servidor__nome','fk_equipe__nome', 'fk_equipe__fk_setor__nome')
-	list_display = ('id_hist_lotacao','data_inicial','data_final','fk_servidor','fk_equipe', 'fk_setor')	
+	list_display = ('fk_servidor','data_inicial','data_final','fk_equipe', 'fk_setor')	
 
 @admin.register(HistStatusFuncional)
 class HistStatusFuncionalAdmin(admin.ModelAdmin):
+	search_fields = ('fk_servidor__nome', 'fk_status_funcional__nome', )
+	autocomplete_fields = ['fk_servidor']
+	#list_filter = ('fk_status_fucional')
 	list_display = ('id_hist_funcional','data_inicial', 'data_final', 'fk_servidor', 'fk_status_funcional')
 
 @admin.register(Jornada)
@@ -99,6 +102,9 @@ class JornadaAdmin(admin.ModelAdmin):
 	list_filter = ('assiduidade','fk_tipo_jornada')
 
 	list_display = ('get_matricula','get_vinculo','fk_servidor','get_cpf', 'get_codigo_setor','get_nome_setor','get_carga_horaria','get_inicio', 'get_fim')
+
+	def has_add_permission(self, request, obj=None):
+		return False
 
 	def get_matricula(self, obj):
 		return obj.fk_servidor.id_matricula
