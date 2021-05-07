@@ -31,7 +31,7 @@ class Afastamento(models.Model):
 	def __str__(self):
 		return self.tipificacao
 	class Meta:
-		ordering = ['codigo_afastamento']
+		ordering = ['id_afastamento']
 		verbose_name = "Afastamento"
 		verbose_name_plural = "Afastamentos"
 
