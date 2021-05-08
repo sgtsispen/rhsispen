@@ -13,15 +13,16 @@ class Regiao(models.Model):
 		verbose_name_plural = "Regiões"
 
 class Funcao(models.Model):
-	id_funcao = models.CharField(primary_key=True, max_length=25) #Cod com a secad
-	nome = models.CharField(max_length=100,unique=True)
+	id_funcao = models.AutoField(primary_key=True) #Cod com a secad
+	simbolo = models.CharField('Símbolo',max_length=25)
+	nome = models.CharField(max_length=150,unique=True)
 	def __str__(self):
 		return self.nome
 	class Meta:
-		ordering = ['nome']
+		ordering = ['simbolo']
 		verbose_name = "Função"
 		verbose_name_plural = "Funções"
-		unique_together = ('id_funcao','nome',)
+		unique_together = ('nome',)
 
 class Afastamento(models.Model):
 	id_afastamento = models.AutoField(primary_key=True)
@@ -158,10 +159,11 @@ class Servidor(models.Model):
 	CHOICES_CF = [
 		('I', 'I'),
 		('II', 'II'),
-		('N', 'Nenhum'),
+		('Nenhum', 'Nenhum'),
 	]
-	cf = models.CharField('Curso de Formação',max_length=3, choices=CHOICES_CF)
-	
+	cf = models.CharField('Curso de Formação',max_length=10, choices=CHOICES_CF)
+	tipo_vinculo = models.CharField('Tipo de Vínculo',max_length=50)
+	regime_juridico = models.CharField('Regime Jurídico',max_length=50)
 	CHOICES_VINCULO = [
 		('Contrato', 'Contrato'),
 		('Concursado', 'Concursado'),
@@ -282,7 +284,6 @@ class Jornada(models.Model):
 	fk_servidor = models.ForeignKey(Servidor, on_delete = models.RESTRICT, verbose_name='Servidor')
 	fk_equipe = models.ForeignKey(Equipe, on_delete = models.RESTRICT, verbose_name='Equipe')
 	fk_tipo_jornada = models.ForeignKey(TipoJornada, on_delete = models.RESTRICT, verbose_name='Tipo Jornada')
-
 	def __str__(self):
 		return str(self.id_jornada) 
 	class Meta:

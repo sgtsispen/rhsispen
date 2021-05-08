@@ -17,6 +17,6 @@ urlpatterns = [
 	
 	url(r'^adicional-noturno/xls/$', views.exportar_noturno_excel, name='exportar_noturno_excel'),
 	
-	url('add_noturno_pdf/', views.add_noturno_pdf, name='add_noturno_pdf'),
+	#url('add_noturno_pdf/', views.add_noturno_pdf, name='add_noturno_pdf'),
 	
 ]
