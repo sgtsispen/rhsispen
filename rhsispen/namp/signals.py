@@ -38,7 +38,7 @@ def update_histlotacao(sender, instance, **kargs):
 			# Criando uma instância de HistLotação, a qual faz referência à instância de Servidor editado
 
 @receiver(post_save, sender=HistAfastamento)
-def create_jornada(sender, instance, **kargs):
+def post_save_update_jornada(sender, instance, **kargs):
 	jornadas = Jornada.objects.filter(fk_servidor=instance.fk_servidor).filter(data_jornada__range=[instance.data_inicial, instance.data_final])
 	if jornadas:
 		for jornada in jornadas:
@@ -47,7 +47,7 @@ def create_jornada(sender, instance, **kargs):
 			jornada.save()
 
 @receiver(pre_save, sender=HistAfastamento)
-def update_jornada(sender, instance, **kargs):
+def pre_save_update_jornada(sender, instance, **kargs):
 	if HistAfastamento.objects.filter(fk_servidor=instance.fk_servidor).count() != 0:
 		oldHistAfastamento = HistAfastamento.objects.filter(fk_servidor=instance.fk_servidor).order_by('-data_inicial').first()		
 		jornadas = Jornada.objects.filter(fk_servidor=oldHistAfastamento.fk_servidor).filter(data_jornada__range=[oldHistAfastamento.data_inicial, oldHistAfastamento.data_final])
@@ -56,3 +56,12 @@ def update_jornada(sender, instance, **kargs):
 				jornada.assiduidade = True
 				jornada.fk_afastamento = None
 				jornada.save()
+
+@receiver(pre_save, sender=Jornada)
+def pre_save_create_jornada(sender, instance, **kargs):
+	if HistAfastamento.objects.filter(fk_servidor=instance.fk_servidor).count() != 0:
+		myHistAfastamento = HistAfastamento.objects.filter(fk_servidor=instance.fk_servidor).order_by('-data_inicial').first()					
+		for	data in range(myHistAfastamento.data_inicial.toordinal(), myHistAfastamento.data_final.toordinal()+1):
+			if instance.data_jornada.toordinal() == data:
+				instance.assiduidade = False
+				instance.fk_afastamento = myHistAfastamento.fk_afastamento				

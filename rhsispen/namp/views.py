@@ -263,5 +263,5 @@ def exportar_noturno_excel(request):
 					setRow(jornada, 5,Date.fromordinal(jornada.data_jornada.toordinal()+2).strftime("%d/%m/%Y"))
 		wb.save(response)
 		return response
-	messages.warning(request, 'Ops! Não há jornadas registradas no mês corrente, para o calculo do adicional noturno!')
+	messages.warning(request, 'Ops! Não há jornadas registradas no mês corrente, para o cálculo do adicional noturno!')
 	return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
