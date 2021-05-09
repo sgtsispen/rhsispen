@@ -64,4 +64,4 @@ def pre_save_create_jornada(sender, instance, **kargs):
 		for	data in range(myHistAfastamento.data_inicial.toordinal(), myHistAfastamento.data_final.toordinal()+1):
 			if instance.data_jornada.toordinal() == data:
 				instance.assiduidade = False
-				instance.fk_afastamento = myHistAfastamento.fk_afastamento				
+				instance.fk_afastamento = myHistAfastamento.fk_afastamento
