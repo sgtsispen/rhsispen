@@ -43,7 +43,7 @@ def update_histlotacao(sender, instance, created, **kargs):
 			HistLotacao.objects.create(data_inicial=datetime.date.today(), fk_servidor=instance,fk_setor=instance.fk_setor,fk_equipe=instance.fk_equipe)			
 
 @receiver(post_save, sender=HistAfastamento)
-def create_histafastamento(sender, instance, created, **kargs):
+def update_jornada(sender, instance, created, **kargs):
 	if created:
 		jornadas = Jornada.objects.filter(fk_servidor=instance.fk_servidor).filter(data_jornada__range=[instance.data_inicial, instance.data_final])
 		if jornadas:
