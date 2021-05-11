@@ -1155,3 +1155,25 @@ table#change-history tbody th {
 .popup #header {
     padding: 10px 20px;
 }
+
+.boxJorExp{
+    width: 80%;
+    padding: 15px;
+    margin-left: auto;
+    margin-right: auto;
+    background-color: #f5f5f5;
+}
+.boxJorExp table th{
+    background-color: #000;
+    color: #fff;
+}
+.boxJorExp table tr td a{
+    color: #000;
+    text-decoration: none;
+}
+.boxJorExp table tr td a:hover{
+    text-decoration: underline;
+}
+.boxJorExp table{
+    overflow-y: auto !important;
+}

@@ -17,6 +17,11 @@ from django.contrib import messages
 	Recuperar do banco as equipes da unidade penal escolhida no momento do cadastro de servidor e
 	as envia para a página populando o campo select fk_equipe
 '''
+
+def index(request):
+    return HttpResponse("Bem-vindo ao Sistema do NAMP!")
+
+
 def get_equipes(request):
 	result = list(Equipe.objects.none())
 	id_setor = request.GET.get('id_setor', '')

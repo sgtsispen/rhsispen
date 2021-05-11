@@ -20,6 +20,7 @@ from django.conf.urls import url, include
 admin.autodiscover()
 
 urlpatterns = [
-    url('', include('namp.urls')),
+    path('', include('namp.urls')),
     path('admin/', admin.site.urls),
+    path('accounts/', include('django.contrib.auth.urls')),
 ]
