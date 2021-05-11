@@ -75,8 +75,10 @@ class FuncaoAdmin(admin.ModelAdmin):
 @admin.register(HistAfastamento)
 class HistAfastamentoAdmin(admin.ModelAdmin):
 	search_fields = ('fk_afastamento__tipificacao','fk_servidor__nome', 'fk_afastamento__id_afastamento')
-	list_display = ('id_hist_afastamento','data_inicial','data_final','fk_afastamento','fk_servidor')
+
+	list_display = ('fk_servidor','data_inicial','data_final','fk_afastamento')
 	autocomplete_fields = ['fk_servidor']
+
 @admin.register(HistFuncao)
 class HistFuncaoAdmin(admin.ModelAdmin):
 	search_fields = ('fk_servidor__nome','fk_funcao__nome')
