@@ -3,7 +3,7 @@ import tempfile
 import json
 import xlwt
 from django.shortcuts import render, redirect
-from .models import Setor, Equipe, Servidor, TipoJornada, Jornada
+from .models import Setor, Equipe, Servidor, TipoJornada, Jornada, HistAfastamento
 from django.http import HttpResponse, HttpResponseRedirect
 from weasyprint import HTML
 from django.template.loader import render_to_string
@@ -187,19 +187,6 @@ def exportar_jornadas_excel(request):
 	messages.warning(request, 'Ops! Não há jornadas registradas no mês corrente!')
 	return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
-#def add_noturno_pdf(request):
-#	jornadas = Jornada.objects.all()
-#	html_string = render_to_string('pdf_template2.html', {'jornadas': jornadas})
-#	html = HTML(string=html_string)
-#	result = html.write_pdf(target='/tmp/jornadas.pdf')
-	
-#	fs = FileSystemStorage('/tmp')
-#	with fs.open('jornadas.pdf') as pdf:
-#		response = HttpResponse(pdf, content_type='application/pdf')
-#		response['Content-Disposition'] = 'attachment; filename="jornadas.pdf"'
-#		return response
-#	return response
-
 #Rotina em desenvolvimento
 def exportar_noturno_excel(request):
 	#recuperando as jornadas do banco. OBS: apenas as jornadas do mês corrente
@@ -269,4 +256,64 @@ def exportar_noturno_excel(request):
 		wb.save(response)
 		return response
 	messages.warning(request, 'Ops! Não há jornadas registradas no mês corrente, para o cálculo do adicional noturno!')
+	return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+def exportar_frequencia_excel(request):
+	#recuperando as jornadas do banco. OBS: apenas as jornadas do mês corrente
+	jornadas = Jornada.objects.filter(data_jornada__month=Date.today().month).order_by('fk_equipe__fk_setor__nome', 'fk_equipe__nome','fk_servidor__nome','data_jornada')
+	histAfastamento = HistAfastamento.objects.filter(fk_servidor=HistAfastamento.fk_servidor)
+	if jornadas:
+		response = HttpResponse(content_type='application/ms-excel')
+		response['Content-Disposition'] = 'attachment; filename="frequencia.xls"'
+
+		wb = xlwt.Workbook(encoding='utf-8')
+		ws = wb.add_sheet('Jornadas')
+
+		# largura das colunas
+		ws.col(0).width = 256 * 12
+		ws.col(1).width = 256 * 9
+		ws.col(2).width = 256 * 50
+		ws.col(3).width = 256 * 12
+		ws.col(4).width = 256 * 15
+		ws.col(5).width = 256 * 18
+		ws.col(6).width = 256 * 18
+		ws.col(7).width = 256 * 18
+		
+		#cabeçalho, primeira linha
+		row_num = 0
+
+		font_style = xlwt.XFStyle()
+		font_style.font.bold = True
+
+		columns = ['MATRICULA', 'VINCULO', 'SERVIDOR', 'CPF', 'CODIGO', 'CARGA_HORARIA', 'INICIO', 'FIM', 'OBS' ]
+
+		for col_num in range(len(columns)):
+			ws.write(row_num, col_num, columns[col_num], font_style)
+
+		# Sheet body, remaining rows
+		font_style = xlwt.XFStyle()
+
+		#aplicando os atributos das jornadas nas células da planilha
+		for jornada in jornadas:
+			row_num += 1   
+			ws.write(row_num, 0, jornada.fk_servidor.id_matricula, font_style)
+			ws.write(row_num, 1, jornada.fk_servidor.vinculo, font_style)
+			ws.write(row_num, 2, jornada.fk_servidor.nome, font_style)
+			ws.write(row_num, 3, jornada.fk_servidor.cpf, font_style)
+			ws.write(row_num, 4, jornada.fk_equipe.fk_setor.id_setor, font_style)
+			ws.write(row_num, 5, jornada.fk_tipo_jornada.carga_horaria, font_style)
+			
+			inicio = jornada.data_jornada.strftime("%d/%m/%Y") + " " +jornada.fk_equipe.hora_inicial.strftime("%H:%M:%S")
+			ws.write(row_num, 6, DateTime.strptime(inicio, '%d/%m/%Y %H:%M:%S').strftime("%d/%m/%Y %H:%M:%S"), font_style)
+			fim = DateTime.strptime(inicio, '%d/%m/%Y %H:%M:%S') + TimeDelta(hours=jornada.fk_tipo_jornada.carga_horaria)
+			ws.write(row_num, 7, fim.strftime('%d/%m/%Y %H:%M:%S'), font_style)
+
+			if jornada.data_jornada == HistAfastamento.data_inicial or HistAfastamento.data_final:
+				jornada.assiduidade = False
+				#jornada.fk_afastamento = histAfastamento.fk_afastamento #instance.fk_afastamento = myHistAfastamento.fk_afastamento
+
+			ws.write(row_num, 8, jornada.fk_afastamento, font_style)
+		wb.save(response)
+		return response
+	messages.warning(request, 'Ops! Não há frequências registradas no mês corrente!')
 	return HttpResponseRedirect(request.META.get('HTTP_REFERER'))

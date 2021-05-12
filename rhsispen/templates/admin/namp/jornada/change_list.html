@@ -4,6 +4,12 @@
 
 {% block object-tools-items %}{{ block.super }}
 <li>
+    <a href="{% url 'namp:exportar_frequencia_excel'%}" class="historylink">    
+        {% trans 'Baixar Frequencia Excel' %}
+    </a>
+</li>
+
+<li>
     <a href="{% url 'namp:exportar_noturno_excel'%}" class="historylink">    
         {% trans 'Adicional Noturno Excel' %}
     </a>
