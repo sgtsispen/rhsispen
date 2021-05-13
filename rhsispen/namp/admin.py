@@ -10,7 +10,6 @@ from django.core.files.storage import FileSystemStorage
 from django.http import HttpResponse
 from django.template.loader import render_to_string
 from weasyprint import HTML
-from django_object_actions import DjangoObjectActions
 from django.db.models import Count
 from django.core.exceptions import ValidationError
 from datetime import timedelta as TimeDelta, datetime as DateTime, date as Date
@@ -27,8 +26,6 @@ class AfastamentoAdmin(admin.ModelAdmin):
 class ContatoEquipeInline(admin.TabularInline):
     model = ContatoEquipe
     extra = 0
-	#def __str__(self):
-	#	return ''
 
 class ContatoServInline(admin.TabularInline):
     model = ContatoServ
@@ -73,13 +70,15 @@ class EquipeInline(admin.TabularInline):
 
 @admin.register(Funcao)
 class FuncaoAdmin(admin.ModelAdmin):
-	list_display = ('id_funcao', 'nome')
+	list_display = ('simbolo','nome',)
 
 @admin.register(HistAfastamento)
 class HistAfastamentoAdmin(admin.ModelAdmin):
 	search_fields = ('fk_afastamento__tipificacao','fk_servidor__nome', 'fk_afastamento__id_afastamento')
-	list_display = ('id_hist_afastamento','data_inicial','data_final','fk_afastamento','fk_servidor')
+
+	list_display = ('fk_servidor','data_inicial','data_final','fk_afastamento')
 	autocomplete_fields = ['fk_servidor']
+
 @admin.register(HistFuncao)
 class HistFuncaoAdmin(admin.ModelAdmin):
 	search_fields = ('fk_servidor__nome','fk_funcao__nome')
@@ -165,7 +164,7 @@ class RegiaoAdmin(admin.ModelAdmin):
 		return super().changelist_view(request,extra_context=extra_context)
 
 @admin.register(Servidor)
-class ServidorAdmin(DjangoObjectActions, admin.ModelAdmin):	
+class ServidorAdmin(admin.ModelAdmin): 	
 	change_form_template = 'admin/namp/servidor/change_form.html'
 	change_list_template = 'admin/namp/servidor/change_list.html'
 

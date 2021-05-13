@@ -13,6 +13,12 @@ from django.urls import resolve
 from urllib.parse import urlparse
 from datetime import timedelta as TimeDelta, datetime as DateTime, date as Date
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+
+@login_required(login_url='/autenticacao/login/')
+def home(request,template_name='home.html'):
+    return render(request,template_name, {})
+
 '''
 	Recuperar do banco as equipes da unidade penal escolhida no momento do cadastro de servidor e
 	as envia para a página populando o campo select fk_equipe
@@ -64,7 +70,6 @@ def definirjornadaregular(request):
 	form = DefinirJornadaRegularForm()
 	form.fields['setor'].initial = id_setor[6]
 	form.fields['equipe'].choices = [('', '--Selecione--')] + list(Equipe.objects.filter(fk_setor=id_setor[6]).values_list('id_equipe', 'nome'))
-	#form.fields['tipo_jornada'].choices = [('', '--Selecione--')] + list(TipoJornada.objects.all().values_list('carga_horaria', 'tipificacao'))
 	
 	contexto = {
 		'definirjornadaregularForm': form,
@@ -150,7 +155,7 @@ def exportar_jornadas_excel(request):
 		ws.col(6).width = 256 * 18
 		ws.col(7).width = 256 * 18
 		
-		# Sheet header, first row
+		#cabeçalho, primeira linha
 		row_num = 0
 
 		font_style = xlwt.XFStyle()
@@ -183,40 +188,21 @@ def exportar_jornadas_excel(request):
 	messages.warning(request, 'Ops! Não há jornadas registradas no mês corrente!')
 	return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
-def add_noturno_pdf(request):
-	# Model data
-	jornadas = Jornada.objects.all()
-	# Rendered
-	html_string = render_to_string('pdf_template2.html', {'jornadas': jornadas})
-	html = HTML(string=html_string)
-	result = html.write_pdf(target='/tmp/jornadas.pdf')
+#def add_noturno_pdf(request):
+#	jornadas = Jornada.objects.all()
+#	html_string = render_to_string('pdf_template2.html', {'jornadas': jornadas})
+#	html = HTML(string=html_string)
+#	result = html.write_pdf(target='/tmp/jornadas.pdf')
 	
-	fs = FileSystemStorage('/tmp')
-	with fs.open('jornadas.pdf') as pdf:
-		response = HttpResponse(pdf, content_type='application/pdf')
-		response['Content-Disposition'] = 'attachment; filename="jornadas.pdf"'
-		return response
-	return response
-"""
-	# Model
-	jornada = Jornada.objects.all()
-	#Calculo
-	inicioMes = DateTime.strptime(inicio, '%d' == 1)
-	
-	fimMes = inicioMes + TimeDelta(hours=obj.fk_tipo_jornada.carga_horaria)
+#	fs = FileSystemStorage('/tmp')
+#	with fs.open('jornadas.pdf') as pdf:
+#		response = HttpResponse(pdf, content_type='application/pdf')
+#		response['Content-Disposition'] = 'attachment; filename="jornadas.pdf"'
+#		return response
+#	return response
 
-	#Calculo 2 
-	def calculo(d1, d2):
-		d1 = datetime.timedelta(d1 = 2)#noite
-		d2 = datetime.timedelta(d2 = 5)#dia
-		return calc(d1.hours + d2.hours)
-	#Calculo = quant de plantoes X 7 hrs
-	return response
-"""
-
-#Rodina em desenvolvimento
+#Rotina em desenvolvimento
 def exportar_noturno_excel(request):
-
 	#recuperando as jornadas do banco. OBS: apenas as jornadas do mês corrente
 	jornadas = Jornada.objects.filter(assiduidade=True).filter(fk_tipo_jornada__carga_horaria__in=[24,48]).order_by('data_jornada','fk_equipe__fk_setor__nome', 'fk_equipe__nome','fk_servidor__nome')
 	if jornadas:
@@ -261,8 +247,8 @@ def exportar_noturno_excel(request):
 			ws.write(row_num, 6, dt, font_style)
 			ws.write(row_num, 7, dt, font_style)
 			ws.write(row_num, 8, "", font_style)
-			
-		#aplicando os atributos das jornadas nas células da planilha
+
+		#calculo do add
 		for jornada in jornadas:
 			if jornada.fk_tipo_jornada.carga_horaria == 24:
 				if jornada.data_jornada.month==Date.today().month:
@@ -283,5 +269,5 @@ def exportar_noturno_excel(request):
 					setRow(jornada, 5,Date.fromordinal(jornada.data_jornada.toordinal()+2).strftime("%d/%m/%Y"))
 		wb.save(response)
 		return response
-	messages.warning(request, 'Ops! Não há jornadas registradas no mês corrente!')
+	messages.warning(request, 'Ops! Não há jornadas registradas no mês corrente, para o cálculo do adicional noturno!')
 	return HttpResponseRedirect(request.META.get('HTTP_REFERER'))

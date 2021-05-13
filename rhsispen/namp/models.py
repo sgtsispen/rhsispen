@@ -1,4 +1,6 @@
 from django.db import models
+from django.contrib.auth.models import User
+
 # Create your models here.
 '''CLASSES SEM CHAVE ESTRANGEIRA'''
 
@@ -13,15 +15,16 @@ class Regiao(models.Model):
 		verbose_name_plural = "Regiões"
 
 class Funcao(models.Model):
-	id_funcao = models.CharField(primary_key=True, max_length=25) #Cod com a secad
-	nome = models.CharField(max_length=100,unique=True)
+	id_funcao = models.AutoField(primary_key=True) #Cod com a secad
+	simbolo = models.CharField('Símbolo',max_length=25)
+	nome = models.CharField(max_length=150,unique=True)
 	def __str__(self):
 		return self.nome
 	class Meta:
-		ordering = ['nome']
+		ordering = ['simbolo']
 		verbose_name = "Função"
 		verbose_name_plural = "Funções"
-		unique_together = ('id_funcao','nome',)
+		unique_together = ('nome',)
 
 class Afastamento(models.Model):
 	id_afastamento = models.AutoField(primary_key=True)
@@ -32,8 +35,8 @@ class Afastamento(models.Model):
 		return self.tipificacao
 	class Meta:
 		ordering = ['id_afastamento']
-		verbose_name = "Afastamento"
-		verbose_name_plural = "Afastamentos"
+		verbose_name = "Tipo de Afastamento"
+		verbose_name_plural = "Tipos de Afastamento"
 
 class TipoJornada(models.Model):
 	id_tipo_jornada = models.AutoField(primary_key=True)
@@ -51,12 +54,14 @@ class StatusFuncional(models.Model):
 	id_status_funcional = models.AutoField(primary_key=True)
 	nome = models.CharField(max_length=50,unique=True)
 	descricao = models.TextField(max_length=100)
+	
 	def __str__(self):
 		return self.nome	
+	
 	class Meta:
 		ordering = ["nome"]
-		verbose_name = "Status Funcional"
-		verbose_name_plural = "Status Funcionais"
+		verbose_name = "Tipo de Status Funcional"
+		verbose_name_plural = "Tipos de Status Funcional"
 
 ''' CLASSES COM CHAVE ESTRANGEIRA'''
 
@@ -158,10 +163,11 @@ class Servidor(models.Model):
 	CHOICES_CF = [
 		('I', 'I'),
 		('II', 'II'),
-		('N', 'Nenhum'),
+		('Nenhum', 'Nenhum'),
 	]
-	cf = models.CharField('Curso de Formação',max_length=3, choices=CHOICES_CF)
-	
+	cf = models.CharField('Curso de Formação',max_length=10, choices=CHOICES_CF)
+	tipo_vinculo = models.CharField('Tipo de Vínculo',max_length=50)
+	regime_juridico = models.CharField('Regime Jurídico',max_length=50)
 	CHOICES_VINCULO = [
 		('Contrato', 'Contrato'),
 		('Concursado', 'Concursado'),
@@ -175,6 +181,7 @@ class Servidor(models.Model):
 	situacao = models.BooleanField('Servidor Ativo', default=False)
 	fk_setor = models.ForeignKey(Setor, on_delete = models.RESTRICT, verbose_name='Setor')
 	fk_equipe = models.ForeignKey(Equipe, on_delete = models.RESTRICT, verbose_name='Equipe')
+	fk_user = models.OneToOneField(User, on_delete=models.CASCADE, blank=True, null=True)
 	
 	def __str__(self):
 		return self.nome
@@ -245,8 +252,8 @@ class HistAfastamento(models.Model):
 	def __str__(self):
 		return str(self.id_hist_afastamento)
 	class Meta:
-		verbose_name = "Histório de Afastamento"
-		verbose_name_plural = "Históricos de Afastamentos"
+		verbose_name = "Afastamento"
+		verbose_name_plural = "Afastamentos"
 
 class HistLotacao(models.Model):
 	id_hist_lotacao = models.AutoField(primary_key=True)
@@ -258,8 +265,8 @@ class HistLotacao(models.Model):
 	def __str__(self):
 		return str(self.id_hist_lotacao)
 	class Meta:
-		verbose_name = "Histórico de Lotação"
-		verbose_name_plural = "Históricos de Lotações"
+		verbose_name = "Lotação"
+		verbose_name_plural = "Lotações"
 
 
 class HistStatusFuncional(models.Model):
@@ -271,8 +278,8 @@ class HistStatusFuncional(models.Model):
 	def __str__(self):
 		return str(self.id_hist_funcional)
 	class Meta:
-		verbose_name = "Histórico de Status Funcional"
-		verbose_name_plural = "Histórico de Status Funcionais"
+		verbose_name = "Status Funcional"
+		verbose_name_plural = "Status Funcional"
 
 class Jornada(models.Model):
 	id_jornada = models.AutoField(primary_key=True)
@@ -282,9 +289,10 @@ class Jornada(models.Model):
 	fk_servidor = models.ForeignKey(Servidor, on_delete = models.RESTRICT, verbose_name='Servidor')
 	fk_equipe = models.ForeignKey(Equipe, on_delete = models.RESTRICT, verbose_name='Equipe')
 	fk_tipo_jornada = models.ForeignKey(TipoJornada, on_delete = models.RESTRICT, verbose_name='Tipo Jornada')
-
+	
 	def __str__(self):
 		return str(self.id_jornada) 
+	
 	class Meta:
 		ordering = ["fk_equipe__fk_setor__nome","fk_equipe__nome","fk_servidor__nome", "data_jornada"]
 		verbose_name = "Jornada"

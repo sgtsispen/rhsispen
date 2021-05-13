@@ -16,10 +16,12 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from django.conf.urls import url, include
+from django.views.generic import TemplateView
 
 admin.autodiscover()
 
 urlpatterns = [
-    url('', include('namp.urls')),
+    path('autenticacao/', include('autenticacao.urls', namespace='autenticacao')),
     path('admin/', admin.site.urls),
+    path('', include('namp.urls', namespace='namp')),
 ]
