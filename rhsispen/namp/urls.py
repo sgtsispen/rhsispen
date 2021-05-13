@@ -10,6 +10,7 @@ app_name = 'namp'
 
 urlpatterns = [
 	path('', views.home, name='home'),
+	path('jornadas/', views.jornadas_operador, name='jornadas_operador'),
 	#url('getEquipes/$', views.get_equipes),
 	#url('getTipoJornada/', views.get_tipo_jornada),
 	#url('getEquipeServidor/$', views.get_equipe_servidor),

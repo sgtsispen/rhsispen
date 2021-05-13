@@ -19,6 +19,18 @@ from django.contrib.auth.decorators import login_required
 def home(request,template_name='home.html'):
     return render(request,template_name, {})
 
+@login_required(login_url='/autenticacao/login/')
+def jornadas_operador(request,template_name='namp/jornada/jornadas.html'):
+	print(request.user.id)
+	equipes = Equipe.objects.filter(fk_setor=Servidor.objects.get(fk_user=request.user.id).fk_setor)
+	print(equipes)
+	setor = Setor.objects.filter(id_setor=Servidor.objects.get(fk_user=request.user.id).fk_setor)
+	print(setor)
+	contexto = {
+		"equipes": equipes,
+		"setor": setor,
+	}
+	return render(request,template_name, contexto)
 '''
 	Recuperar do banco as equipes da unidade penal escolhida no momento do cadastro de servidor e
 	as envia para a página populando o campo select fk_equipe
@@ -188,20 +200,6 @@ def exportar_jornadas_excel(request):
 	messages.warning(request, 'Ops! Não há jornadas registradas no mês corrente!')
 	return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
-#def add_noturno_pdf(request):
-#	jornadas = Jornada.objects.all()
-#	html_string = render_to_string('pdf_template2.html', {'jornadas': jornadas})
-#	html = HTML(string=html_string)
-#	result = html.write_pdf(target='/tmp/jornadas.pdf')
-	
-#	fs = FileSystemStorage('/tmp')
-#	with fs.open('jornadas.pdf') as pdf:
-#		response = HttpResponse(pdf, content_type='application/pdf')
-#		response['Content-Disposition'] = 'attachment; filename="jornadas.pdf"'
-#		return response
-#	return response
-
-#Rotina em desenvolvimento
 def exportar_noturno_excel(request):
 	#recuperando as jornadas do banco. OBS: apenas as jornadas do mês corrente
 	jornadas = Jornada.objects.filter(assiduidade=True).filter(fk_tipo_jornada__carga_horaria__in=[24,48]).order_by('data_jornada','fk_equipe__fk_setor__nome', 'fk_equipe__nome','fk_servidor__nome')
