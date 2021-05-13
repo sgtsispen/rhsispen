@@ -93,7 +93,7 @@ class HistLotacaoAdmin(admin.ModelAdmin):
 @admin.register(HistStatusFuncional)
 class HistStatusFuncionalAdmin(admin.ModelAdmin):
 	search_fields = ('fk_servidor__nome', 'fk_status_funcional__nome', )
-	autocomplete_fields = ['fk_servidor']
+	autocomplete_fields = ['fk_servidor', 'fk_status_funcional' ]
 	#list_filter = ('fk_status_fucional')
 	list_display = ('id_hist_funcional','data_inicial', 'data_final', 'fk_servidor', 'fk_status_funcional')
 
@@ -219,8 +219,6 @@ class SetorAdmin(admin.ModelAdmin):
 	list_display = ('id_setor', 'nome','fk_regiao','status', 'setor_sede', 'get_total_servidor')
 	search_fields = ('nome','fk_regiao__nome', 'id_setor')
 	inlines = [EnderecoSetorInline,EquipeInline]
-	#search_fields = ['nome']
-
 	def get_total_servidor(self, obj):
 		return Servidor.objects.filter(fk_equipe__in=Equipe.objects.filter(fk_setor=obj)).count() #total servidores do setor
 	get_total_servidor.short_description = 'Servidores'  #Nome da coluna
@@ -228,7 +226,8 @@ class SetorAdmin(admin.ModelAdmin):
 
 @admin.register(StatusFuncional)
 class StatusFuncionalAdmin(admin.ModelAdmin):
-	list_display = ('nome','descricao')
+	search_fields = ('nome', )
+	list_display = ('codigo_status_funcional','nome')
 
 @admin.register(TipoJornada)
 class TipoJornadaAdmin(admin.ModelAdmin):

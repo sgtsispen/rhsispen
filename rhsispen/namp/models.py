@@ -50,9 +50,9 @@ class TipoJornada(models.Model):
 
 class StatusFuncional(models.Model):
 	id_status_funcional = models.AutoField(primary_key=True)
+	codigo_status_funcional = models.CharField('Código', max_length=10)
 	nome = models.CharField(max_length=50,unique=True)
 	descricao = models.TextField(max_length=100)
-	
 	def __str__(self):
 		return self.nome	
 	
