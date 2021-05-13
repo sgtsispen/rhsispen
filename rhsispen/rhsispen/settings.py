@@ -24,7 +24,7 @@ SECRET_KEY = 'django-insecure-+!uno9p5=&_dlr&*i)v9ka_w)d$vax@5k+x4z)o)y9h5%5_j*u
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 
@@ -38,12 +38,13 @@ DEFAULT_APPS = [
 ]
 
 THIRD_PARTY_APPS = [
-    'django_object_actions',
-    'crispy_forms',
+    #'django_object_actions',
+    #'crispy_forms',
 ]
 
 LOCAL_APPS = [
     'namp.apps.NampConfig',
+    'autenticacao.apps.AutenticacaoConfig',
 ]
 
 INSTALLED_APPS = LOCAL_APPS + THIRD_PARTY_APPS + DEFAULT_APPS
@@ -94,7 +95,6 @@ DATABASES = {
     }
 }
 
-
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
 
@@ -111,6 +111,11 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
+]
+
+#Funcionalidade para logar com email ou username
+AUTHENTICATION_BACKENDS = [
+    'autenticacao.backends.EmailOrUsernameBackends',
 ]
 
 # Internationalization
@@ -138,3 +143,5 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+LOGIN_REDIRECT_URL = 'home'
