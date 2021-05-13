@@ -38,6 +38,10 @@ def update_histlotacao(sender, instance, **kargs):
 			# Criando uma instância de HistLotação, a qual faz referência à instância de Servidor editado
 
 @receiver(post_save, sender=HistAfastamento)
+def update_jornada(sender, instance, created, **kargs):
+	if created:
+		jornadas = Jornada.objects.filter(fk_servidor=instance.fk_servidor).filter(data_jornada__range=[instance.data_inicial, instance.data_final])
+
 def post_save_update_jornada(sender, instance, **kargs):
 	jornadas = Jornada.objects.filter(fk_servidor=instance.fk_servidor).filter(data_jornada__range=[instance.data_inicial, instance.data_final])
 	if jornadas:

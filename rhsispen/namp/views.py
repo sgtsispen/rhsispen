@@ -13,15 +13,16 @@ from django.urls import resolve
 from urllib.parse import urlparse
 from datetime import timedelta as TimeDelta, datetime as DateTime, date as Date
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+
+@login_required(login_url='/autenticacao/login/')
+def home(request,template_name='home.html'):
+    return render(request,template_name, {})
+
 '''
 	Recuperar do banco as equipes da unidade penal escolhida no momento do cadastro de servidor e
 	as envia para a página populando o campo select fk_equipe
 '''
-
-def index(request):
-    return HttpResponse("Bem-vindo ao Sistema do NAMP!")
-
-
 def get_equipes(request):
 	result = list(Equipe.objects.none())
 	id_setor = request.GET.get('id_setor', '')
