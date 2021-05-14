@@ -5,6 +5,7 @@ from django import forms
 from django.contrib import admin
 from django.core.serializers.json import DjangoJSONEncoder
 from namp.models import Afastamento, ContatoEquipe, ContatoServ, EnderecoServ, EnderecoSetor, Equipe, Funcao, HistAfastamento, HistFuncao, HistLotacao, HistStatusFuncional, Jornada, Regiao, Servidor, Setor, StatusFuncional, TipoJornada
+from namp.forms import *
 
 from django.core.files.storage import FileSystemStorage
 from django.http import HttpResponse
@@ -16,7 +17,6 @@ from datetime import timedelta as TimeDelta, datetime as DateTime, date as Date
 # Register your models here.
 
 admin.site.site_header = 'Núcleo de Apoio e Movimentação de Pessoal'
-
 
 @admin.register(Afastamento)
 class AfastamentoAdmin(admin.ModelAdmin):
@@ -70,6 +70,7 @@ class EquipeInline(admin.TabularInline):
 
 @admin.register(Funcao)
 class FuncaoAdmin(admin.ModelAdmin):
+	search_fields = ('nome', )
 	list_display = ('simbolo','nome',)
 
 @admin.register(HistAfastamento)
@@ -81,20 +82,22 @@ class HistAfastamentoAdmin(admin.ModelAdmin):
 
 @admin.register(HistFuncao)
 class HistFuncaoAdmin(admin.ModelAdmin):
+	date_hierarchy = 'data_inicio'
 	search_fields = ('fk_servidor__nome','fk_funcao__nome')
+	autocomplete_fields = ['fk_servidor', 'fk_funcao', ]
 	list_display = ('fk_funcao','data_inicio','data_final','fk_servidor')
 
 @admin.register(HistLotacao)
 class HistLotacaoAdmin(admin.ModelAdmin):
+	date_hierarchy = 'data_inicial'
 	change_form_template = 'admin/namp/histlotacao/change_form.html'
 	search_fields = ('fk_servidor__nome','fk_equipe__nome', 'fk_equipe__fk_setor__nome')
 	list_display = ('fk_servidor','data_inicial','data_final','fk_equipe', 'fk_setor')	
 
 @admin.register(HistStatusFuncional)
 class HistStatusFuncionalAdmin(admin.ModelAdmin):
-	search_fields = ('fk_servidor__nome', 'fk_status_funcional__nome', )
-	autocomplete_fields = ['fk_servidor', 'fk_status_funcional' ]
-	#list_filter = ('fk_status_fucional')
+	search_fields = ('fk_servidor__nome', 'fk_status_funcional__nome' )
+	autocomplete_fields = ['fk_servidor', 'fk_status_funcional', ]
 	list_display = ('id_hist_funcional','data_inicial', 'data_final', 'fk_servidor', 'fk_status_funcional')
 
 @admin.register(Jornada)
@@ -167,7 +170,8 @@ class RegiaoAdmin(admin.ModelAdmin):
 		return super().changelist_view(request,extra_context=extra_context)
 
 @admin.register(Servidor)
-class ServidorAdmin(admin.ModelAdmin): 	
+class ServidorAdmin(admin.ModelAdmin): 
+	form = ServidorFormAdmin 	
 	change_form_template = 'admin/namp/servidor/change_form.html'
 	change_list_template = 'admin/namp/servidor/change_list.html'
 
@@ -203,6 +207,10 @@ class ServidorAdmin(admin.ModelAdmin):
 		return Setor.objects.get(id_setor=obj.fk_equipe.fk_setor.id_setor)
 	get_setor.short_description = 'Unidade Operacional'  #Renames column head
 	get_setor.admin_order_field = 'nome'
+
+	class Media:
+		js = ("jquery.mask.min.js",
+			  "mascara.js",)
 
 class EnderecoSetorInline(admin.StackedInline):
 	model = EnderecoSetor

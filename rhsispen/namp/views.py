@@ -21,11 +21,9 @@ def home(request,template_name='home.html'):
 
 @login_required(login_url='/autenticacao/login/')
 def jornadas_operador(request,template_name='namp/jornada/jornadas.html'):
-	print(request.user.id)
 	equipes = Equipe.objects.filter(fk_setor=Servidor.objects.get(fk_user=request.user.id).fk_setor)
 	print(equipes)
 	setor = Setor.objects.filter(id_setor=Servidor.objects.get(fk_user=request.user.id).fk_setor)
-	print(setor)
 	contexto = {
 		"equipes": equipes,
 		"setor": setor,
