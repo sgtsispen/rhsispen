@@ -5,18 +5,18 @@ from . import views
 from django.conf.urls import  url
 from django.urls import path
 from django.contrib.auth import views as auth_views
-from django.views.generic.base import TemplateView
 
 app_name = 'namp'
 
 urlpatterns = [
 	path('', views.home, name='home'),
-	#url('getEquipes/$', views.get_equipes),
-	#url('getTipoJornada/', views.get_tipo_jornada),
-	#url('getEquipeServidor/$', views.get_equipe_servidor),
-	#url('exportar_pdf/', views.exportar_pdf, name='exportar_pdf'),
-	#url('escala-regular/', views.definirjornadaregular, name='definirjornadaregular'),
-	#url('gerarescalaregular/', views.gerarescalaregular, name='gerarescalaregular'),
+	path('jornadas/', views.jornadas_operador, name='jornadas_operador'),
+	url('getEquipes/$', views.get_equipes),
+	url('getTipoJornada/', views.get_tipo_jornada),
+	url('getEquipeServidor/$', views.get_equipe_servidor),
+	url('exportar_pdf/', views.exportar_pdf, name='exportar_pdf'),
+	url('escala-regular/', views.definirjornadaregular, name='definirjornadaregular'),
+	url('gerarescalaregular/', views.gerarescalaregular, name='gerarescalaregular'),
 
 	url(r'^frequencia-excel/xls/$', views.exportar_frequencia_excel, name='exportar_frequencia_excel'),
 	url(r'^jornadas-excel/xls/$', views.exportar_jornadas_excel, name='exportar_jornadas_excel'),	

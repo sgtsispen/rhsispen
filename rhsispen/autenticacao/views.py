@@ -11,7 +11,7 @@ from django.contrib.auth.models import User
 @login_required
 def sair(request):
     logout(request)
-    return HttpResponseRedirect('/autenticacao/login/')
+    return redirect('/')
 
 def cadastro(request, template_name='autenticacao/cadastro.html'):
 	if request.method == 'POST':
