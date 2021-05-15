@@ -1,10 +1,11 @@
 # Register your models here.
 from django.core import serializers
 import json
-from django import forms
+from django import forms 
 from django.contrib import admin
 from django.core.serializers.json import DjangoJSONEncoder
 from namp.models import Afastamento, ContatoEquipe, ContatoServ, EnderecoServ, EnderecoSetor, Equipe, Funcao, HistAfastamento, HistFuncao, HistLotacao, HistStatusFuncional, Jornada, Regiao, Servidor, Setor, StatusFuncional, TipoJornada
+from namp.forms import *
 
 from django.core.files.storage import FileSystemStorage
 from django.http import HttpResponse
@@ -57,7 +58,7 @@ class ServidorInline(admin.TabularInline):
 class EquipeAdmin(admin.ModelAdmin):
 	list_display = ('nome', 'fk_setor', 'status','hora_inicial','categoria', 'get_servidor')
 	list_filter = ('categoria',)
-	search_fields = ['nome']
+	search_fields = ['nome', 'fk_setor__nome']
 	list_per_page = 8
 	inlines=[ContatoEquipeInline, ServidorInline]
 	
@@ -97,6 +98,7 @@ class HistStatusFuncionalAdmin(admin.ModelAdmin):
 @admin.register(Jornada)
 class JornadaAdmin(admin.ModelAdmin):
 	change_form_template = 'admin/namp/jornada/change_form.html'
+	search_fields = ['fk_servidor__nome']
 	autocomplete_fields = ['fk_servidor']
 	list_filter = ('assiduidade','fk_tipo_jornada')
 
@@ -164,7 +166,8 @@ class RegiaoAdmin(admin.ModelAdmin):
 		return super().changelist_view(request,extra_context=extra_context)
 
 @admin.register(Servidor)
-class ServidorAdmin(DjangoObjectActions, admin.ModelAdmin):	
+class ServidorAdmin(DjangoObjectActions, admin.ModelAdmin):
+	form = ServidorFormAdmin;	
 	change_form_template = 'admin/namp/servidor/change_form.html'
 	change_list_template = 'admin/namp/servidor/change_list.html'
 
@@ -200,6 +203,13 @@ class ServidorAdmin(DjangoObjectActions, admin.ModelAdmin):
 		return Setor.objects.get(id_setor=obj.fk_equipe.fk_setor.id_setor)
 	get_setor.short_description = 'Unidade Operacional'  #Renames column head
 	get_setor.admin_order_field = 'nome'
+
+	class Media: #IMPORTAR ARQUIVO JS MASK
+		js = (
+			"jquery.mask.min.js",
+			"mascara.js",
+			)
+	#FIM DE SERVIDOR
 
 class EnderecoSetorInline(admin.StackedInline):
 	model = EnderecoSetor
