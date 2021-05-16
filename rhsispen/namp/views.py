@@ -21,26 +21,34 @@ def home(request,template_name='home.html'):
 
 @login_required(login_url='/autenticacao/login/')
 def jornadas_operador(request,template_name='namp/jornada/jornadas.html'):
-	
-	try:
-		equipes = Equipe.objects.filter(fk_setor=Servidor.objects.get(fk_user=request.user.id).fk_setor)
-		setor = Setor.objects.get(nome=Servidor.objects.get(fk_user=request.user.id).fk_setor)
-		form = GerarJornadaRegularForm()
-	except Servidor.DoesNotExist:
-		messages.warning(request, 'Esta conta de usuário não está vinculada a um servidor!')
-		return redirect('/')
-	except Equipe.DoesNotExist:
-		messages.warning(request, 'Não há equipes na unidade de lotação do usuário.')
-		return redirect('/')
-	except Setor.DoesNotExist:
-		messages.warning(request, 'Usuário sem unidade de lotação.')
-		return redirect('/')
-	contexto = {
-			"equipes": equipes,
-			"setor": setor,
-			"form": form
+	form = GerarJornadaRegularForm()
+	setor = Servidor.objects.get(fk_user=request.user.id).fk_setor
+	equipes = Equipe.objects.filter(fk_setor=setor.id_setor)	
+	if request.method == 'POST':
+		form = GerarJornadaRegularForm(request.POST)
+		if form.is_valid():
+			print('formulário válido!')
+			
+			print(form.cleaned_data)
+			return redirect('/')
+		else:
+			print('formulário inválido!')
+			print(form.cleaned_data)
+			contexto = {
+			'form':form,
+			'equipes':equipes,
+			'setor':setor,
+			}
+			return render(request, template_name, contexto)
+	else:
+		contexto = {
+			'form':form,
+			'equipes':equipes,
+			'setor':setor,
 		}
-	return render(request,template_name, contexto)
+		return render(request,template_name, contexto)
+	
+
 '''
 	Recuperar do banco as equipes da unidade penal escolhida no momento do cadastro de servidor e
 	as envia para a página populando o campo select fk_equipe
@@ -59,10 +67,8 @@ def get_tipo_jornada(request):
 		equipe = Equipe.objects.get(id_equipe=id_equipe)
 		if equipe.categoria == 'Plantão':
 			result = list(TipoJornada.objects.filter(carga_horaria__in=[24, 48]).values('carga_horaria', 'tipificacao'))
-			print(result)
 		elif equipe.categoria == 'Expediente':
 			result = list(TipoJornada.objects.filter(carga_horaria__in=[6, 8]).values('carga_horaria', 'tipificacao'))
-			print(result)
 	return HttpResponse(json.dumps(result), content_type="application/json")
 
 def get_equipe_servidor(request):

@@ -29,14 +29,7 @@ class GerarJornadaRegularForm(forms.Form):
         super(GerarJornadaRegularForm, self).__init__(*args, **kwargs)
         self.fields['jornada_expediente'].choices = [('', '-----')] + list(TipoJornada.objects.filter(carga_horaria__lt=24).values_list('id_tipo_jornada', 'tipificacao'))
         self.fields['jornada_plantao'].choices = [('', '-----')] + list(TipoJornada.objects.filter(carga_horaria__gte=24).values_list('id_tipo_jornada', 'tipificacao'))
-        self.fields['equipe_plantao'].choices = [('', '--Selecione--')] + list(Equipe.objects.filter(categoria='Plantão').values_list('id_equipe', 'nome'))
-
-
-
-
-
-
-
+        self.fields['equipe_plantao'].choices = [('', '--Selecione--')] + list(Equipe.objects.all().values_list('id_equipe', 'nome'))
 
 class ServidorFormAdmin(forms.ModelForm):
     def __init__(self, *args, **kwargs):
