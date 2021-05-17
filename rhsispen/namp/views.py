@@ -8,7 +8,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from weasyprint import HTML
 from django.template.loader import render_to_string
 from django.core.files.storage import FileSystemStorage
-from .forms import DefinirJornadaRegularForm
+from .forms import DefinirJornadaRegularForm, GerarJornadaRegularForm
 from django.urls import resolve
 from urllib.parse import urlparse
 from datetime import timedelta as TimeDelta, datetime as DateTime, date as Date
@@ -21,14 +21,34 @@ def home(request,template_name='home.html'):
 
 @login_required(login_url='/autenticacao/login/')
 def jornadas_operador(request,template_name='namp/jornada/jornadas.html'):
-	equipes = Equipe.objects.filter(fk_setor=Servidor.objects.get(fk_user=request.user.id).fk_setor)
-	print(equipes)
-	setor = Setor.objects.filter(id_setor=Servidor.objects.get(fk_user=request.user.id).fk_setor)
-	contexto = {
-		"equipes": equipes,
-		"setor": setor,
-	}
-	return render(request,template_name, contexto)
+	form = GerarJornadaRegularForm()
+	setor = Servidor.objects.get(fk_user=request.user.id).fk_setor
+	equipes = Equipe.objects.filter(fk_setor=setor.id_setor)	
+	if request.method == 'POST':
+		form = GerarJornadaRegularForm(request.POST)
+		if form.is_valid():
+			print('formulário válido!')
+			
+			print(form.cleaned_data)
+			return redirect('/')
+		else:
+			print('formulário inválido!')
+			print(form.cleaned_data)
+			contexto = {
+			'form':form,
+			'equipes':equipes,
+			'setor':setor,
+			}
+			return render(request, template_name, contexto)
+	else:
+		contexto = {
+			'form':form,
+			'equipes':equipes,
+			'setor':setor,
+		}
+		return render(request,template_name, contexto)
+	
+
 '''
 	Recuperar do banco as equipes da unidade penal escolhida no momento do cadastro de servidor e
 	as envia para a página populando o campo select fk_equipe
@@ -47,10 +67,8 @@ def get_tipo_jornada(request):
 		equipe = Equipe.objects.get(id_equipe=id_equipe)
 		if equipe.categoria == 'Plantão':
 			result = list(TipoJornada.objects.filter(carga_horaria__in=[24, 48]).values('carga_horaria', 'tipificacao'))
-			print(result)
 		elif equipe.categoria == 'Expediente':
 			result = list(TipoJornada.objects.filter(carga_horaria__in=[6, 8]).values('carga_horaria', 'tipificacao'))
-			print(result)
 	return HttpResponse(json.dumps(result), content_type="application/json")
 
 def get_equipe_servidor(request):
@@ -121,8 +139,9 @@ def datasportipodejornada(data_inicial, data_final, tipo_jornada):
 		return datas
 
 def gerarescalaregular(request):
+	form = DefinirJornadaRegularForm(request.POST)
 	if request.method == "POST":
-		form = DefinirJornadaRegularForm(request.POST)
+		#form = DefinirJornadaRegularForm(request.POST)
 		if form.is_valid():
 			equipe = Equipe.objects.get(id_equipe=form.cleaned_data['equipe'])
 			servidores = Servidor.objects.filter(fk_equipe=form.cleaned_data['equipe'])
@@ -136,7 +155,7 @@ def gerarescalaregular(request):
 					if jornadas:
 						continue
 					jornada.save()
-			messages.success(request, 'As jornadas da equipe ' + equipe.nome.upper() + ' foram atualizadas com suceso!')
+			messages.success(request, 'As jornadas da equipe ' + equipe.nome.upper() + ' foram atualizadas com sucesso!')
 			return HttpResponseRedirect('/admin/namp/setor/'+ form.cleaned_data['setor'] + '/change/')
 		else:
 			messages.warning(request, 'Ops! Verifique os campos do formulário!')
@@ -288,7 +307,7 @@ def exportar_frequencia_excel(request):
 		ws.col(5).width = 256 * 18
 		ws.col(6).width = 256 * 18
 		ws.col(7).width = 256 * 18
-		
+
 		#cabeçalho, primeira linha
 		row_num = 0
 
@@ -312,7 +331,7 @@ def exportar_frequencia_excel(request):
 			ws.write(row_num, 3, jornada.fk_servidor.cpf, font_style)
 			ws.write(row_num, 4, jornada.fk_equipe.fk_setor.id_setor, font_style)
 			ws.write(row_num, 5, jornada.fk_tipo_jornada.carga_horaria, font_style)
-			
+
 			inicio = jornada.data_jornada.strftime("%d/%m/%Y") + " " +jornada.fk_equipe.hora_inicial.strftime("%H:%M:%S")
 			ws.write(row_num, 6, DateTime.strptime(inicio, '%d/%m/%Y %H:%M:%S').strftime("%d/%m/%Y %H:%M:%S"), font_style)
 			fim = DateTime.strptime(inicio, '%d/%m/%Y %H:%M:%S') + TimeDelta(hours=jornada.fk_tipo_jornada.carga_horaria)
@@ -320,7 +339,7 @@ def exportar_frequencia_excel(request):
 
 			if jornada.data_jornada == HistAfastamento.data_inicial or HistAfastamento.data_final:
 				jornada.assiduidade = False
-				#jornada.fk_afastamento = histAfastamento.fk_afastamento #instance.fk_afastamento = myHistAfastamento.fk_afastamento
+				jornada.fk_afastamento = histAfastamento.fk_afastamento #instance.fk_afastamento = myHistAfastamento.fk_afastamento
 
 			ws.write(row_num, 8, jornada.fk_afastamento, font_style)
 		wb.save(response)
