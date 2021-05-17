@@ -21,14 +21,27 @@ def home(request,template_name='home.html'):
 
 @login_required(login_url='/autenticacao/login/')
 def jornadas_operador(request,template_name='namp/jornada/jornadas.html'):
-	equipes = Equipe.objects.filter(fk_setor=Servidor.objects.get(fk_user=request.user.id).fk_setor)
-	print(equipes)
-	setor = Setor.objects.filter(id_setor=Servidor.objects.get(fk_user=request.user.id).fk_setor)
+	
+	try:
+		equipes = Equipe.objects.filter(fk_setor=Servidor.objects.get(fk_user=request.user.id).fk_setor)
+		setor = Setor.objects.get(nome=Servidor.objects.get(fk_user=request.user.id).fk_setor)
+		form = GerarJornadaRegularForm()
+	except Servidor.DoesNotExist:
+		messages.warning(request, 'Esta conta de usuário não está vinculada a um servidor!')
+		return redirect('/')
+	except Equipe.DoesNotExist:
+		messages.warning(request, 'Não há equipes na unidade de lotação do usuário.')
+		return redirect('/')
+	except Setor.DoesNotExist:
+		messages.warning(request, 'Usuário sem unidade de lotação.')
+		return redirect('/')
 	contexto = {
-		"equipes": equipes,
-		"setor": setor,
-	}
+			"equipes": equipes,
+			"setor": setor,
+			"form": form
+		}
 	return render(request,template_name, contexto)
+
 '''
 	Recuperar do banco as equipes da unidade penal escolhida no momento do cadastro de servidor e
 	as envia para a página populando o campo select fk_equipe
