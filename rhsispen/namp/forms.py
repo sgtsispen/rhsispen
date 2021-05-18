@@ -10,7 +10,7 @@ class DefinirJornadaRegularForm(forms.Form):
     data_final = forms.DateField(widget=DateInput(),required=True)  
     # o tipo de jornada define a escala sob qual deve ser gerada a joranada
     equipe = forms.ChoiceField(choices = [('', '--Selecione--')] )
-    tipo_jornada = forms.ChoiceField(choices = [('', '--Selecione--')] )
+    #tipo_jornada = forms.ChoiceField(choices = [('', '--Selecione--')] )
 
     def __init__(self, *args, **kwargs):
         super(DefinirJornadaRegularForm, self).__init__(*args, **kwargs)
@@ -18,7 +18,7 @@ class DefinirJornadaRegularForm(forms.Form):
         self.fields['data_inicial'].widget.attrs['readonly'] = True
         self.fields['data_final'].widget.attrs['readonly'] = True
         self.fields['equipe'].choices = [('', '--Selecione--')] + list(Equipe.objects.all().values_list('id_equipe', 'nome'))
-        self.fields['tipo_jornada'].choices = [('', '--Selecione--')] + list(TipoJornada.objects.all().values_list('carga_horaria', 'tipificacao'))
+        #self.fields['tipo_jornada'].choices = [('', '--Selecione--')] + list(TipoJornada.objects.all().values_list('carga_horaria', 'tipificacao'))
 
 class GerarJornadaRegularForm(forms.Form):
     jornada_expediente = forms.ChoiceField(choices = [('', '--Selecione--')],label='Selecione a carga horaria das jornadas em equipes de EXPEDIENTE:')

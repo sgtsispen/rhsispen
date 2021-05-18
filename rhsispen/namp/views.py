@@ -27,7 +27,7 @@ def jornadas_operador(request,template_name='namp/jornada/jornadas.html'):
 	if request.method == 'POST':
 		form = GerarJornadaRegularForm(request.POST)
 		if form.is_valid():
-			print('formulário válido!')
+			messages.success(request, 'As escalas das equipes desta unidade foram atualizadas com suceso!')
 			
 			print(form.cleaned_data)
 			return redirect('/')
@@ -143,14 +143,14 @@ def gerarescalaregular(request):
 		form = DefinirJornadaRegularForm(request.POST)
 		if form.is_valid():
 			equipe = Equipe.objects.get(id_equipe=form.cleaned_data['equipe'])
-			servidores = Servidor.objects.filter(fk_equipe=form.cleaned_data['equipe'])
+			servidores = Servidor.objects.filter(fk_equipe=equipe.id_equipe)
 			for servidor in servidores:
 				data_inicial = Date.fromordinal(min(form.cleaned_data['data_inicial'].toordinal(), form.cleaned_data['data_final'].toordinal()))
 				data_final = Date.fromordinal(max(form.cleaned_data['data_inicial'].toordinal(), form.cleaned_data['data_final'].toordinal()))
-				datas = datasportipodejornada(data_inicial, data_final, int(form.cleaned_data['tipo_jornada']))
+				datas = datasportipodejornada(data_inicial, data_final, equipe.fk_tipo_jornada.carga_horaria)
 				for data in datas:
-					jornada = Jornada(data_jornada=data, assiduidade=1, fk_servidor=servidor, fk_equipe=Equipe.objects.get(id_equipe=form.cleaned_data['equipe']), fk_tipo_jornada=TipoJornada.objects.get(carga_horaria=form.cleaned_data['tipo_jornada']))
-					jornadas = Jornada.objects.filter(fk_servidor=jornada.fk_servidor).filter(data_jornada=jornada.data_jornada)
+					jornada = Jornada(data_jornada=data, assiduidade=1, fk_servidor=servidor, fk_equipe=equipe, fk_tipo_jornada=equipe.fk_tipo_jornada)
+					jornadas = Jornada.objects.filter(fk_servidor=jornada.fk_servidor,data_jornada=jornada.data_jornada,fk_equipe=jornada.fk_equipe)
 					if jornadas:
 						continue
 					jornada.save()
@@ -161,7 +161,6 @@ def gerarescalaregular(request):
 			return render(request, 'namp/setor/gerarjornadaregular.html', {'definirjornadaregularForm': DefinirJornadaRegularForm(initial={'setor':form.cleaned_data['setor']})})
 	else:
 		return render(request, 'namp/setor/gerarjornadaregular.html', {'definirjornadaregularForm': DefinirJornadaRegularForm(initial={'setor':form.cleaned_data['setor']})})
-
 
 def exportar_jornadas_excel(request):
 	#recuperando as jornadas do banco. OBS: apenas as jornadas do mês corrente

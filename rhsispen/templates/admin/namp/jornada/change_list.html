@@ -3,8 +3,9 @@
 {% load i18n %} 
 
 {% block object-tools-items %}{{ block.super }}
+
 <li>
-    <a href="{% url 'namp:exportar_noturno_excel'%}" class="historylink">    
+    <a href="{% url 'namp:exportar_noturno_excel' %}" class="historylink">    
         {% trans 'Adicional Noturno Excel' %}
     </a>
 </li>

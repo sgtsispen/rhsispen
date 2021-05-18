@@ -16,7 +16,8 @@ function goBack() {
 <script>
 $(document).ready(function() {
     $('.datepicker').datepicker({
-    	dateFormat: 'yy-mm-dd' 
+    	dateFormat: 'yy-mm-dd' ,
+      minDate: 0,
     });
 });
 </script>
@@ -136,13 +137,14 @@ $(document).ready(function() {
           </div>
         </div>
 
+        <!--
         <div class="form-row field-tipo_jornada">
           <div>
             <label>Tipor de Jornada: </label>
             {{ definirjornadaregularForm.tipo_jornada }}
           </div>
         </div>
-
+        -->
         <div class="submit-row">
           <input type="submit" value="{% translate 'Gerar Escalas' %}">
           <input type="button" value="{% translate 'Voltar' %}" onclick="goBack()">
