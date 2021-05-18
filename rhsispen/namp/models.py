@@ -117,6 +117,10 @@ class Equipe(models.Model):
 	
 	def __str__(self):
 		return self.nome
+	
+	def get_servidores(self):
+		return Servidor.objects.filter(fk_equipe=self.id_equipe).count()
+
 	class Meta:
 		ordering = ["nome"]
 		verbose_name = "Equipe"

@@ -37,18 +37,11 @@ def update_histlotacao(sender, instance, **kargs):
 			oldHistLotacao.save()
 			# Criando uma instância de HistLotação, a qual faz referência à instância de Servidor editado
 
-@receiver(post_save, sender=HistAfastamento)
-def update_jornada(sender, instance, created, **kargs):
+'''def update_jornada(sender, instance, created, **kargs):
 	if created:
 		jornadas = Jornada.objects.filter(fk_servidor=instance.fk_servidor).filter(data_jornada__range=[instance.data_inicial, instance.data_final])
+'''
 
-def post_save_update_jornada(sender, instance, **kargs):
-	jornadas = Jornada.objects.filter(fk_servidor=instance.fk_servidor).filter(data_jornada__range=[instance.data_inicial, instance.data_final])
-	if jornadas:
-		for jornada in jornadas:
-			jornada.assiduidade = False
-			jornada.fk_afastamento = instance.fk_afastamento
-			jornada.save()
 
 @receiver(pre_save, sender=HistAfastamento)
 def pre_save_update_jornada(sender, instance, **kargs):
@@ -61,6 +54,19 @@ def pre_save_update_jornada(sender, instance, **kargs):
 				jornada.fk_afastamento = None
 				jornada.save()
 
+@receiver(post_save, sender=HistAfastamento)
+def post_save_update_jornada(sender, instance, **kargs):
+	jornadas = Jornada.objects.filter(fk_servidor=instance.fk_servidor).filter(data_jornada__range=[instance.data_inicial, instance.data_final])
+	if jornadas:
+		for jornada in jornadas:
+			jornada.assiduidade = False
+			jornada.fk_afastamento = instance.fk_afastamento
+			jornada.save()
+'''
+	Ao criar uma jornada dentro de um período em que o servidor se encontre
+	afastado, tal jornada terá sua assiduidade desmarcada e o campo do afastamento
+	fará referência ao tipo de afastamento existente nesse período.
+'''
 @receiver(pre_save, sender=Jornada)
 def pre_save_create_jornada(sender, instance, **kargs):
 	if HistAfastamento.objects.filter(fk_servidor=instance.fk_servidor).count() != 0:

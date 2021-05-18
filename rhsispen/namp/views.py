@@ -21,15 +21,30 @@ def home(request,template_name='home.html'):
 
 @login_required(login_url='/autenticacao/login/')
 def jornadas_operador(request,template_name='namp/jornada/jornadas.html'):
+	try:
+		setor = Servidor.objects.get(fk_user=request.user.id).fk_setor
+	except Servidor.DoesNotExist:
+		messages.warning(request, 'Servidor não encontrado para este usuário!')
+		return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 	form = GerarJornadaRegularForm()
-	setor = Servidor.objects.get(fk_user=request.user.id).fk_setor
-	equipes = Equipe.objects.filter(fk_setor=setor.id_setor)	
+	equipes = Equipe.objects.filter(fk_setor=setor.id_setor)
+	tem_plantao = False 
+	for equipe in equipes: 
+		if equipe.categoria == 'Plantão':
+			tem_plantao = True
+			break
+	
 	if request.method == 'POST':
 		form = GerarJornadaRegularForm(request.POST)
 		if form.is_valid():
+			equipes_reordenadas = list(equipes.filter(nome__gte=form.cleaned_data['equipe_plantao'])) + list(equipes.filter(nome__lt=form.cleaned_data['equipe_plantao']))
+			for equipe in equipes_reordenadas:
+				primeiroDia = DateTime.today().replace(day=1, month=DateTime.today().month+1)
+				geraescalaporequipe(equipe,
+					Servidor.objects.filter(fk_equipe=equipe.id_equipe),
+					primeiroDia,
+					primeiroDia.replace(month=primeiroDia.month+1) - TimeDelta(days=1))
 			messages.success(request, 'As escalas das equipes desta unidade foram atualizadas com suceso!')
-			
-			print(form.cleaned_data)
 			return redirect('/')
 		else:
 			print('formulário inválido!')
@@ -38,6 +53,7 @@ def jornadas_operador(request,template_name='namp/jornada/jornadas.html'):
 			'form':form,
 			'equipes':equipes,
 			'setor':setor,
+			'tem_plantao': tem_plantao,
 			}
 			return render(request, template_name, contexto)
 	else:
@@ -45,9 +61,9 @@ def jornadas_operador(request,template_name='namp/jornada/jornadas.html'):
 			'form':form,
 			'equipes':equipes,
 			'setor':setor,
+			'tem_plantao': tem_plantao,
 		}
 		return render(request,template_name, contexto)
-	
 
 '''
 	Recuperar do banco as equipes da unidade penal escolhida no momento do cadastro de servidor e
@@ -138,23 +154,30 @@ def datasportipodejornada(data_inicial, data_final, tipo_jornada):
 			data_inicial+= intervalo
 		return datas
 
+
+def geraescalaporequipe(equipe, servidores, data_inicial, data_final):
+	for servidor in servidores:
+		my_inicial = Date.fromordinal(min(data_inicial.toordinal(), data_final.toordinal()))
+		my_final = Date.fromordinal(max(data_inicial.toordinal(), data_final.toordinal()))
+		datas = datasportipodejornada(my_inicial, my_final, equipe.fk_tipo_jornada.carga_horaria)
+		for data in datas:
+			jornada = Jornada(data_jornada=data, assiduidade=1, fk_servidor=servidor, fk_equipe=equipe, fk_tipo_jornada=equipe.fk_tipo_jornada)
+			jornadas = Jornada.objects.filter(fk_servidor=jornada.fk_servidor,data_jornada=jornada.data_jornada,fk_equipe=jornada.fk_equipe)
+			if jornadas:
+				continue
+			jornada.save()
+
 def gerarescalaregular(request):
 	if request.method == "POST":
 		form = DefinirJornadaRegularForm(request.POST)
 		if form.is_valid():
-			equipe = Equipe.objects.get(id_equipe=form.cleaned_data['equipe'])
-			servidores = Servidor.objects.filter(fk_equipe=equipe.id_equipe)
-			for servidor in servidores:
-				data_inicial = Date.fromordinal(min(form.cleaned_data['data_inicial'].toordinal(), form.cleaned_data['data_final'].toordinal()))
-				data_final = Date.fromordinal(max(form.cleaned_data['data_inicial'].toordinal(), form.cleaned_data['data_final'].toordinal()))
-				datas = datasportipodejornada(data_inicial, data_final, equipe.fk_tipo_jornada.carga_horaria)
-				for data in datas:
-					jornada = Jornada(data_jornada=data, assiduidade=1, fk_servidor=servidor, fk_equipe=equipe, fk_tipo_jornada=equipe.fk_tipo_jornada)
-					jornadas = Jornada.objects.filter(fk_servidor=jornada.fk_servidor,data_jornada=jornada.data_jornada,fk_equipe=jornada.fk_equipe)
-					if jornadas:
-						continue
-					jornada.save()
-			messages.success(request, 'As jornadas da equipe ' + equipe.nome.upper() + ' foram atualizadas com suceso!')
+			geraescalaporequipe(
+				Equipe.objects.get(id_equipe=form.cleaned_data['equipe']),
+				Servidor.objects.filter(fk_equipe=Equipe.objects.get(id_equipe=form.cleaned_data['equipe']).id_equipe),
+				form.cleaned_data['data_inicial'],
+				form.cleaned_data['data_final']
+				)
+			messages.success(request, 'As jornadas da equipe ' + Equipe.objects.get(id_equipe=form.cleaned_data['equipe']).nome.upper() + ' foram atualizadas com suceso!')
 			return HttpResponseRedirect('/admin/namp/setor/'+ form.cleaned_data['setor'] + '/change/')
 		else:
 			messages.warning(request, 'Ops! Verifique os campos do formulário!')

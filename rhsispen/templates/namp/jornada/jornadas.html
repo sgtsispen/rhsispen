@@ -10,42 +10,6 @@
 <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
 <script src="http://code.jquery.com/ui/1.11.0/jquery-ui.js"></script>
 
-<script type="text/javascript">
-  $(document).ready(function($) {
-    $('#id_jornada_expediente').change(function() {
-      var select = $('#id_jornada_expediente option:selected').text();
-      $('td#id_text_expediente').html(select);
-    });
-  });
-</script>
-
-<script type="text/javascript">
-  $(document).ready(function($) {
-    $('#id_jornada_plantao').change(function() {
-      var select = $('#id_jornada_plantao option:selected').text();
-      $('td#id_text_plantao').html(select);
-    });
-  });
-</script>
-
-<script type="text/javascript">
-  $(function () {
-    // inspect html to check id of category select dropdown.
-    $(document).on("focus", "select#id_equipe_plantao", function () {
-      $.getJSON("/getEquipes/", { id_setor: "{{setor.id_setor}}" }, function (j) {
-        var options = '<option value="">--Selecione--</option>';
-        for (var i = 0; i < j.length; i++) {
-          options +=
-          '<option value="' + j[i].id_equipe + '">' + j[i].nome + "</option>";
-        }
-        // inspect html to check id of subcategory select dropdown.
-        $("select#id_equipe_plantao").html(options);
-      });
-    });
-  });
-</script>
-
-
 {% endblock %}
 
 {% block breadcrumbs %}
@@ -77,8 +41,8 @@
         <tr>
           {% if equipe.categoria == "Expediente" %}
             <td><a href="#">{{equipe.nome}}</a></td>
-            <td>0</td>
-            <td id='id_text_expediente'>-----</td>
+            <td>{{equipe.get_servidores}}</td>
+            <td>{{ equipe.fk_tipo_jornada.tipificacao }}</td>
           {% endif %}
         </tr>
         {% endfor %}
@@ -103,8 +67,8 @@
         <tr>
           {% if equipe.categoria == "Plantão" %}
             <td><a href="#">{{equipe.nome}}</a></td>
-            <td>0</td>
-            <td id="id_text_plantao">-----</td>
+            <td>{{equipe.get_servidores}}</td>
+            <td>{{equipe.fk_tipo_jornada.tipificacao}}</td>
           {% endif %}
         </tr>
         {% endfor %}
@@ -127,7 +91,7 @@
       <div class="row g-3 align-items-center">
         <div class="col-md-12 row">
           <div class="col-md-12">
-            <form method="post">
+            <form method="post" action="{% url 'namp:jornadas_operador' %}">
             {% csrf_token %}
               {% for field in form %}
                 <p>
@@ -146,7 +110,7 @@
               </div>
             </form>
           </div>
-
+          
           <div class="col-md-12">
             <span class="form-text text-right">
               Equipe que encerrará o mês 04/2021: Plantão Delta.

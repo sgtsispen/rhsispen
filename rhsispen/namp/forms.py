@@ -21,15 +21,7 @@ class DefinirJornadaRegularForm(forms.Form):
         #self.fields['tipo_jornada'].choices = [('', '--Selecione--')] + list(TipoJornada.objects.all().values_list('carga_horaria', 'tipificacao'))
 
 class GerarJornadaRegularForm(forms.Form):
-    jornada_expediente = forms.ChoiceField(choices = [('', '--Selecione--')],label='Selecione a carga horaria das jornadas em equipes de EXPEDIENTE:')
-    jornada_plantao = forms.ChoiceField(choices = [('', '--Selecione--')],label='Selecione a carga horaria das jornadas em equipes de PLANTÃO:')
-    equipe_plantao = forms.ChoiceField(choices = [('', '--Selecione--')],label='Selecione a equipe de PLANTÃO que iniciará o mês:')
-
-    def __init__(self, *args, **kwargs):
-        super(GerarJornadaRegularForm, self).__init__(*args, **kwargs)
-        self.fields['jornada_expediente'].choices = [('', '-----')] + list(TipoJornada.objects.filter(carga_horaria__lt=24).values_list('id_tipo_jornada', 'tipificacao'))
-        self.fields['jornada_plantao'].choices = [('', '-----')] + list(TipoJornada.objects.filter(carga_horaria__gte=24).values_list('id_tipo_jornada', 'tipificacao'))
-        self.fields['equipe_plantao'].choices = [('', '--Selecione--')] + list(Equipe.objects.all().values_list('id_equipe', 'nome'))
+    equipe_plantao = forms.ChoiceField(choices = [('', '--Selecione--'), ('Alfa', 'Alfa'),('Bravo','Bravo'),('Charle','Charle'),('Delta','Delta')],label='Selecione a equipe de PLANTÃO que iniciará o mês:')
 
 class ServidorFormAdmin(forms.ModelForm):
     def __init__(self, *args, **kwargs):
