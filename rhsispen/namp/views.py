@@ -23,7 +23,8 @@ def home(request,template_name='home.html'):
 def jornadas_operador(request,template_name='namp/jornada/jornadas.html'):
 	form = GerarJornadaRegularForm()
 	setor = Servidor.objects.get(fk_user=request.user.id).fk_setor
-	equipes = Equipe.objects.filter(fk_setor=setor.id_setor)	
+	equipes = Equipe.objects.filter(fk_setor=setor.id_setor)
+	qtd_servidores = Equipe.objects.filter(fk_setor=setor.id_setor).count()
 	if request.method == 'POST':
 		form = GerarJornadaRegularForm(request.POST)
 		if form.is_valid():
@@ -38,6 +39,7 @@ def jornadas_operador(request,template_name='namp/jornada/jornadas.html'):
 			'form':form,
 			'equipes':equipes,
 			'setor':setor,
+			'quantidade de servidores': qtd_servidores,
 			}
 			return render(request, template_name, contexto)
 	else:
