@@ -54,31 +54,32 @@ def pre_save_update_jornada(sender, instance, **kargs):
 		oldHistAfastamento = HistAfastamento.objects.filter(
 			id_hist_afastamento=instance.id_hist_afastamento).first()
 	except HistAfastamento.DoesNotExist:
+		print('Houve uma except!')
 		pass
 	else:
-		print(oldHistAfastamento.fk_afastamento)
-		print(instance.fk_afastamento)
+		print(oldHistAfastamento.id_hist_afastamento,oldHistAfastamento.fk_afastamento)
+		print(instance.id_hist_afastamento,instance.fk_afastamento)
 		if((oldHistAfastamento.fk_afastamento != instance.fk_afastamento) or
 			(oldHistAfastamento.fk_servidor != instance.fk_servidor) or
 			(oldHistAfastamento.data_inicial != instance.data_inicial) or
 			(oldHistAfastamento.data_final != instance.data_final)):
-			jornadas = Jornada.objects.filter(
-				fk_servidor=oldHistAfastamento.fk_servidor).filter(
-				data_jornada__range=[oldHistAfastamento.data_inicial, oldHistAfastamento.data_final])
-			if jornadas:
-				for jornada in jornadas:
-					jornada.assiduidade = True
-					jornada.fk_afastamento = None
-					jornada.save()
-
-			jornadas = Jornada.objects.filter(
-			fk_servidor=instance.fk_servidor).filter(
-			data_jornada__range=[instance.data_inicial, instance.data_final])
-			if jornadas:
-				for jornada in jornadas:
-					jornada.assiduidade = False
-					jornada.fk_afastamento = instance.fk_afastamento
-					jornada.save()
+			try:	
+				jornadas = Jornada.objects.filter(
+					fk_servidor=oldHistAfastamento.fk_servidor,
+					data_jornada__range=[oldHistAfastamento.data_inicial, oldHistAfastamento.data_final])
+			except Jornada.DoesNotExist:
+				print('Houve uma except!')
+				pass
+			else:
+				if jornadas:
+					print(jornadas)
+					for jornada in jornadas:
+						jornada.assiduidade = True
+						print('assiduidade alterada!')
+						jornada.fk_afastamento = None
+						print('afastamento anulado!')
+						jornada.save()
+						print('jornada salva!')
 '''
 	Este Signal desmarca a assiduidade e lança o tipo de afastamento
 	nas jornadas existentes dentro do período do afastamento que 
