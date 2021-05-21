@@ -4,74 +4,117 @@ from namp.models import Servidor, HistLotacao, HistAfastamento, Jornada
 import datetime
 
 '''
-	Usabilidade de Signals do django
-
-	Populando HistLotacao ao criar uma instância de Servidor, a qual registra a equipe
-	do servidor.
-	
-	create_histlotacao: cria uma instância de histLotacao, assim que um servidor for
-	inserido no sistema. A data_final da instância de histLotação fica vazia até que
-	o servidor mude de equipe.
-
-	update_histlotacao: a instância anterior do histLotação do servidor vai receber a
-	data atual de alteração de sua equipe. Uma nova instância de histLotação será criada,
-	configurando a alteração da lotação do servidor.
+	Este Signal popula a tabela HistLotação sempre que uma
+	instância de Servidor for criada ou modificada. No entanto,
+	havendo modificação de uma instância de Servidor, o HistLoação
+	anterior é atualizado com a data atual e o novo HistLotação é
+	criado.
 '''
-
 @receiver(post_save, sender=Servidor)
-def create_histlotacao(sender, instance, **kargs):
-	# Criando uma instância de HistLotação, a qual faz referência ao novo servidor criado
-	HistLotacao.objects.create(data_inicial=datetime.date.today(), fk_servidor=instance,fk_setor=instance.fk_setor,fk_equipe=instance.fk_equipe)
-
-
-@receiver(pre_save, sender=Servidor)
-def update_histlotacao(sender, instance, **kargs):
-	if HistLotacao.objects.filter(fk_servidor=instance, data_final__isnull=True).count() != 0:
-		# Recuperando a instância de HistLotação já existende, a qual tem o atributo data_final vazio
-		oldHistLotacao = HistLotacao.objects.filter(fk_servidor=instance, data_final__isnull=True).order_by('-data_inicial').first()
-				
-		# Verificando se o atributo fk_equipe da instância de Servidor foi editada
-		if oldHistLotacao.fk_equipe != instance.fk_equipe or oldHistLotacao.fk_setor != instance.fk_setor:
-			# Atribuindo a data final para a atual instância de HistLotacao
-			oldHistLotacao.data_final = datetime.date.today()  # Returns 2018-01-15
-			oldHistLotacao.save()
-			# Criando uma instância de HistLotação, a qual faz referência à instância de Servidor editado
-
-'''def update_jornada(sender, instance, created, **kargs):
+def post_save_create_histlotacao(sender, instance, created, **kargs):
 	if created:
-		jornadas = Jornada.objects.filter(fk_servidor=instance.fk_servidor).filter(data_jornada__range=[instance.data_inicial, instance.data_final])
+		HistLotacao.objects.create(
+			data_inicial=datetime.date.today(),
+			fk_servidor=instance,
+			fk_setor=instance.fk_setor,
+			fk_equipe=instance.fk_equipe)
+	else:
+		print('Servidor foi alterado.')	
+		try:
+			print('Buscando lotação do servidor.')	
+			oldHistLotacao = HistLotacao.objects.filter(
+				fk_servidor=instance,
+				data_final__isnull=True).order_by('-data_inicial').first()
+		except HistLotacao.DoesNotExist:
+			print('Lotação do servidor não foi encontrada e uma nova foi criada.')
+			pass
+		else:
+			print('Lotação do servidor foi encontrada e alterada.')	
+			if oldHistLotacao:
+				if oldHistLotacao.fk_setor != instance.fk_setor or oldHistLotacao.fk_equipe != instance.fk_equipe:
+					oldHistLotacao.data_final = datetime.date.today()
+					oldHistLotacao.save()
+					HistLotacao.objects.create(
+						data_inicial=datetime.date.today(),
+						fk_servidor=instance,
+						fk_setor=instance.fk_setor,
+						fk_equipe=instance.fk_equipe)
+			else:
+				HistLotacao.objects.create(
+					data_inicial=datetime.date.today(),
+					fk_servidor=instance,
+					fk_setor=instance.fk_setor,
+					fk_equipe=instance.fk_equipe)
+
 '''
-
-
+'''
 @receiver(pre_save, sender=HistAfastamento)
 def pre_save_update_jornada(sender, instance, **kargs):
-	if HistAfastamento.objects.filter(fk_servidor=instance.fk_servidor).count() != 0:
-		oldHistAfastamento = HistAfastamento.objects.filter(fk_servidor=instance.fk_servidor).order_by('-data_inicial').first()		
-		jornadas = Jornada.objects.filter(fk_servidor=oldHistAfastamento.fk_servidor).filter(data_jornada__range=[oldHistAfastamento.data_inicial, oldHistAfastamento.data_final])
-		if jornadas:
-			for jornada in jornadas:
-				jornada.assiduidade = True
-				jornada.fk_afastamento = None
-				jornada.save()
+	try:	
+		oldHistAfastamento = HistAfastamento.objects.filter(
+			id_hist_afastamento=instance.id_hist_afastamento).first()
+	except HistAfastamento.DoesNotExist:
+		pass
+	else:
+		print(oldHistAfastamento.fk_afastamento)
+		print(instance.fk_afastamento)
+		if((oldHistAfastamento.fk_afastamento != instance.fk_afastamento) or
+			(oldHistAfastamento.fk_servidor != instance.fk_servidor) or
+			(oldHistAfastamento.data_inicial != instance.data_inicial) or
+			(oldHistAfastamento.data_final != instance.data_final)):
+			jornadas = Jornada.objects.filter(
+				fk_servidor=oldHistAfastamento.fk_servidor).filter(
+				data_jornada__range=[oldHistAfastamento.data_inicial, oldHistAfastamento.data_final])
+			if jornadas:
+				for jornada in jornadas:
+					jornada.assiduidade = True
+					jornada.fk_afastamento = None
+					jornada.save()
 
-@receiver(post_save, sender=HistAfastamento)
-def post_save_update_jornada(sender, instance, **kargs):
-	jornadas = Jornada.objects.filter(fk_servidor=instance.fk_servidor).filter(data_jornada__range=[instance.data_inicial, instance.data_final])
-	if jornadas:
-		for jornada in jornadas:
-			jornada.assiduidade = False
-			jornada.fk_afastamento = instance.fk_afastamento
-			jornada.save()
+			jornadas = Jornada.objects.filter(
+			fk_servidor=instance.fk_servidor).filter(
+			data_jornada__range=[instance.data_inicial, instance.data_final])
+			if jornadas:
+				for jornada in jornadas:
+					jornada.assiduidade = False
+					jornada.fk_afastamento = instance.fk_afastamento
+					jornada.save()
 '''
-	Ao criar uma jornada dentro de um período em que o servidor se encontre
-	afastado, tal jornada terá sua assiduidade desmarcada e o campo do afastamento
-	fará referência ao tipo de afastamento existente nesse período.
+	Este Signal desmarca a assiduidade e lança o tipo de afastamento
+	nas jornadas existentes dentro do período do afastamento que 
+	esteja sendo criado para o servidor vinculado a ele.
+'''
+@receiver(post_save, sender=HistAfastamento)
+def post_save_create_afastamento(sender, instance, created, **kargs):
+	if created:
+		try:
+			jornadas = Jornada.objects.filter(
+				fk_servidor=instance.fk_servidor,
+				data_jornada__range=[instance.data_inicial, instance.data_final])
+		except Jornada.DoesNotExist:
+			pass
+		else:
+			if jornadas:
+				for jornada in jornadas:
+					jornada.assiduidade = False
+					jornada.fk_afastamento = instance.fk_afastamento
+					jornada.save()
+
+'''
+	Este Signal desmarca a assiduidade e lança o tipo de afastamento
+	numa jornada que esteja sendo criada dentro do período de um 
+	afastamento já existente para o servidor vinculado a ela.
 '''
 @receiver(pre_save, sender=Jornada)
 def pre_save_create_jornada(sender, instance, **kargs):
-	if HistAfastamento.objects.filter(fk_servidor=instance.fk_servidor).count() != 0:
-		myHistAfastamento = HistAfastamento.objects.filter(fk_servidor=instance.fk_servidor).order_by('-data_inicial').first()					
-		for	data in range(myHistAfastamento.data_inicial.toordinal(), myHistAfastamento.data_final.toordinal()+1):
-			if instance.data_jornada.toordinal() == data:
-				instance.assiduidade = False
-				instance.fk_afastamento = myHistAfastamento.fk_afastamento
+	try:
+		myHistAfastamento = HistAfastamento.objects.filter(
+			fk_servidor=instance.fk_servidor).order_by('-data_inicial').first()
+	except HistAfastamento.DoesNotExist:
+		pass
+	else:
+		if myHistAfastamento:
+			for	data in range(myHistAfastamento.data_inicial.toordinal(), myHistAfastamento.data_final.toordinal()+1):
+				if instance.data_jornada.toordinal() == data:
+					instance.assiduidade = False
+					instance.fk_afastamento = myHistAfastamento.fk_afastamento
