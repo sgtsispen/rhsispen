@@ -181,7 +181,7 @@ def gerarescalaregular(request):
 		if form.is_valid():
 			geraescalaporequipe(
 				Equipe.objects.get(id_equipe=form.cleaned_data['equipe']),
-				Servidor.objects.filter(fk_equipe=Equipe.objects.get(id_equipe=form.cleaned_data['equipe']).id_equipe),
+				Servidor.objects.filter(fk_equipe=Equipe.objects.get(id_equipe=form.cleaned_data['equipe'])),
 				form.cleaned_data['data_inicial'],
 				form.cleaned_data['data_final']
 				)
