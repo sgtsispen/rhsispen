@@ -84,6 +84,13 @@ def get_equipes(request):
 		result = list(Equipe.objects.filter(fk_setor=id_setor).values('id_equipe', 'nome'))
 	return HttpResponse(json.dumps(result), content_type="application/json")
 
+def get_equipes24h(request):
+	result = list(Equipe.objects.none())
+	id_setor = request.GET.get('id_setor', '')
+	if (id_setor):
+		result = list(Equipe.objects.filter(fk_setor=id_setor,fk_tipo_jornada__carga_horaria=24).values('id_equipe', 'nome'))
+	return HttpResponse(json.dumps(result), content_type="application/json")
+
 def get_tipo_jornada(request):
 	result = list(TipoJornada.objects.none())
 	id_equipe = request.GET.get('id_equipe', '')

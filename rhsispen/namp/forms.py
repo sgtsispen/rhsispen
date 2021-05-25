@@ -21,7 +21,12 @@ class DefinirJornadaRegularForm(forms.Form):
         #self.fields['tipo_jornada'].choices = [('', '--Selecione--')] + list(TipoJornada.objects.all().values_list('carga_horaria', 'tipificacao'))
 
 class GerarJornadaRegularForm(forms.Form):
-    equipe_plantao = forms.ChoiceField(choices = [('', '--Selecione--'), ('Alfa', 'Alfa'),('Bravo','Bravo'),('Charle','Charle'),('Delta','Delta')],label='Selecione a equipe de PLANTÃO que iniciará o mês:')
+    equipe_plantao24 = forms.ChoiceField(choices = [('', '--Selecione--')],label='Selecione a equipe de PLANTÃO 24h que iniciará o mês:')
+    data_equipe_plantao24 = forms.DateField(widget=DateInput(),required=True)  
+    def __init__(self, *args, **kwargs):
+        super(GerarJornadaRegularForm, self).__init__(*args, **kwargs)
+        self.fields['equipe_plantao24'].choices = [('', '--Selecione--')] + list(Equipe.objects.all().values_list('id_equipe', 'nome'))
+        self.fields['data_equipe_plantao24'].widget.attrs['readonly'] = True
 
 class ServidorFormAdmin(forms.ModelForm):
     def __init__(self, *args, **kwargs):
