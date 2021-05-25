@@ -188,7 +188,7 @@ class Servidor(models.Model):
 	fk_setor = models.ForeignKey(Setor, on_delete = models.RESTRICT, verbose_name='Setor')
 	fk_equipe = models.ForeignKey(Equipe, on_delete = models.RESTRICT, verbose_name='Equipe')
 	fk_user = models.OneToOneField(User, on_delete=models.CASCADE, blank=True, null=True)
-	
+
 	def __str__(self):
 		return self.nome
 

@@ -13,15 +13,15 @@
 <script type="text/javascript">
   $(function () {
     // inspect html to check id of category select dropdown.
-    $(document).on("focus", "select#id_equipe_plantao24", function () {
-      $.getJSON("/getEquipes24h/", { id_setor: '{{ setor.id_setor }}' }, function (j) {
-        var options = '<option value="">---------</option>';
+    $(document).on("focus", "select#id_equipe_plantao24h", function () {
+      $.getJSON("/getEquipes24h/", { id_setor: "{{setor.id_setor}}" }, function (j) {
+        var options = '<option value="">--Selecione--</option>';
         for (var i = 0; i < j.length; i++) {
           options +=
-            '<option value="' + j[i].id_equipe + '">' + j[i].nome + "</option>";
+          '<option value="' + j[i].id_equipe + '">' + j[i].nome + "</option>";
         }
         // inspect html to check id of subcategory select dropdown.
-        $("select#id_equipe_plantao24").html(options);
+        $("select#id_equipe_plantao24h").html(options);
       });
     });
   });
@@ -33,6 +33,23 @@
         dateFormat: 'yy-mm-dd' ,
         minDate: 0,
       });
+  });
+</script>
+
+<script type="text/javascript">
+  $(function () {
+    // inspect html to check id of category select dropdown.
+    $(document).on("focus", "select#id_equipe_plantao48h", function () {
+      $.getJSON("/getEquipes48h/", { id_setor: "{{setor.id_setor}}" }, function (j) {
+        var options = '<option value="">--Selecione--</option>';
+        for (var i = 0; i < j.length; i++) {
+          options +=
+          '<option value="' + j[i].id_equipe + '">' + j[i].nome + "</option>";
+        }
+        // inspect html to check id of subcategory select dropdown.
+        $("select#id_equipe_plantao48h").html(options);
+      });
+    });
   });
 </script>
 
@@ -66,7 +83,7 @@
         {% for equipe in equipes %}
         <tr>
           {% if equipe.categoria == "Expediente" %}
-            <td><a href="#">{{equipe.nome}}</a></td>
+            <td><a href="#">{{equipe.nome}} - [ID]- {{equipe.id_equipe}}</a></td>
             <td>{{equipe.get_servidores}}</td>
             <td>{{ equipe.fk_tipo_jornada.tipificacao }}</td>
           {% endif %}
@@ -92,7 +109,7 @@
         {% for equipe in equipes %}
         <tr>
           {% if equipe.categoria == "Plantão" %}
-            <td><a href="#">{{equipe.nome}}</a></td>
+            <td><a href="#">{{equipe.nome}} - [ID]- {{equipe.id_equipe}}</a></td>
             <td>{{equipe.get_servidores}}</td>
             <td>{{equipe.fk_tipo_jornada.tipificacao}}</td>
           {% endif %}
