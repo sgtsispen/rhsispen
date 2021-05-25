@@ -10,6 +10,48 @@
 <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
 <script src="http://code.jquery.com/ui/1.11.0/jquery-ui.js"></script>
 
+<script type="text/javascript">
+  $(function () {
+    // inspect html to check id of category select dropdown.
+    $(document).on("focus", "select#id_equipe_plantao24h", function () {
+      $.getJSON("/getEquipes24h/", { id_setor: "{{setor.id_setor}}" }, function (j) {
+        var options = '<option value="">--Selecione--</option>';
+        for (var i = 0; i < j.length; i++) {
+          options +=
+          '<option value="' + j[i].id_equipe + '">' + j[i].nome + "</option>";
+        }
+        // inspect html to check id of subcategory select dropdown.
+        $("select#id_equipe_plantao24h").html(options);
+      });
+    });
+  });
+</script>
+
+<script type="text/javascript">
+  $(function () {
+    // inspect html to check id of category select dropdown.
+    $(document).on("focus", "select#id_equipe_plantao48h", function () {
+      $.getJSON("/getEquipes48h/", { id_setor: "{{setor.id_setor}}" }, function (j) {
+        var options = '<option value="">--Selecione--</option>';
+        for (var i = 0; i < j.length; i++) {
+          options +=
+          '<option value="' + j[i].id_equipe + '">' + j[i].nome + "</option>";
+        }
+        // inspect html to check id of subcategory select dropdown.
+        $("select#id_equipe_plantao48h").html(options);
+      });
+    });
+  });
+</script>
+
+<script>
+$(document).ready(function() {
+  $('.datepicker').datepicker({
+    dateFormat: 'yy-mm-dd' ,
+    minDate: 0,
+  });
+});
+</script>
 {% endblock %}
 
 {% block breadcrumbs %}

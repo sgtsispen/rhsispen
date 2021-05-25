@@ -50,36 +50,35 @@ def post_save_create_histlotacao(sender, instance, created, **kargs):
 '''
 @receiver(pre_save, sender=HistAfastamento)
 def pre_save_update_jornada(sender, instance, **kargs):
-	try:	
-		oldHistAfastamento = HistAfastamento.objects.filter(
-			id_hist_afastamento=instance.id_hist_afastamento).first()
-	except HistAfastamento.DoesNotExist:
-		print('Houve uma except!')
-		pass
-	else:
-		print(oldHistAfastamento.id_hist_afastamento,oldHistAfastamento.fk_afastamento)
-		print(instance.id_hist_afastamento,instance.fk_afastamento)
+	if HistAfastamento.objects.filter(id_hist_afastamento=instance.id_hist_afastamento).count() != 0:
+		oldHistAfastamento = HistAfastamento.objects.get(id_hist_afastamento=instance.id_hist_afastamento)
+		print(oldHistAfastamento.id_hist_afastamento, oldHistAfastamento.fk_afastamento)
+		print(instance.id_hist_afastamento, instance.fk_afastamento)
 		if((oldHistAfastamento.fk_afastamento != instance.fk_afastamento) or
 			(oldHistAfastamento.fk_servidor != instance.fk_servidor) or
 			(oldHistAfastamento.data_inicial != instance.data_inicial) or
 			(oldHistAfastamento.data_final != instance.data_final)):
-			try:	
-				jornadas = Jornada.objects.filter(
-					fk_servidor=oldHistAfastamento.fk_servidor,
-					data_jornada__range=[oldHistAfastamento.data_inicial, oldHistAfastamento.data_final])
-			except Jornada.DoesNotExist:
-				print('Houve uma except!')
-				pass
-			else:
-				if jornadas:
-					print(jornadas)
-					for jornada in jornadas:
-						jornada.assiduidade = True
-						print('assiduidade alterada!')
-						jornada.fk_afastamento = None
-						print('afastamento anulado!')
-						jornada.save()
-						print('jornada salva!')
+			
+			jornadas = Jornada.objects.filter(
+				fk_servidor=oldHistAfastamento.fk_servidor,
+				data_jornada__range=[oldHistAfastamento.data_inicial, oldHistAfastamento.data_final])
+			if jornadas:
+				for jornada in jornadas:
+					jornada.assiduidade = True
+					jornada.fk_afastamento = None
+					jornada.save()
+					print('jornadas restaudatas!')
+
+			jornadas = Jornada.objects.filter(
+				fk_servidor=instance.fk_servidor).filter(
+				data_jornada__range=[instance.data_inicial, instance.data_final])
+			if jornadas:
+				for jornada in jornadas:
+					jornada.assiduidade = False
+					jornada.fk_afastamento = instance.fk_afastamento
+					jornada.save()
+					print('jornadas atualizadas!')					
+
 '''
 	Este Signal desmarca a assiduidade e lança o tipo de afastamento
 	nas jornadas existentes dentro do período do afastamento que 
@@ -90,7 +89,7 @@ def post_save_create_afastamento(sender, instance, created, **kargs):
 	if created:
 		try:
 			jornadas = Jornada.objects.filter(
-				fk_servidor=instance.fk_servidor,
+				fk_servidor=instance.fk_servidor).filter(
 				data_jornada__range=[instance.data_inicial, instance.data_final])
 		except Jornada.DoesNotExist:
 			pass
@@ -100,22 +99,22 @@ def post_save_create_afastamento(sender, instance, created, **kargs):
 					jornada.assiduidade = False
 					jornada.fk_afastamento = instance.fk_afastamento
 					jornada.save()
-
+					print('Entrei aqui também! Novo Afastamento')
+		
 '''
 	Este Signal desmarca a assiduidade e lança o tipo de afastamento
 	numa jornada que esteja sendo criada dentro do período de um 
 	afastamento já existente para o servidor vinculado a ela.
 '''
-@receiver(pre_save, sender=Jornada)
-def pre_save_create_jornada(sender, instance, **kargs):
-	try:
-		myHistAfastamento = HistAfastamento.objects.filter(
-			fk_servidor=instance.fk_servidor).order_by('-data_inicial').first()
-	except HistAfastamento.DoesNotExist:
-		pass
-	else:
-		if myHistAfastamento:
-			for	data in range(myHistAfastamento.data_inicial.toordinal(), myHistAfastamento.data_final.toordinal()+1):
-				if instance.data_jornada.toordinal() == data:
-					instance.assiduidade = False
-					instance.fk_afastamento = myHistAfastamento.fk_afastamento
+@receiver(post_save, sender=Jornada)
+def post_save_create_jornada(sender, instance, created, **kargs):
+	if created:
+		if HistAfastamento.objects.filter(fk_servidor=instance.fk_servidor).count() != 0:
+			myHistAfastamento = HistAfastamento.objects.filter(fk_servidor=instance.fk_servidor)
+			for afastamento in myHistAfastamento:
+				for	data in range(afastamento.data_inicial.toordinal(), afastamento.data_final.toordinal()+1):
+					if instance.data_jornada.toordinal() == data:
+						instance.assiduidade = False
+						instance.fk_afastamento = afastamento.fk_afastamento
+						instance.save()	
+						print('entrei aqui também! Nova Jornada')

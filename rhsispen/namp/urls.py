@@ -12,6 +12,8 @@ urlpatterns = [
 	path('', views.home, name='home'),
 	path('jornadas/', views.jornadas_operador, name='jornadas_operador'),
 	url('getEquipes/$', views.get_equipes),
+	url('getEquipes24h/$', views.get_equipes24h),
+	url('getEquipes48h/$', views.get_equipes48h),
 	url('getTipoJornada/', views.get_tipo_jornada),
 	url('getEquipeServidor/$', views.get_equipe_servidor),
 	url('exportar_pdf/', views.exportar_pdf, name='exportar_pdf'),
