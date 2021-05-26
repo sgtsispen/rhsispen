@@ -82,7 +82,7 @@ class HistAfastamentoAdmin(admin.ModelAdmin):
 @admin.register(HistFuncao)
 class HistFuncaoAdmin(admin.ModelAdmin):
 	search_fields = ('fk_servidor__nome','fk_funcao__nome')
-	list_display = ('id_hist_funcao','data_inicio','data_final','fk_funcao','fk_servidor')
+	list_display = ('fk_servidor','data_inicio','data_final','fk_funcao')
 
 @admin.register(HistLotacao)
 class HistLotacaoAdmin(admin.ModelAdmin):
@@ -106,12 +106,6 @@ class JornadaAdmin(admin.ModelAdmin):
 	list_display = ('get_matricula','get_vinculo','fk_servidor','get_cpf', 'get_codigo_setor','get_nome_setor','get_carga_horaria','get_inicio', 'get_fim')
 
 	admin.site.disable_action('delete_selected')
-
-	'''def get_form(self, request, obj=None, **kwargs):
-					form = super(JornadaAdmin, self).get_form(request, obj, **kwargs)
-					form.base_fields["fk_servidor"] = forms.ModelChoiceField(queryset=Servidor.objects.filter(situacao=True))
-					return form'''
-
 
 	def get_matricula(self, obj):
 		return obj.fk_servidor.id_matricula

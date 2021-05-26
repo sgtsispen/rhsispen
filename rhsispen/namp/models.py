@@ -219,7 +219,7 @@ class EnderecoServ(models.Model):
 class HistFuncao(models.Model):
 	id_hist_funcao = models.AutoField(primary_key=True)
 	data_inicio = models.DateField()
-	data_final = models.DateField()
+	data_final = models.DateField(blank=True, null=True)
 	fk_funcao = models.ForeignKey(Funcao, on_delete = models.RESTRICT, verbose_name='Função')
 	fk_servidor = models.ForeignKey(Servidor, on_delete = models.RESTRICT, verbose_name='Servidor')
 	def __str__(self):
