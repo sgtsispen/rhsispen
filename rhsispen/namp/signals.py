@@ -51,9 +51,9 @@ def post_save_create_histlotacao(sender, instance, created, **kargs):
 					fk_equipe=instance.fk_equipe)
 
 				jornadas = Jornada.objects.filter(fk_servidor=instance,data_jornada__gte=datetime.date.today())
-					if jornadas:
-						for jornada in jornadas: 
-							jornada.delete()
+				if jornadas:
+					for jornada in jornadas: 
+						jornada.delete()
 
 
 '''
