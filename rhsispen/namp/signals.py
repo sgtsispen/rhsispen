@@ -23,7 +23,6 @@ def create_histlotacao(sender, instance, **kargs):
 	# Criando uma instância de HistLotação, a qual faz referência ao novo servidor criado
 	HistLotacao.objects.create(data_inicial=datetime.date.today(), fk_servidor=instance,fk_setor=instance.fk_setor,fk_equipe=instance.fk_equipe)
 
-
 @receiver(pre_save, sender=Servidor)
 def update_histlotacao(sender, instance, **kargs):
 	if HistLotacao.objects.filter(fk_servidor=instance, data_final__isnull=True).count() != 0:

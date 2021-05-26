@@ -54,7 +54,7 @@ class StatusFuncional(models.Model):
 	id_status_funcional = models.AutoField(primary_key=True)
 	codigo_status_funcional = models.CharField('Código', max_length=10)
 	nome = models.CharField(max_length=50,unique=True)
-	descricao = models.TextField(max_length=100)
+	descricao = models.TextField(max_length=100)	
 	def __str__(self):
 		return self.nome	
 	
@@ -113,6 +113,7 @@ class Equipe(models.Model):
 	CHOICES_CATEGORIA = [('Plantão','Plantão'),('Expediente','Expediente')]
 	categoria = models.CharField('Categoria', max_length=10, choices=CHOICES_CATEGORIA)
 	fk_setor = models.ForeignKey(Setor, on_delete = models.RESTRICT, verbose_name='Setor')
+	fk_tipo_jornada = models.ForeignKey(TipoJornada, on_delete=models.RESTRICT, verbose_name='Tipo de Jornada')
 	def __str__(self):
 		return self.nome
 	class Meta:
@@ -213,7 +214,7 @@ class EnderecoServ(models.Model):
 class HistFuncao(models.Model):
 	id_hist_funcao = models.AutoField(primary_key=True)
 	data_inicio = models.DateField()
-	data_final = models.DateField(blank=True, null=True)
+	data_final = models.DateField()
 	fk_funcao = models.ForeignKey(Funcao, on_delete = models.RESTRICT, verbose_name='Função')
 	fk_servidor = models.ForeignKey(Servidor, on_delete = models.RESTRICT, verbose_name='Servidor')
 	def __str__(self):

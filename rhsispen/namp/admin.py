@@ -70,7 +70,6 @@ class EquipeInline(admin.TabularInline):
 
 @admin.register(Funcao)
 class FuncaoAdmin(admin.ModelAdmin):
-	search_fields = ('nome', )
 	list_display = ('simbolo','nome',)
 
 @admin.register(HistAfastamento)
@@ -82,17 +81,14 @@ class HistAfastamentoAdmin(admin.ModelAdmin):
 
 @admin.register(HistFuncao)
 class HistFuncaoAdmin(admin.ModelAdmin):
-	date_hierarchy = 'data_inicio'
 	search_fields = ('fk_servidor__nome','fk_funcao__nome')
-	autocomplete_fields = ['fk_servidor', 'fk_funcao', ]
-	list_display = ('fk_funcao','data_inicio','data_final','fk_servidor')
+	list_display = ('id_hist_funcao','data_inicio','data_final','fk_funcao','fk_servidor')
 
 @admin.register(HistLotacao)
 class HistLotacaoAdmin(admin.ModelAdmin):
-	date_hierarchy = 'data_inicial'
 	change_form_template = 'admin/namp/histlotacao/change_form.html'
 	search_fields = ('fk_servidor__nome','fk_equipe__nome', 'fk_equipe__fk_setor__nome')
-	list_display = ('fk_servidor','data_inicial','data_final','fk_equipe', 'fk_setor')	
+	list_display = ('id_hist_lotacao','data_inicial','data_final','fk_servidor','fk_equipe', 'fk_setor')	
 
 @admin.register(HistStatusFuncional)
 class HistStatusFuncionalAdmin(admin.ModelAdmin):
@@ -171,7 +167,7 @@ class RegiaoAdmin(admin.ModelAdmin):
 
 @admin.register(Servidor)
 class ServidorAdmin(admin.ModelAdmin): 
-	form = ServidorFormAdmin 	
+	form = ServidorFormAdmin	
 	change_form_template = 'admin/namp/servidor/change_form.html'
 	change_list_template = 'admin/namp/servidor/change_list.html'
 
@@ -227,6 +223,8 @@ class SetorAdmin(admin.ModelAdmin):
 	list_display = ('id_setor', 'nome','fk_regiao','status', 'setor_sede', 'get_total_servidor')
 	search_fields = ('nome','fk_regiao__nome', 'id_setor')
 	inlines = [EnderecoSetorInline,EquipeInline]
+	#search_fields = ['nome']
+
 	def get_total_servidor(self, obj):
 		return Servidor.objects.filter(fk_equipe__in=Equipe.objects.filter(fk_setor=obj)).count() #total servidores do setor
 	get_total_servidor.short_description = 'Servidores'  #Nome da coluna

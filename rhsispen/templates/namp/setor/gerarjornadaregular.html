@@ -16,7 +16,9 @@ function goBack() {
 <script>
 $(document).ready(function() {
     $('.datepicker').datepicker({
-    	dateFormat: 'yy-mm-dd' 
+    	dateFormat: 'yy-mm-dd',
+      autoclose: true,  
+      minDate: '0',
     });
 });
 </script>
