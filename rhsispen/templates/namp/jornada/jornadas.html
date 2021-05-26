@@ -28,9 +28,12 @@
 <script>
     $(document).ready(function() {
         $('.datepicker').datepicker({
+            inline: true,
+            sideBySide: true,
             dateFormat: 'yy-mm-dd',
             minDate: 0,
         });
+        jQuery('.datepicker').attr('autocomplete', 'off');
     });
 </script>
 
