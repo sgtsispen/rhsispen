@@ -113,9 +113,14 @@ class Equipe(models.Model):
 	CHOICES_CATEGORIA = [('Plantão','Plantão'),('Expediente','Expediente')]
 	categoria = models.CharField('Categoria', max_length=10, choices=CHOICES_CATEGORIA)
 	fk_setor = models.ForeignKey(Setor, on_delete = models.RESTRICT, verbose_name='Setor')
-	fk_tipo_jornada = models.ForeignKey(TipoJornada, on_delete=models.RESTRICT, verbose_name='Tipo de Jornada')
+	fk_tipo_jornada = models.ForeignKey(TipoJornada, on_delete = models.RESTRICT, verbose_name='Tipo de Jornada')
+	
 	def __str__(self):
 		return self.nome
+	
+	def get_servidores(self):
+		return Servidor.objects.filter(fk_equipe=self.id_equipe).count()
+
 	class Meta:
 		ordering = ["nome"]
 		verbose_name = "Equipe"
@@ -183,7 +188,7 @@ class Servidor(models.Model):
 	fk_setor = models.ForeignKey(Setor, on_delete = models.RESTRICT, verbose_name='Setor')
 	fk_equipe = models.ForeignKey(Equipe, on_delete = models.RESTRICT, verbose_name='Equipe')
 	fk_user = models.OneToOneField(User, on_delete=models.CASCADE, blank=True, null=True)
-	
+
 	def __str__(self):
 		return self.nome
 

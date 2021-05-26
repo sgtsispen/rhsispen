@@ -10,7 +10,7 @@ class DefinirJornadaRegularForm(forms.Form):
     data_final = forms.DateField(widget=DateInput(),required=True)  
     # o tipo de jornada define a escala sob qual deve ser gerada a joranada
     equipe = forms.ChoiceField(choices = [('', '--Selecione--')] )
-    tipo_jornada = forms.ChoiceField(choices = [('', '--Selecione--')] )
+    #tipo_jornada = forms.ChoiceField(choices = [('', '--Selecione--')] )
 
     def __init__(self, *args, **kwargs):
         super(DefinirJornadaRegularForm, self).__init__(*args, **kwargs)
@@ -18,19 +18,20 @@ class DefinirJornadaRegularForm(forms.Form):
         self.fields['data_inicial'].widget.attrs['readonly'] = True
         self.fields['data_final'].widget.attrs['readonly'] = True
         self.fields['equipe'].choices = [('', '--Selecione--')] + list(Equipe.objects.all().values_list('id_equipe', 'nome'))
-        self.fields['tipo_jornada'].choices = [('', '--Selecione--')] + list(TipoJornada.objects.all().values_list('carga_horaria', 'tipificacao'))
+        #self.fields['tipo_jornada'].choices = [('', '--Selecione--')] + list(TipoJornada.objects.all().values_list('carga_horaria', 'tipificacao'))
 
 class GerarJornadaRegularForm(forms.Form):
-    jornada_expediente = forms.ChoiceField(choices = [('', '--Selecione--')],label='Selecione a carga horaria das jornadas em equipes de EXPEDIENTE:')
-    jornada_plantao = forms.ChoiceField(choices = [('', '--Selecione--')],label='Selecione a carga horaria das jornadas em equipes de PLANTÃO:')
-    equipe_plantao = forms.ChoiceField(choices = [('', '--Selecione--')],label='Selecione a equipe de PLANTÃO que iniciará o mês:')
+    equipe_plantao24h = forms.ChoiceField(choices = [('', '--Selecione--')],label='1º PLANTÃO de 24H do mês:')
+    data_plantao24h = forms.DateField(widget=DateInput(),required=True, label='Data de entrada:')
+
+    equipe_plantao48h = forms.ChoiceField(choices = [('', '--Selecione--')],label='1º PLANTÃO de 48H do mês:')
+    data_plantao48h = forms.DateField(widget=DateInput(),required=True, label='Data de entrada:')
 
     def __init__(self, *args, **kwargs):
         super(GerarJornadaRegularForm, self).__init__(*args, **kwargs)
-        self.fields['jornada_expediente'].choices = [('', '-----')] + list(TipoJornada.objects.filter(carga_horaria__lt=24).values_list('id_tipo_jornada', 'tipificacao'))
-        self.fields['jornada_plantao'].choices = [('', '-----')] + list(TipoJornada.objects.filter(carga_horaria__gte=24).values_list('id_tipo_jornada', 'tipificacao'))
-        self.fields['equipe_plantao'].choices = [('', '--Selecione--')] + list(Equipe.objects.all().values_list('id_equipe', 'nome'))
-
+        self.fields['equipe_plantao24h'].choices = [('', '--Selecione--')] + list(Equipe.objects.filter(fk_tipo_jornada__carga_horaria=24).values_list('id_equipe', 'nome'))
+        self.fields['equipe_plantao48h'].choices = [('', '--Selecione--')] + list(Equipe.objects.filter(fk_tipo_jornada__carga_horaria=48).values_list('id_equipe', 'nome'))
+        
 class ServidorFormAdmin(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(ServidorFormAdmin, self).__init__(*args, **kwargs)

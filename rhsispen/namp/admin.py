@@ -107,6 +107,12 @@ class JornadaAdmin(admin.ModelAdmin):
 
 	admin.site.disable_action('delete_selected')
 
+	'''def get_form(self, request, obj=None, **kwargs):
+					form = super(JornadaAdmin, self).get_form(request, obj, **kwargs)
+					form.base_fields["fk_servidor"] = forms.ModelChoiceField(queryset=Servidor.objects.filter(situacao=True))
+					return form'''
+
+
 	def get_matricula(self, obj):
 		return obj.fk_servidor.id_matricula
 	get_matricula.short_description = 'matrícula' 

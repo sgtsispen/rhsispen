@@ -28,8 +28,11 @@
 
 		{% block userlinks %}
 			{% if user.is_authenticated %}	
+				{% if request.user.is_superuser %}                      
+				<a href="{% url 'admin:index' %}">{% trans 'Acesso Admin' %}</a> /
+				{% endif %}             
 				<a href="#">{% trans 'Alterar Senha' %}</a> /
-			    <a href="{% url 'autenticacao:logout' %}">{% trans 'Sair' %}</a>
+			    <a href="{% url 'autenticacao:logout' %}">{% trans ' Encerrar sessão' %}</a>
 			{% else %}
 			  	<a href="{% url 'autenticacao:login' %}">{% trans 'Entrar' %}</a> /
 			    <a href="{% url 'autenticacao:cadastro' %}">{% trans 'Cadastrar-se' %}</a>
