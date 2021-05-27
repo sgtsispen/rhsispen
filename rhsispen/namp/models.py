@@ -22,8 +22,8 @@ class Funcao(models.Model):
 		return self.nome
 	class Meta:
 		ordering = ['simbolo']
-		verbose_name = "Função"
-		verbose_name_plural = "Funções"
+		verbose_name = "Tipo de Função"
+		verbose_name_plural = "Tipo de Funções"
 		unique_together = ('nome',)
 
 class Afastamento(models.Model):
@@ -220,7 +220,7 @@ class HistFuncao(models.Model):
 	id_hist_funcao = models.AutoField(primary_key=True)
 	data_inicio = models.DateField()
 	data_final = models.DateField(blank=True, null=True)
-	fk_funcao = models.ForeignKey(Funcao, on_delete = models.RESTRICT, verbose_name='Função')
+	fk_funcao = models.ForeignKey(Funcao, null=True, on_delete = models.RESTRICT, verbose_name='Função')
 	fk_servidor = models.ForeignKey(Servidor, on_delete = models.RESTRICT, verbose_name='Servidor')
 	def __str__(self):
 		return str(self.fk_servidor)

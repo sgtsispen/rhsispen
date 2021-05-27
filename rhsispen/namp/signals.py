@@ -1,6 +1,7 @@
+#from models import HistFuncao
 from django.db.models.signals import post_save,pre_save
 from django.dispatch import receiver
-from namp.models import Servidor, HistLotacao, HistAfastamento, Jornada
+from namp.models import Servidor, HistLotacao, HistAfastamento, Jornada, HistFuncao, Funcao
 import datetime
 
 '''
@@ -128,3 +129,23 @@ def post_save_create_jornada(sender, instance, created, **kargs):
 						instance.fk_afastamento = afastamento.fk_afastamento
 						instance.save()	
 						print('entrei aqui também! Nova Jornada')
+
+
+'''Att dos Historicos de funçoes'''
+@receiver(post_save, sender=Servidor)
+def post_save_create_histfuncao(sender, instance, created, **kargs):
+	if created:
+		HistFuncao.objects.create(
+			data_inicio=datetime.date.today(),
+			fk_servidor=instance,
+			)
+	else:
+		print('Servidor foi alterado.')	
+		try:
+			print('Buscando funcão do servidor.')	
+			oldHistFuncao = HistFuncao.objects.filter(
+				fk_servidor=instance,
+				fk_funcao = Funcao.id_funcao,
+				data_final__isnull=True).order_by('-data_inicio').first()
+		except HistFuncao.DoesNotExist:
+			print('A função do servidor não foi encontrada e uma nova foi criada.')

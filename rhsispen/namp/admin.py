@@ -88,13 +88,16 @@ class HistFuncaoAdmin(admin.ModelAdmin):
 class HistLotacaoAdmin(admin.ModelAdmin):
 	change_form_template = 'admin/namp/histlotacao/change_form.html'
 	search_fields = ('fk_servidor__nome','fk_equipe__nome', 'fk_equipe__fk_setor__nome')
-	list_display = ('id_hist_lotacao','data_inicial','data_final','fk_servidor','fk_equipe', 'fk_setor')	
+	list_display = ('fk_servidor','data_inicial','data_final', 'fk_equipe', 'fk_setor')	
+	list_filter = 'fk_setor',
+	date_hierarchy = 'data_inicial'
 
 @admin.register(HistStatusFuncional)
 class HistStatusFuncionalAdmin(admin.ModelAdmin):
 	search_fields = ('fk_servidor__nome', 'fk_status_funcional__nome' )
 	autocomplete_fields = ['fk_servidor', 'fk_status_funcional', ]
 	list_display = ('id_hist_funcional','data_inicial', 'data_final', 'fk_servidor', 'fk_status_funcional')
+	date_hierarchy = 'data_inicial'
 
 @admin.register(Jornada)
 class JornadaAdmin(admin.ModelAdmin):
