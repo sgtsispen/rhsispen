@@ -20,18 +20,22 @@ def home(request,template_name='home.html'):
     return render(request,template_name, {})
 
 @login_required(login_url='/autenticacao/login/')
-def jornadas_operador(request,template_name='namp/jornada/jornadas.html'):
+def jornadas_operador(request,template_name='namp/jornada/jornadas_operador.html'):
 	try:
 		setor = Servidor.objects.get(fk_user=request.user.id).fk_setor
 	except Servidor.DoesNotExist:
 		messages.warning(request, 'Servidor não encontrado para este usuário!')
 		return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-	form = GerarJornadaRegularForm()
-	equipes = Equipe.objects.filter(fk_setor=setor.id_setor)
+	
+	equipes = Equipe.objects.filter(status=True,fk_setor=setor.id_setor)
+	tem_plantao12 = False
 	tem_plantao24 = False
 	tem_plantao48 = False
 	for equipe in equipes:
-		if equipe.fk_tipo_jornada.carga_horaria < 24:
+		if equipe.fk_tipo_jornada.carga_horaria < 12:
+			continue
+		if equipe.fk_tipo_jornada.carga_horaria == 12:
+			tem_plantao12 = True
 			continue
 		if equipe.fk_tipo_jornada.carga_horaria == 24:
 			tem_plantao24 = True
@@ -39,18 +43,48 @@ def jornadas_operador(request,template_name='namp/jornada/jornadas.html'):
 		if equipe.fk_tipo_jornada.carga_horaria == 48:
 			tem_plantao48 = True
 			continue
-
+	
+	form = GerarJornadaRegularForm({"tem_plantao12":tem_plantao12,"tem_plantao24":tem_plantao24, "tem_plantao48":tem_plantao48})
 	if request.method == 'POST':
-		form = GerarJornadaRegularForm(request.POST)
+		form = GerarJornadaRegularForm(request.POST,{"tem_plantao12":tem_plantao12,"tem_plantao24":tem_plantao24, "tem_plantao48":tem_plantao48})
 		if form.is_valid():
+			'''
+			Trecho onde se captura a equipe de 12h do formulário,
+			a data inicial para essa mesma equipe e todas as equipes
+			com tipos de jornada similares.
+			'''
+			if form.cleaned_data['equipe_plantao12h'] != '' and form.cleaned_data['data_plantao12h'] != '':
+				equipe12h = equipes.get(
+					id_equipe=form.cleaned_data['equipe_plantao12h'])
+				data_plantao12h = form.cleaned_data['data_plantao12h']
+				equipes12h = list(equipes.filter(
+					fk_tipo_jornada__carga_horaria=12).filter(nome__gte=equipe12h))
+				equipes12h += list(equipes.filter(
+					fk_tipo_jornada__carga_horaria=12).filter(nome__lt=equipe12h))
+				fimDoMes = data_plantao12h.replace(day=1,month=data_plantao12h.month+1) - TimeDelta(days=1)
+				'''
+				Percorrendo as equipes de 24h e chamando a função
+				geradora de escalas para cada uma das equipes de plantão
+				com tipo de jornada similar do setor atual.
+				'''
+				for equipe in equipes12h:
+					funcaogeraescalaporequipe(
+						equipe,
+						Servidor.objects.filter(fk_equipe=equipe),
+						data_plantao12h,
+						fimDoMes)
+					'''
+					Alterando a data inicial para cada equipe de acordo com
+					o seu tipo de jornada. Aqui o intervalo é de 24h
+					'''
+					data_plantao12h += TimeDelta(hours=equipe.fk_tipo_jornada.carga_horaria)
+
 			'''
 			Trecho onde se captura a equipe de 24h do formulário,
 			a data inicial para essa mesma equipe e todas as equipes
 			com tipos de jornada similares.
 			'''
 			if form.cleaned_data['equipe_plantao24h'] != '' and form.cleaned_data['data_plantao24h'] != '':
-				print(form.cleaned_data['equipe_plantao24h'])
-				print(form.cleaned_data['data_plantao24h'])
 				equipe24h = equipes.get(
 					id_equipe=form.cleaned_data['equipe_plantao24h'])
 				data_plantao24h = form.cleaned_data['data_plantao24h']
@@ -58,7 +92,6 @@ def jornadas_operador(request,template_name='namp/jornada/jornadas.html'):
 					fk_tipo_jornada__carga_horaria=24).filter(nome__gte=equipe24h))
 				equipes24h += list(equipes.filter(
 					fk_tipo_jornada__carga_horaria=24).filter(nome__lt=equipe24h))
-				print(equipe24h, data_plantao24h, equipes24h)
 				fimDoMes = data_plantao24h.replace(day=1,month=data_plantao24h.month+1) - TimeDelta(days=1)
 				'''
 				Percorrendo as equipes de 24h e chamando a função
@@ -90,7 +123,6 @@ def jornadas_operador(request,template_name='namp/jornada/jornadas.html'):
 					fk_tipo_jornada__carga_horaria=48).filter(nome__gte=equipe48h))
 				equipes48h += list(equipes.filter(
 					fk_tipo_jornada__carga_horaria=48).filter(nome__lt=equipe48h))
-				print(equipe48h, data_plantao48h, equipes48h)
 				fimDoMes = data_plantao48h.replace(day=1,month=data_plantao48h.month+1) - TimeDelta(days=1)
 				'''
 				Percorrendo as equipes de 48h e chamando a função
@@ -142,6 +174,7 @@ def jornadas_operador(request,template_name='namp/jornada/jornadas.html'):
 			'tem_plantao24': tem_plantao24,
 			'tem_plantao48': tem_plantao48
 			}
+			messages.warning(request, 'Ops! Verifique os campos do formulário!')
 			return render(request, template_name, contexto)
 	else:
 		contexto = {
@@ -241,6 +274,12 @@ def datasportipodejornada(data_inicial, data_final, tipo_jornada):
 		while data_inicial <= data_final:
 			if data_inicial.weekday() not in (5,6) and data_inicial not in feriados.values():
 				datas.append(data_inicial)
+			data_inicial+= intervalo
+		return datas
+	elif tipo_jornada == 12:
+		intervalo = TimeDelta(hours=36)
+		while data_inicial <= data_final:
+			datas.append(data_inicial)
 			data_inicial+= intervalo
 		return datas
 	elif tipo_jornada == 24:

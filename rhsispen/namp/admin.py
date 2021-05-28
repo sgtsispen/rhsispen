@@ -102,7 +102,8 @@ class JornadaAdmin(admin.ModelAdmin):
 	list_filter = ('assiduidade','fk_tipo_jornada')
 	date_hierarchy = 'data_jornada'
 	list_display = ('get_matricula','get_vinculo','fk_servidor','get_cpf', 'get_codigo_setor','get_nome_setor','get_carga_horaria','get_inicio', 'get_fim')
-
+	list_per_page = 25
+	
 	admin.site.disable_action('delete_selected')
 
 	def get_matricula(self, obj):

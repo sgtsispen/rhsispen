@@ -52,7 +52,6 @@
     });
   });
 </script>
-
 {% endblock %}
 
 {% block breadcrumbs %}
@@ -81,19 +80,20 @@
       </thead>
       <tbody>
         {% for equipe in equipes %}
-        <tr>
           {% if equipe.categoria == "Expediente" %}
+          <tr>
             <td><a href="#">{{equipe.nome}} </a></td>
             <td>{{equipe.get_servidores}}</td>
             <td>{{ equipe.fk_tipo_jornada.tipificacao }}</td>
+          </tr>  
           {% endif %}
-        </tr>
         {% endfor %}
       </tbody>
     </table>
   </div>
 
   <br><br>
+
   {% if tem_plantao24 or tem_plantao48 %}
   <div class="boxJorExp">
     <h6>Equipes em Jornada de Plantão</h6>
@@ -107,32 +107,33 @@
       </thead>
       <tbody>
         {% for equipe in equipes %}
-        <tr>
           {% if tem_plantao24 %}
-          {% if equipe.fk_tipo_jornada.carga_horaria == 24 %}
-            <td><a href="#">{{equipe.nome}} </a></td>
-            <td>{{equipe.get_servidores}}</td>
-            <td>{{equipe.fk_tipo_jornada.tipificacao}}</td>
+            {% if equipe.fk_tipo_jornada.carga_horaria == 24 %}
+            <tr>
+              <td><a href="#">{{equipe.nome}} </a></td>
+              <td>{{equipe.get_servidores}}</td>
+              <td>{{equipe.fk_tipo_jornada.tipificacao}}</td>
+            </tr>
+            {% endif %}
           {% endif %}
-          {% endif %}
-        </tr>
         {% endfor %}
 
         {% for equipe in equipes %}
-        <tr>
           {% if tem_plantao48 %}
-          {% if equipe.fk_tipo_jornada.carga_horaria == 48 %}
-            <td><a href="#">{{equipe.nome}} </a></td>
-            <td>{{equipe.get_servidores}}</td>
-            <td>{{equipe.fk_tipo_jornada.tipificacao}}</td>
+            {% if equipe.fk_tipo_jornada.carga_horaria == 48 %}
+            <tr>
+              <td><a href="#">{{equipe.nome}} </a></td>
+              <td>{{equipe.get_servidores}}</td>
+              <td>{{equipe.fk_tipo_jornada.tipificacao}}</td>
+            </tr>
+            {% endif %}
           {% endif %}
-          {% endif %}
-        </tr>
         {% endfor %}
       </tbody>
     </table>
   </div>
   {% endif %}
+  
   <br><br>
   
   <div class="boxJorExp">
@@ -149,47 +150,43 @@
         <form method="post" action="{% url 'namp:jornadas_operador' %}">{% csrf_token %}
           <div class="col-md-12 row">
             {% if tem_plantao24 %}
-            <div class="col-md-4">
-              {{ form.equipe_plantao24h.label }}
-            </div>
-            <div class="col-md-3">
-              {{ form.equipe_plantao24h.errors }}
-              {{ form.equipe_plantao24h }}
-            </div>
-            <div class="col-md-2">
-              {{ form.data_plantao24h.label }}
-            </div>
-            <div class="col-md-3">
-              {{ form.data_plantao24h.errors }}
-              {{ form.data_plantao24h }}
-            </div>
-            <div class="col-md-12">
-              <span class="form-text text-right">
-                Equipe que encerrará o mês 04/2021:
-              </span>
-            </div>
+              <div class="col-md-4">
+                {{ form.equipe_plantao24h.label }}
+              </div>
+              <div class="col-md-3">
+                {{ form.equipe_plantao24h }}
+              </div>
+              <div class="col-md-2">
+                {{ form.data_plantao24h.label }}
+              </div>
+              <div class="col-md-3">
+                {{ form.data_plantao24h }}            
+              </div>
+              <div class="col-md-12">
+                <span class="form-text text-right">
+                  Equipe que encerrará o mês 04/2021:
+                </span>
+              </div>
             {% endif %}
-
+                       
             {% if tem_plantao48 %}
-            <div class="col-md-4">
-              {{ form.equipe_plantao48h.label }}
-            </div>
-            <div class="col-md-3">
-              {{ form.equipe_plantao48h.errors }}
-              {{ form.equipe_plantao48h }}
-            </div>
-            <div class="col-md-2">
-              {{ form.data_plantao48h.label }}
-            </div>
-            <div class="col-md-3">
-              {{ form.data_plantao48h.errors }}
-              {{ form.data_plantao48h }}
-            </div>
-            <div class="col-md-12">
-              <span class="form-text text-right">
-                Equipe que encerrará o mês 04/2021:
-              </span>
-            </div>
+              <div class="col-md-4">
+                {{ form.equipe_plantao48h.label }}
+              </div>
+              <div class="col-md-3">
+                {{ form.equipe_plantao48h }}
+              </div>
+              <div class="col-md-2">
+                {{ form.data_plantao48h.label }}              
+              </div>
+              <div class="col-md-3">
+                {{ form.data_plantao48h }}
+              </div>
+              <div class="col-md-12">
+                <span class="form-text text-right">
+                  Equipe que encerrará o mês 04/2021:
+                </span>
+              </div>
             {% endif %}
             <div class="submit-row" align="right">
               <input type="submit" value="{% translate 'Gerar Escalas' %}">
