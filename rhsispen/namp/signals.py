@@ -1,6 +1,6 @@
 from django.db.models.signals import post_save,pre_save
 from django.dispatch import receiver
-from namp.models import Servidor, HistLotacao, HistAfastamento, Jornada
+from namp.models import Servidor, HistFuncao, HistLotacao, HistAfastamento, Jornada
 import datetime
 
 '''
@@ -128,3 +128,21 @@ def post_save_create_jornada(sender, instance, created, **kargs):
 						instance.fk_afastamento = afastamento.fk_afastamento
 						instance.save()	
 						print('entrei aqui também! Nova Jornada')
+
+
+'''
+Att dos Historicos de funçoes
+'''
+@receiver(post_save, sender=HistFuncao)
+def post_save_create_histfuncao(sender, instance,created, **kargs):
+	if created:
+		try:
+			oldHistFuncao = HistFuncao.objects.filter(
+				fk_servidor=instance.fk_servidor,
+				data_final__isnull=True).order_by('-data_inicio').last()
+		except HistFuncao.DoesNotExist:
+			print('Historico de funcao nao encontrado.')
+			pass
+		else:
+			oldHistFuncao.data_final = datetime.date.today()
+			oldHistFuncao.save()
