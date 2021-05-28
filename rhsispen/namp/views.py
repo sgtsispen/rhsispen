@@ -171,6 +171,7 @@ def jornadas_operador(request,template_name='namp/jornada/jornadas_operador.html
 			'form':form,
 			'equipes':equipes,
 			'setor':setor,
+			'tem_plantao12': tem_plantao12,
 			'tem_plantao24': tem_plantao24,
 			'tem_plantao48': tem_plantao48
 			}
@@ -181,6 +182,7 @@ def jornadas_operador(request,template_name='namp/jornada/jornadas_operador.html
 			'form':form,
 			'equipes':equipes,
 			'setor':setor,
+			'tem_plantao12': tem_plantao12,
 			'tem_plantao24': tem_plantao24,
 			'tem_plantao48': tem_plantao48
 		}
@@ -277,8 +279,9 @@ def datasportipodejornada(data_inicial, data_final, tipo_jornada):
 			data_inicial+= intervalo
 		return datas
 	elif tipo_jornada == 12:
-		intervalo = TimeDelta(hours=36)
+		intervalo = TimeDelta(days=2)
 		while data_inicial <= data_final:
+			print(intervalo)
 			datas.append(data_inicial)
 			data_inicial+= intervalo
 		return datas
