@@ -36,18 +36,89 @@ def jornadas_operador(request,template_name='namp/jornada/jornadas.html'):
 	if request.method == 'POST':
 		form = GerarJornadaRegularForm(request.POST)
 		if form.is_valid():
-			equipe24h = form.cleaned_data['equipe_plantao24h']
+			'''
+			Trecho onde se captura a equipe de 24h do formulário,
+			a data inicial para essa mesma equipe e todas as equipes
+			com tipos de jornada similares.
+			'''
+			equipe24h = equipes.get(
+				id_equipe=form.cleaned_data['equipe_plantao24h'])
 			data_plantao24h = form.cleaned_data['data_plantao24h']
 			equipes24h = list(equipes.filter(
-				fk_tipo_jornada__carga_horaria=24))
-			print(equipe24h,data_plantao24h, equipes24h)
+				fk_tipo_jornada__carga_horaria=24).filter(nome__gte=equipe24h))
+			equipes24h += list(equipes.filter(
+				fk_tipo_jornada__carga_horaria=24).filter(nome__lt=equipe24h))
+			print(equipe24h, data_plantao24h, equipes24h)
+			fimDoMes = data_plantao24h.replace(day=1,month=data_plantao24h.month+1) - TimeDelta(days=1)
+			'''
+			Percorrendo as equipes de 24h e chamando a função
+			geradora de escalas para cada uma das equipes de plantão
+			com tipo de jornada similar do setor atual.
+			'''
+			for equipe in equipes24h:
+				funcaogeraescalaporequipe(
+					equipe,
+					Servidor.objects.filter(fk_equipe=equipe),
+					data_plantao24h,
+					fimDoMes)
+				'''
+				Alterando a data inicial para cada equipe de acordo com
+				o seu tipo de jornada. Aqui o intervalo é de 24h
+				'''
+				data_plantao24h += TimeDelta(hours=equipe.fk_tipo_jornada.carga_horaria)
 
-			equipe48h = form.cleaned_data['equipe_plantao48h']
+			'''--------------------------------------------------------
+			Trecho onde se captura a equipe de 48h do formulário,
+			a data inicial para essa mesma equipe e todas as equipes
+			com tipos de jornada similares.
+			'''
+			equipe48h = equipes.get(
+				id_equipe=form.cleaned_data['equipe_plantao48h'])
 			data_plantao48h = form.cleaned_data['data_plantao48h']
 			equipes48h = list(equipes.filter(
-				fk_tipo_jornada__carga_horaria=48))
+				fk_tipo_jornada__carga_horaria=48).filter(nome__gte=equipe48h))
+			equipes48h += list(equipes.filter(
+				fk_tipo_jornada__carga_horaria=48).filter(nome__lt=equipe48h))
 			print(equipe48h, data_plantao48h, equipes48h)
-			
+			fimDoMes = data_plantao48h.replace(day=1,month=data_plantao48h.month+1) - TimeDelta(days=1)
+			'''
+			Percorrendo as equipes de 48h e chamando a função
+			geradora de escalas para cada uma das equipes de plantão
+			com tipo de jornada similar do setor atual.
+			'''
+			for equipe in equipes48h:
+				funcaogeraescalaporequipe(
+					equipe,
+					Servidor.objects.filter(fk_equipe=equipe),
+					data_plantao48h,
+					fimDoMes)
+				'''
+				Alterando a data inicial para cada equipe de acordo com
+				o seu tipo de jornada. Aqui o intervalo é de 48h
+				'''
+				data_plantao48h += TimeDelta(hours=equipe.fk_tipo_jornada.carga_horaria)
+
+			'''-----------------------------------------------------------
+			Trecho onde se captura as equipes de Expediente do setor atual,
+			a data inicial do mês de referência e a data final desse
+			mesmo mês.
+			'''
+			equipesExpediente = list(equipes.filter(
+				fk_tipo_jornada__carga_horaria__lt=24))
+			inicioDoMes = data_plantao24h.replace(day=1)
+			fimDoMes = data_plantao24h.replace(day=1,month=data_plantao24h.month+1) - TimeDelta(days=1)
+			'''
+			Percorrendo as equipes de expediente e chamando a função
+			geradora de escalas para cada uma das equipes de expediente
+			do setor atual.
+			'''
+			for equipe in equipesExpediente:
+				funcaogeraescalaporequipe(
+					equipe,
+					Servidor.objects.filter(fk_equipe=equipe),
+					inicioDoMes,#A data inicial é a mesma para todas equipes de expediente
+					fimDoMes)
+
 			messages.success(request, 'As escalas das equipes desta unidade foram atualizadas com suceso!')
 			return redirect('/')
 		else:
@@ -175,15 +246,17 @@ def datasportipodejornada(data_inicial, data_final, tipo_jornada):
 
 def funcaogeraescalaporequipe(equipe, servidores, data_inicial, data_final):
 	for servidor in servidores:
-		my_inicial = Date.fromordinal(min(data_inicial.toordinal(), data_final.toordinal()))
-		my_final = Date.fromordinal(max(data_inicial.toordinal(), data_final.toordinal()))
-		datas = datasportipodejornada(my_inicial, my_final, equipe.fk_tipo_jornada.carga_horaria)
-		for data in datas:
-			jornada = Jornada(data_jornada=data, assiduidade=1, fk_servidor=servidor, fk_equipe=equipe, fk_tipo_jornada=equipe.fk_tipo_jornada)
-			jornadas = Jornada.objects.filter(fk_servidor=jornada.fk_servidor,data_jornada=jornada.data_jornada,fk_equipe=jornada.fk_equipe)
-			if jornadas:
-				continue
-			jornada.save()
+		#Verifica se o servidor está ativo
+		if servidor.situacao:
+			my_inicial = Date.fromordinal(min(data_inicial.toordinal(), data_final.toordinal()))
+			my_final = Date.fromordinal(max(data_inicial.toordinal(), data_final.toordinal()))
+			datas = datasportipodejornada(my_inicial, my_final, equipe.fk_tipo_jornada.carga_horaria)
+			for data in datas:
+				jornada = Jornada(data_jornada=data, assiduidade=1, fk_servidor=servidor, fk_equipe=equipe, fk_tipo_jornada=equipe.fk_tipo_jornada)
+				jornadas = Jornada.objects.filter(fk_servidor=jornada.fk_servidor,data_jornada=jornada.data_jornada)
+				if jornadas:
+					continue
+				jornada.save()
 
 @login_required(login_url='/autenticacao/login/')
 def gerarescalaregular(request):
@@ -191,13 +264,15 @@ def gerarescalaregular(request):
 	if request.method == "POST":
 		#form = DefinirJornadaRegularForm(request.POST)
 		if form.is_valid():
-			funcaogeraescalaporequipe(
-				Equipe.objects.get(id_equipe=form.cleaned_data['equipe']),
-				Servidor.objects.filter(fk_equipe=Equipe.objects.get(id_equipe=form.cleaned_data['equipe'])),
-				form.cleaned_data['data_inicial'],
-				form.cleaned_data['data_final'])
-			messages.success(request, 'As jornadas da equipe ' + Equipe.objects.get(id_equipe=form.cleaned_data['equipe']).nome.upper() + ' foram atualizadas com suceso!')
-			return HttpResponseRedirect('/admin/namp/setor/'+ form.cleaned_data['setor'] + '/change/')
+			#Verifica se a equipe está ativa
+			if Equipe.objects.get(id_equipe=form.cleaned_data['equipe']).status:
+				funcaogeraescalaporequipe(
+					Equipe.objects.get(id_equipe=form.cleaned_data['equipe']),
+					Servidor.objects.filter(fk_equipe=Equipe.objects.get(id_equipe=form.cleaned_data['equipe'])),
+					form.cleaned_data['data_inicial'],
+					form.cleaned_data['data_final'])
+				messages.success(request, 'As jornadas da equipe ' + Equipe.objects.get(id_equipe=form.cleaned_data['equipe']).nome.upper() + ' foram atualizadas com suceso!')
+				return HttpResponseRedirect('/admin/namp/setor/'+ form.cleaned_data['setor'] + '/change/')
 		else:
 			messages.warning(request, 'Ops! Verifique os campos do formulário!')
 			return render(request, 'namp/setor/gerarjornadaregular.html', {'definirjornadaregularForm': DefinirJornadaRegularForm(initial={'setor':form.cleaned_data['setor']})})

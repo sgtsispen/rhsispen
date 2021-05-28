@@ -32,7 +32,6 @@ class GerarJornadaRegularForm(forms.Form):
         self.fields['equipe_plantao24h'].choices = [('', '--Selecione--')] + list(Equipe.objects.filter(fk_tipo_jornada__carga_horaria=24).values_list('id_equipe', 'nome'))
         self.fields['equipe_plantao48h'].choices = [('', '--Selecione--')] + list(Equipe.objects.filter(fk_tipo_jornada__carga_horaria=48).values_list('id_equipe', 'nome'))
         
-
 class ServidorFormAdmin(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(ServidorFormAdmin, self).__init__(*args, **kwargs)

@@ -39,12 +39,22 @@ def post_save_create_histlotacao(sender, instance, created, **kargs):
 						fk_servidor=instance,
 						fk_setor=instance.fk_setor,
 						fk_equipe=instance.fk_equipe)
+					jornadas = Jornada.objects.filter(fk_servidor=instance,data_jornada__gte=datetime.date.today())
+					if jornadas:
+						for jornada in jornadas: 
+							jornada.delete()
 			else:
 				HistLotacao.objects.create(
 					data_inicial=datetime.date.today(),
 					fk_servidor=instance,
 					fk_setor=instance.fk_setor,
 					fk_equipe=instance.fk_equipe)
+
+				jornadas = Jornada.objects.filter(fk_servidor=instance,data_jornada__gte=datetime.date.today())
+				if jornadas:
+					for jornada in jornadas: 
+						jornada.delete()
+
 
 '''
 '''

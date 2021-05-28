@@ -15,7 +15,7 @@
     // inspect html to check id of category select dropdown.
     $(document).on("focus", "select#id_equipe_plantao24h", function () {
       $.getJSON("/getEquipes24h/", { id_setor: "{{setor.id_setor}}" }, function (j) {
-        var options = '<option value="">--Selecione--</option>';
+        var options = '<option value="">Selecione uma opção</option>';
         for (var i = 0; i < j.length; i++) {
           options +=
           '<option value="' + j[i].id_equipe + '">' + j[i].nome + "</option>";
@@ -27,33 +27,31 @@
   });
 </script>
 
+<script>
+  $(document).ready(function() {
+      $('.datepicker').datepicker({
+        dateFormat: 'yy-mm-dd' ,
+        minDate: 0,
+      });
+      $('.datepicker').attr("autocomplete", "off");
+  });
+</script>
+
 <script type="text/javascript">
   $(function () {
-    // inspect html to check id of category select dropdown.
     $(document).on("focus", "select#id_equipe_plantao48h", function () {
       $.getJSON("/getEquipes48h/", { id_setor: "{{setor.id_setor}}" }, function (j) {
-        var options = '<option value="">--Selecione--</option>';
+        var options = '<option value="">Selecione uma opção</option>';
         for (var i = 0; i < j.length; i++) {
           options +=
           '<option value="' + j[i].id_equipe + '">' + j[i].nome + "</option>";
         }
-        // inspect html to check id of subcategory select dropdown.
         $("select#id_equipe_plantao48h").html(options);
       });
     });
   });
 </script>
 
-<script>
-$(document).ready(function() {
-  $('.datepicker').datepicker({
-    dateFormat: 'yy-mm-dd' ,
-    minDate: 0,
-  });
-  $('.datepicker').attr("autocomplete", "off");
-
-});
-</script>
 {% endblock %}
 
 {% block breadcrumbs %}
@@ -123,52 +121,77 @@ $(document).ready(function() {
   <br><br>
   
   <div class="boxJorExp">
-    <table class="table table-bordered text-center table-overflow">
-      <thead>
-        <tr>
-          <th scope="col">DEFINIÇÕES FINAIS DA ESCALA REGULAR</th>
-        </tr>
-      </thead>
-    </table>
+    <h6>Definir escala regular</h6>
     <br>
     <div class="formPlantao">
+      <h6>Plantão - 24h</h6>
       <div class="row g-3 align-items-center">
         <div class="col-md-12 row">
-          <div class="col-md-12">
-            <form method="post" action="{% url 'namp:jornadas_operador' %}">
-            {% csrf_token %}
-              {% for field in form %}
-                <p>
-                  {{ field.label_tag }}
-                  {{ field }}
-                  {% if field.help_text %}
-                    <small style="color: grey">{{ field.help_text }}</small>
-                  {% endif %}
-                  {% for error in field.errors %}
-                    <p style="color: red">{{ error }}</p>
-                  {% endfor %}
-                </p>
-                <p>
-                  {{ field.label_tag }}
-                  {{ field }}
-                  {% if field.help_text %}
-                    <small style="color: grey">{{ field.help_text }}</small>
-                  {% endif %}
-                  {% for error in field.errors %}
-                    <p style="color: red">{{ error }}</p>
-                  {% endfor %}
-                </p>
-              {% endfor %}
-              <div class="submit-row" align="right">
-                <input type="submit" value="{% translate 'Gerar Escalas' %}">
+            <form method="POST">
+
+              <div class="col-md-4">
+                <label for="inputPassword6" class="col-form-label">Selecione a Equipe que iniciará o mês:</label> 
               </div>
+              <div class="col-md-3">
+                <select class="form-select col-md-6" aria-label="Default select example">
+                  <option value="{{ form.equipes.nome }}"disabled selected>Selecione uma opção</option>
+                </select>
+              </div>
+    
+              <div class="col-md-2">
+                <label for="data" class="col-form-label">Selecione a data:</label> 
+              </div>
+              <div class="col-md-3">
+                  <input type="date" class="form-control" id="data">
+              </div>
+    
+              <div class="col-md-12">
+                <span class="form-text text-right">
+                  Equipe que encerrará o mês 04/2021: Plantão Delta.
+                </span>
+              </div>
+
             </form>
+
+        </div>
+      </div>
+    </div>
+    <br>
+
+    <div class="formPlantao">
+      <h6>Plantão - 48h</h6>
+      <div class="row g-3 align-items-center">
+        <div class="col-md-12 row">
+          <div class="col-md-4">
+            <label for="inputPassword6" class="col-form-label">Selecione a Equipe que iniciará o mês:</label> 
           </div>
-          
+          <div class="col-md-3">
+            <select class="form-select col-md-6" aria-label="Default select example">
+              <option disabled selected>Selecione uma opção</option>
+              <option value="1">Plantão Alpha</option>
+              <option value="2">Plantão Beta</option>
+              <option value="3">Plantão Charlie</option>
+              <option value="3">Plantão Delta</option>
+            </select>
+          </div>
+
+          <div class="col-md-2">
+            <label for="data" class="col-form-label">Selecione a data:</label> 
+          </div>
+          <div class="col-md-3">
+              <input type="date" class="form-control" id="data">
+          </div>
+
           <div class="col-md-12">
             <span class="form-text text-right">
               Equipe que encerrará o mês 04/2021: Plantão Delta.
             </span>
+          </div>
+
+          <br><br>
+
+          <div class="submit-row" align="right">
+            <input type="submit" value="{% translate 'Gerar Escalas' %}">
           </div>
 
         </div>
@@ -177,3 +200,4 @@ $(document).ready(function() {
   </div>
 </div>
 {% endblock %}
+
