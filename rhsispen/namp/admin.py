@@ -1,7 +1,7 @@
 # Register your models here.
 from django.core import serializers
 import json
-from django import forms
+from django import forms 
 from django.contrib import admin
 from django.core.serializers.json import DjangoJSONEncoder
 from namp.models import Afastamento, ContatoEquipe, ContatoServ, EnderecoServ, EnderecoSetor, Equipe, Funcao, HistAfastamento, HistFuncao, HistLotacao, HistStatusFuncional, Jornada, Regiao, Servidor, Setor, StatusFuncional, TipoJornada
@@ -82,19 +82,22 @@ class HistAfastamentoAdmin(admin.ModelAdmin):
 @admin.register(HistFuncao)
 class HistFuncaoAdmin(admin.ModelAdmin):
 	search_fields = ('fk_servidor__nome','fk_funcao__nome')
-	list_display = ('id_hist_funcao','data_inicio','data_final','fk_funcao','fk_servidor')
+	list_display = ('fk_servidor','data_inicio','data_final','fk_funcao')
 
 @admin.register(HistLotacao)
 class HistLotacaoAdmin(admin.ModelAdmin):
 	change_form_template = 'admin/namp/histlotacao/change_form.html'
 	search_fields = ('fk_servidor__nome','fk_equipe__nome', 'fk_equipe__fk_setor__nome')
-	list_display = ('id_hist_lotacao','data_inicial','data_final','fk_servidor','fk_equipe', 'fk_setor')	
+	list_display = ('fk_servidor','data_inicial','data_final', 'fk_equipe', 'fk_setor')	
+	list_filter = 'fk_setor',
+	date_hierarchy = 'data_inicial'
 
 @admin.register(HistStatusFuncional)
 class HistStatusFuncionalAdmin(admin.ModelAdmin):
 	search_fields = ('fk_servidor__nome', 'fk_status_funcional__nome' )
 	autocomplete_fields = ['fk_servidor', 'fk_status_funcional', ]
 	list_display = ('id_hist_funcional','data_inicial', 'data_final', 'fk_servidor', 'fk_status_funcional')
+	date_hierarchy = 'data_inicial'
 
 @admin.register(Jornada)
 class JornadaAdmin(admin.ModelAdmin):
@@ -106,12 +109,6 @@ class JornadaAdmin(admin.ModelAdmin):
 	list_display = ('get_matricula','get_vinculo','fk_servidor','get_cpf', 'get_codigo_setor','get_nome_setor','get_carga_horaria','get_inicio', 'get_fim')
 
 	admin.site.disable_action('delete_selected')
-
-	'''def get_form(self, request, obj=None, **kwargs):
-					form = super(JornadaAdmin, self).get_form(request, obj, **kwargs)
-					form.base_fields["fk_servidor"] = forms.ModelChoiceField(queryset=Servidor.objects.filter(situacao=True))
-					return form'''
-
 
 	def get_matricula(self, obj):
 		return obj.fk_servidor.id_matricula
