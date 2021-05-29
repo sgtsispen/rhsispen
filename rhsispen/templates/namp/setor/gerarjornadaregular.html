@@ -59,7 +59,8 @@ $(document).ready(function() {
 {{ media }}
 {% endblock %}
 
-{% block extrastyle %}{{ block.super }}<link rel="stylesheet" type="text/css" href="{% static 'admin/css/forms.css' %}">
+{% block extrastyle %}{{ block.super }}
+<link rel="stylesheet" type="text/css" href="{% static 'admin/css/forms.css' %}">
 <link rel="stylesheet" href="http://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css"> 
 {% endblock %}
 
