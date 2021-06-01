@@ -7,7 +7,7 @@ app_name = 'autenticacao'
 
 urlpatterns = [
     path('login/', auth_views.LoginView.as_view(
-    	template_name='autenticacao/login.html'), 
+    	template_name='autenticacao/login.html'),
     	name='login'),
     path('', views.sair,name='logout'),
     path('cadastro/',views.cadastro,name='cadastro'),
