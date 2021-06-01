@@ -336,7 +336,7 @@ def gerarescalaregular(request):
 @login_required(login_url='/autenticacao/login/')
 def exportar_jornadas_excel(request):
 	#recuperando as jornadas do banco. OBS: apenas as jornadas do mês corrente
-	jornadas = Jornada.objects.filter(assiduidade=True).filter(data_jornada__month=Date.today().month-1).order_by('fk_equipe__fk_setor__nome', 'fk_equipe__nome','fk_servidor__nome','data_jornada')
+	jornadas = Jornada.objects.filter(assiduidade=True).filter(data_jornada__month=Date.today().month).order_by('fk_equipe__fk_setor__nome', 'fk_equipe__nome','fk_servidor__nome','data_jornada')
 	if jornadas:
 		response = HttpResponse(content_type='application/ms-excel')
 		response['Content-Disposition'] = 'attachment; filename="jornadas.xls"'

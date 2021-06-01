@@ -139,10 +139,12 @@ def post_save_create_histfuncao(sender, instance,created, **kargs):
 		try:
 			oldHistFuncao = HistFuncao.objects.filter(
 				fk_servidor=instance.fk_servidor,
-				data_final__isnull=True).order_by('-data_inicio').last()
+				data_final__isnull=True).exclude(data_inicio__in=[datetime.date.today()],
+				fk_funcao=instance.fk_funcao).order_by('-data_inicio').last()
 		except HistFuncao.DoesNotExist:
 			print('Historico de funcao nao encontrado.')
 			pass
 		else:
-			oldHistFuncao.data_final = datetime.date.today()
-			oldHistFuncao.save()
+			if oldHistFuncao:
+				oldHistFuncao.data_final = datetime.date.today()
+				oldHistFuncao.save()
