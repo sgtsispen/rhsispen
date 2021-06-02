@@ -13,13 +13,14 @@ from django.urls import resolve
 from urllib.parse import urlparse
 from datetime import timedelta as TimeDelta, datetime as DateTime, date as Date
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 
 @login_required(login_url='/autenticacao/login/')
 def home(request,template_name='home.html'):
     return render(request,template_name, {})
 
 @login_required(login_url='/autenticacao/login/')
+@permission_required('namp.add_jornada', raise_exception=True)
 def jornadas_operador(request,template_name='namp/jornada/jornadas_operador.html'):
 	try:
 		setor = Servidor.objects.get(fk_user=request.user.id).fk_setor
