@@ -56,7 +56,7 @@ class EquipeAdmin(admin.ModelAdmin):
 	list_filter = ('categoria',)
 	search_fields = ['nome', 'fk_setor__nome']
 	autocomplete_fields = ['fk_setor']
-	list_per_page = 8
+	list_per_page = 10
 	inlines=[ContatoEquipeInline, ServidorInline]
 	
 	def get_servidor(self, obj):
@@ -83,6 +83,7 @@ class HistAfastamentoAdmin(admin.ModelAdmin):
 class HistFuncaoAdmin(admin.ModelAdmin):
 	search_fields = ('fk_servidor__nome','fk_funcao__nome')
 	list_display = ('fk_servidor','data_inicio','data_final','fk_funcao')
+	autocomplete_fields = ['fk_servidor']
 
 @admin.register(HistLotacao)
 class HistLotacaoAdmin(admin.ModelAdmin):
@@ -150,7 +151,7 @@ class JornadaAdmin(admin.ModelAdmin):
 @admin.register(Regiao)
 class RegiaoAdmin(admin.ModelAdmin):
 	change_list_template = 'admin/namp/regiao/change_list.html'
-	list_display = ('id_regiao','nome', 'get_setor_count')
+	list_display = ('nome', 'get_setor_count')
 
 	def get_setor_count(self, obj):
 		return Setor.objects.filter(fk_regiao=obj, status=True).count()
@@ -222,7 +223,7 @@ class EnderecoSetorInline(admin.StackedInline):
 
 @admin.register(Setor)
 class SetorAdmin(admin.ModelAdmin):
-	list_per_page = 8
+	list_per_page = 15
 	list_filter = ('fk_regiao','status','setor_sede',)
 	list_display = ('id_setor', 'nome','fk_regiao','status', 'setor_sede', 'get_total_servidor')
 	search_fields = ('nome','fk_regiao__nome', 'id_setor')

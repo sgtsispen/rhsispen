@@ -162,6 +162,7 @@ class Servidor(models.Model):
 		('Assistente Administrativo','Assistente Administrativo'),
 		('Auxiliar Administrativo','Auxiliar Administrativo'),
 		('Auxiliar de Serviços Gerais','Auxiliar de Serviços Gerais'),
+		('Agente Socioeducativo','Agente Socioeducativo'),
 		('Agente de Segurança Socioeducativo','Agente de Segurança Socioeducativo'),
 		('Agente Especialista Socioeducativo','Agente Especialista Socioeducativo'),
 	]
@@ -173,7 +174,6 @@ class Servidor(models.Model):
 	]
 	cf = models.CharField('Curso de Formação',max_length=10, choices=CHOICES_CF)
 	tipo_vinculo = models.CharField('Tipo de Vínculo',max_length=50)
-	regime_juridico = models.CharField('Regime Jurídico',max_length=50)
 	CHOICES_VINCULO = [
 		('Contrato', 'Contrato'),
 		('Concursado', 'Concursado'),

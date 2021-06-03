@@ -1,9 +1,8 @@
-# Create your views here.
 import tempfile
 import json
 import xlwt
 from django.shortcuts import render, redirect
-from .models import Setor, Equipe, Servidor, TipoJornada, Jornada, HistAfastamento
+from .models import Setor, Equipe, Servidor, TipoJornada, Jornada
 from django.http import HttpResponse, HttpResponseRedirect
 from weasyprint import HTML
 from django.template.loader import render_to_string
@@ -315,9 +314,8 @@ def funcaogeraescalaporequipe(equipe, servidores, data_inicial, data_final):
 
 @login_required(login_url='/autenticacao/login/')
 def gerarescalaregular(request):
-	form = DefinirJornadaRegularForm(request.POST)
 	if request.method == "POST":
-		#form = DefinirJornadaRegularForm(request.POST)
+		form = DefinirJornadaRegularForm(request.POST)
 		if form.is_valid():
 			#Verifica se a equipe está ativa
 			if Equipe.objects.get(id_equipe=form.cleaned_data['equipe']).status:
@@ -337,7 +335,7 @@ def gerarescalaregular(request):
 @login_required(login_url='/autenticacao/login/')
 def exportar_jornadas_excel(request):
 	#recuperando as jornadas do banco. OBS: apenas as jornadas do mês corrente
-	jornadas = Jornada.objects.filter(assiduidade=True).filter(data_jornada__month=Date.today().month-1).order_by('fk_equipe__fk_setor__nome', 'fk_equipe__nome','fk_servidor__nome','data_jornada')
+	jornadas = Jornada.objects.filter(assiduidade=True).filter(data_jornada__month=Date.today().month).order_by('fk_equipe__fk_setor__nome', 'fk_equipe__nome','fk_servidor__nome','data_jornada')
 	if jornadas:
 		response = HttpResponse(content_type='application/ms-excel')
 		response['Content-Disposition'] = 'attachment; filename="jornadas.xls"'
