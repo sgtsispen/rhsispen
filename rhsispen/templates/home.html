@@ -19,6 +19,7 @@
 {% block content %}
 	<div class="container">
 		<div class="menu row">
+		    {% if request.user.is_staff or request.user.is_superuser %} 
 		    <div class="col-md-4 col-xs-6 col-sm-6">
 		      <a href="{% url 'namp:jornadas_operador' %}">
 		        <div class="card card-edit" style="width: 100%; height:85%;">
@@ -30,6 +31,7 @@
 		        </div>
 		      </a>
 		    </div>
+		    {% endif %}
 
 		    <div class="col-md-4 col-xs-6 col-sm-6">
 		      <a href="#">
