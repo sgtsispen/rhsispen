@@ -19,6 +19,10 @@ from django.contrib.auth.decorators import login_required, permission_required
 def home(request,template_name='home.html'):
     return render(request,template_name, {})
 
+def equipes_operador(request,template_name='namp/equipe/equipes_operador.html'):
+	print('Acesso view de equipes_operador!')
+	return render(request,template_name, {})
+
 @login_required(login_url='/autenticacao/login/')
 #@permission_required('namp.add_jornada', login_url='/autenticacao/login/')
 def jornadas_operador(request,template_name='namp/jornada/jornadas_operador.html'):
