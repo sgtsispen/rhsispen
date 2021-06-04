@@ -1,4 +1,4 @@
-{% extends "base.html" %} {% load i18n static %} {% block extrahead %}{{ block.super }}
+{% extends "base.html" %} {% load i18n static %} {% load static %} {% block extrahead %}{{ block.super }}
 <script src="{% url 'admin:jsi18n' %}"></script>
 <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
 <script src="http://code.jquery.com/ui/1.11.0/jquery-ui.js"></script>
@@ -154,9 +154,33 @@
     </div>
     {% endif %}
 
+    <br><br> {% if tem_plantao48%}
+    <div class="boxJorExp">
+        <table class="table table-bordered text-center table-overflow">
+            <thead>
+                <tr>
+                    <th scope="col">EQUIPE: </th>
+                    <th scope="col">QTDE DE SERVIDORES:</th>
+                    <th scope="col">TIPO DE JORNADA:</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for equipe in equipes %} {% if tem_plantao48 and equipe.fk_tipo_jornada.carga_horaria == 48 %}
+                <tr>
+                    <td><a href="#">{{equipe.nome}} </a></td>
+                    <td>{{equipe.get_servidores}}</td>
+                    <td>{{equipe.fk_tipo_jornada.tipificacao}}</td>
+                </tr>
+                {% endif %} {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+
     <br><br>
 
     <div class="boxJorExp">
+        {% if tem_plantao12 or tem_plantao24 or tem_plantao48 %}
         <table class="table table-bordered text-center table-overflow">
             <thead>
                 <tr>
@@ -164,7 +188,7 @@
                 </tr>
             </thead>
         </table>
-        <br>
+        <br> {% endif %}
         <div class="formPlantao">
             <div class="row g-3 align-items-center">
                 <form method="post" action="{% url 'namp:jornadas_operador' %}">{% csrf_token %}

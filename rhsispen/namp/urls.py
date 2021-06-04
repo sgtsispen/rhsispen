@@ -10,7 +10,13 @@ app_name = 'namp'
 
 urlpatterns = [
 	path('', views.home, name='home'),
-	path('jornadas/', views.jornadas_operador, name='jornadas_operador'),
+	path('jornadas_operador/', views.jornadas_operador, name='jornadas_operador'),
+	path('equipes_operador/', views.equipes_operador, name='equipes_operador'),
+	path('servidores_operador/', views.servidores_operador, name='servidores_operador'),
+	path('att_operador', views.att_operador, name='att_operador'),
+	path('adms_operador', views.adms_operador, name='adms_operador'),
+	path('frequencias_operador', views.frequencias_operador, name='frequencias_operador'),
+
 	url('getEquipes/$', views.get_equipes),
 	url('getEquipes24h/$', views.get_equipes24h),
 	url('getEquipes48h/$', views.get_equipes48h),
