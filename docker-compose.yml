@@ -1,0 +1,43 @@
+version: '3'
+
+services: 
+  db:
+    image: mariadb
+    container_name: rhsispen_db
+    ports:
+      - "3307:3306"
+    restart: always
+    volumes:
+      - db_volume:/var/lib/mysql
+    command: ['--character-set-server=utf8', '--collation-server=utf8_unicode_ci']
+    environment:
+      MYSQL_DATABASE: "rhsispen"
+      MYSQL_USER: "admin"
+      MYSQL_PASSWORD: "admin"
+      MYSQL_ROOT_PASSWORD: "docker-root"
+
+  phpmyadmin:
+    container_name: rhsispen_phpmyadmin
+    image: phpmyadmin/phpmyadmin:latest
+    links:
+      - db
+    ports:
+      - 8001:80
+    environment:
+      - PMA_ARBITRARY=1
+
+  web:
+    build: .
+    command: bash -c "python rhsispen/manage.py makemigrations && python rhsispen/manage.py migrate && python rhsispen/manage.py runserver 0.0.0.0:8000"
+    container_name: rhsispen_web
+    restart: always
+    volumes:
+      - .:/app
+    ports: 
+      - "8000:8000"
+    depends_on:
+      - db
+
+volumes:
+  db_volume:
+

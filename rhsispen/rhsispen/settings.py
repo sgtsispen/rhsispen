@@ -38,8 +38,6 @@ DEFAULT_APPS = [
 ]
 
 THIRD_PARTY_APPS = [
-    #'django_object_actions',
-    #'crispy_forms',
 ]
 
 LOCAL_APPS = [
@@ -90,7 +88,7 @@ DATABASES = {
         'NAME': 'rhsispen',
         'USER': 'admin',
         'PASSWORD': 'admin',
-        'HOST': 'localhost',
+        'HOST': 'db',
         'PORT': '3306',
     }
 }

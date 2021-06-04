@@ -9,7 +9,7 @@ from namp.models import Afastamento, ContatoEquipe, ContatoServ, EnderecoServ, E
 from django.core.files.storage import FileSystemStorage
 from django.http import HttpResponse
 from django.template.loader import render_to_string
-from weasyprint import HTML
+#from weasyprint import HTML
 from django.db.models import Count
 from django.core.exceptions import ValidationError
 from datetime import timedelta as TimeDelta, datetime as DateTime, date as Date

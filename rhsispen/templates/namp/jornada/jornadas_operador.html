@@ -26,11 +26,7 @@
 <script>
   $(document).ready(function() {
       $('.datepicker').datepicker({
-<<<<<<< HEAD
-        dateFormat: 'mm/dd/yy',
-=======
         dateFormat: 'dd/mm/yy',
->>>>>>> 959a846c32d19d14c915f52e45d957306e03f3ea
         minDate: 0,
       });
   });
@@ -179,6 +175,7 @@
   <br><br>
   
   <div class="boxJorExp">
+    {% if tem_plantao12 or tem_plantao24 or tem_plantao48 %}
     <table class="table table-bordered text-center table-overflow">
       <thead>
         <tr>
@@ -187,6 +184,7 @@
       </thead>
     </table>
     <br>
+    {% endif %}
     <div class="formPlantao">
       <div class="row g-3 align-items-center">
         <form method="post" action="{% url 'namp:jornadas_operador' %}">{% csrf_token %}

@@ -5,7 +5,7 @@ import xlwt
 from django.shortcuts import render, redirect
 from .models import Setor, Equipe, Servidor, TipoJornada, Jornada
 from django.http import HttpResponse, HttpResponseRedirect
-from weasyprint import HTML
+#from weasyprint import HTML
 from django.template.loader import render_to_string
 from django.core.files.storage import FileSystemStorage
 from .forms import DefinirJornadaRegularForm, GerarJornadaRegularForm
@@ -20,10 +20,11 @@ def home(request,template_name='home.html'):
     return render(request,template_name, {})
 
 @login_required(login_url='/autenticacao/login/')
-@permission_required('namp.add_jornada', raise_exception=True)
+#@permission_required('namp.add_jornada', login_url='/autenticacao/login/')
 def jornadas_operador(request,template_name='namp/jornada/jornadas_operador.html'):
 	#if request.user.groups.filter(name='Operadores').count():
-	if request.user.is_staff or request.user.is_superuser:
+	#if request.user.is_staff or request.user.is_superuser:
+	if perms.namp.can_add_jornada:
 		try:
 			setor = Servidor.objects.get(fk_user=request.user.id).fk_setor
 		except Servidor.DoesNotExist:
