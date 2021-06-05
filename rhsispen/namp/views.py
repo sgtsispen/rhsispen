@@ -2,12 +2,12 @@ import tempfile
 import json
 import xlwt
 from django.shortcuts import render, redirect
-from .models import Setor, Equipe, Servidor, TipoJornada, Jornada
+from .models import Setor, Equipe, Servidor, TipoJornada, Jornada, HistAfastamento
 from django.http import HttpResponse, HttpResponseRedirect
 from weasyprint import HTML
 from django.template.loader import render_to_string
 from django.core.files.storage import FileSystemStorage
-from .forms import DefinirJornadaRegularForm, GerarJornadaRegularForm
+from .forms import EquipeForm, ServidorForm, DefinirJornadaRegularForm, GerarJornadaRegularForm
 from django.urls import resolve
 from urllib.parse import urlparse
 from datetime import timedelta as TimeDelta, datetime as DateTime, date as Date
@@ -20,12 +20,39 @@ def home(request,template_name='home.html'):
 
 @login_required(login_url='/autenticacao/login/')
 def equipes_operador(request,template_name='namp/equipe/equipes_operador.html'):
-	print('Acesso view de equipes_operador!')
-	return render(request,template_name, {})
+	if request.method == 'POST':
+		form = EquipeForm(request.POST)
+		if form.is_valid():
+			'''
+			Realizar os tratamentos necessários e fazer o form.save()
+			para a instância do modelo Equipe seja salva
+			'''
+			messages.success(request, 'Equipe adicionada com suceso!')
+			return redirect('/')
+		else:
+			messages.warning(request, 'Ops! Verifique os campos do formulário!')
+			return render(request, template_name, contexto)
+	else:
+		contexto = {
+			'form': EquipeForm()
+		}
+		return render(request,template_name, contexto)
 
 @login_required(login_url='/autenticacao/login/')
 def servidores_operador(request,template_name='namp/servidor/servidores_operador.html'):
 	print('Acesso view de servidores_operador!')
+	if request.method == 'POST':
+		form = ServidorForm(request.POST)
+		if form.is_valid():
+			messages.success(request, 'Servidor adicionado com suceso!')
+			return redirect('/')
+		else:
+			messages.warning(request, 'Ops! Verifique os campos do formulário!')
+			return render(request, template_name, contexto)
+	else:
+		contexto = {
+			'form': ServidorForm()
+		}
 	return render(request,template_name, {})
 
 @login_required(login_url='/autenticacao/login/')
@@ -45,6 +72,8 @@ def att_operador(request,template_name='namp/att/att_operador.html'):
 
 @login_required(login_url='/autenticacao/login/')
 def jornadas_operador(request,template_name='namp/jornada/jornadas_operador.html'):
+	#if request.user.groups.filter(name='Operadores').count():
+	#if request.user.is_staff or request.user.is_superuser:
 	try:
 		setor = Servidor.objects.get(fk_user=request.user.id).fk_setor
 	except Servidor.DoesNotExist:
@@ -211,7 +240,6 @@ def jornadas_operador(request,template_name='namp/jornada/jornadas_operador.html
 			'tem_plantao48': tem_plantao48
 		}
 		return render(request,template_name, contexto)
-
 '''
 	Recuperar do banco as equipes da unidade penal escolhida no momento do cadastro de servidor e
 	as envia para a página populando o campo select fk_equipe
