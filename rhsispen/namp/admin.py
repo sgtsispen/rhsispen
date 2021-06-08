@@ -83,6 +83,7 @@ class HistAfastamentoAdmin(admin.ModelAdmin):
 class HistFuncaoAdmin(admin.ModelAdmin):
 	search_fields = ('fk_servidor__nome','fk_funcao__nome')
 	list_display = ('fk_servidor','data_inicio','data_final','fk_funcao')
+	autocomplete_fields = ['fk_servidor']
 
 @admin.register(HistLotacao)
 class HistLotacaoAdmin(admin.ModelAdmin):
