@@ -1,17 +1,9 @@
 {% extends "admin/change_list.html" %} {% load i18n %} {% block object-tools-items %}{{ block.super }}
 
-<<<<<<< HEAD
-<li>
-    <a href="{% url 'namp:exportar_frequencia_excel'%}" class="historylink">    
-        {% trans 'Baixar Frequencia Excel' %}
-    </a>
-</li>
-=======
 {% load i18n %} 
 {% load static %}
 
 {% block object-tools-items %}{{ block.super }}
->>>>>>> 83a518405b45d008f95821631c72382762c3b165
 
 <li>
     <a href="{% url 'namp:exportar_noturno_excel'%}" class="historylink">    
