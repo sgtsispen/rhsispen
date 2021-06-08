@@ -41,9 +41,10 @@ def equipes_operador(request,template_name='namp/equipe/equipes_operador.html'):
 @login_required(login_url='/autenticacao/login/')
 def servidores_operador(request,template_name='namp/servidor/servidores_operador.html'):
 	print('Acesso view de servidores_operador!')
+	form = ServidorForm()
 	try:
 		setor = Servidor.objects.get(fk_user=request.user.id).fk_setor
-		print('Acesso view de servidores setor!')
+		form.fields['fk_equipe'].choices = [('', '--Selecione--')] + list(Equipe.objects.filter(fk_setor=setor).values_list('id_equipe', 'nome'))
 	except Servidor.DoesNotExist:
 		messages.warning(request, 'Servidor não encontrado para este usuário!')
 		return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
@@ -54,13 +55,18 @@ def servidores_operador(request,template_name='namp/servidor/servidores_operador
 			messages.success(request, 'Servidor adicionado com suceso!')
 			return redirect('/')
 		else:
+			contexto = {
+				'setor': setor,
+				'form': form
+			}
 			messages.warning(request, 'Ops! Verifique os campos do formulário!')
 			return render(request, template_name, contexto)
 	else:
 		contexto = {
-			'form': ServidorForm()
+			'setor': setor,
+			'form': form
 		}
-	return render(request,template_name, {})
+	return render(request,template_name, contexto)
 
 @login_required(login_url='/autenticacao/login/')
 def frequencias_operador(request,template_name='namp/frequencia/frequencias_operador.html'):
