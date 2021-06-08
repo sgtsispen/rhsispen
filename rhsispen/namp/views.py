@@ -41,6 +41,13 @@ def equipes_operador(request,template_name='namp/equipe/equipes_operador.html'):
 @login_required(login_url='/autenticacao/login/')
 def servidores_operador(request,template_name='namp/servidor/servidores_operador.html'):
 	print('Acesso view de servidores_operador!')
+	try:
+		setor = Servidor.objects.get(fk_user=request.user.id).fk_setor
+		print('Acesso view de servidores setor!')
+	except Servidor.DoesNotExist:
+		messages.warning(request, 'Servidor não encontrado para este usuário!')
+		return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
 	if request.method == 'POST':
 		form = ServidorForm(request.POST)
 		if form.is_valid():
