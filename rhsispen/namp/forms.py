@@ -1,6 +1,7 @@
 from django import forms
-from .models import TipoJornada, Setor, Equipe
+from .models import TipoJornada, Setor, Equipe, Servidor
 from functools import partial
+from django.forms import ModelForm
 
 DateInput = partial(forms.DateInput, {'class': 'datepicker'})
 
@@ -109,3 +110,16 @@ class JornadaFormAdmin(forms.ModelForm):
         super(JornadaFormAdmin, self).__init__(*args, **kwargs)
         self.fields['data_jornada'].widget.attrs={"placeholder":"00/00/0000"}
         self.fields['data_jornada'].widget.attrs['class'] = 'mask-dt'
+
+'''
+
+'''
+class EquipeForm(ModelForm):
+    class Meta:
+        model = Equipe
+        fields = '__all__'
+
+class ServidorForm(ModelForm):
+    class Meta:
+        model = Servidor
+        fields = '__all__'

@@ -1,0 +1,61 @@
+{% extends 'base.html' %} {% load i18n static %} {% load static %} {% block breadcrumbs %}
+
+<div class="breadcrumbs">
+    <a href="{% url 'namp:home' %}">
+        {% translate 'Home' %}
+    </a> &rsaquo; {% translate 'Servidores' %}
+</div>
+{% endblock %} {% block content %}
+<div class="content">
+    <div id="content" class="colM">
+        <h1>{% translate 'Adicionar Servidor' %}</h1>
+
+        <form action="{% url 'namp:servidores_operador' %}" method="post">
+            {% csrf_token %} {% for field in form %}
+            <div class="form-row">
+                <div>
+                    {{ field.label}} {{ field }}
+                </div>
+            </div>
+
+            <div class="form-row field-nome">
+                <div>
+                    <label>Nome: </label> {{ ServidorFormAdmin.nome }}
+                </div>
+            </div>
+
+            <div class="form-row field-cpf">
+                <div>
+                    <label>CPF: </label> {{ ServidorFormAdmin.cpf }}
+                </div>
+            </div>
+
+            <div class="form-row field-sexo">
+                <div>
+                    <label>Sexo: </label> {{ ServidorForm.sexo }}
+                </div>
+            </div>
+
+            <div class="form-row field-data_nasc">
+                <div>
+                    <label>Data Nascimento: </label> {{ ServidorForm.data_nasc }}
+                </div>
+            </div>
+
+            <div class="form-row field-equipe">
+                <div>
+                    <label>Equipe: </label> {{ definirjornadaregularForm.equipe }}
+                </div>
+            </div>
+
+
+            {% endfor%}
+            <div class="submit-row">
+                <input type="submit" value="{% translate 'Adicionar' %}">
+                <input type="button" value="{% translate 'Voltar' %}" onclick="goBack()">
+            </div>
+
+        </form>
+    </div>
+</div>
+{% endblock %}

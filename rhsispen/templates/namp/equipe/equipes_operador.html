@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% load i18n static %}
+{% load static %}
+
+{% block breadcrumbs %}
+  <div class="breadcrumbs">
+  <a href="{% url 'namp:home' %}">{% translate 'Home' %}</a>
+  &rsaquo; {% translate 'Equipes' %}
+  </div>
+{% endblock %}
+
+{% block content %}
+<div class="content">
+  <div id="content" class="colM">
+    <h1>{% translate 'Adicionar Equipe' %}</h1>
+    
+    <form action="{% url 'namp:equipes_operador' %}" method="post">
+        {% csrf_token %}
+        {% for field in form %}
+            <div class="form-row">
+              <div>
+                {{ field.label}}
+                {{ field }}
+              </div>
+            </div>
+        {% endfor%}
+        <!--
+        <div class="form-row field-setor">
+          <div>
+            <label>Código do Setor: </label>
+            {{ definirjornadaregularForm.setor }}
+          </div>
+        </div>
+
+        <div class="form-row field-data_inicial">
+          <div>
+            <label>Data Inicial: </label>
+            {{ definirjornadaregularForm.data_inicial }}
+          </div>
+        </div>
+
+        <div class="form-row field-data_final">
+          <div>
+            <label>Data Final: </label>
+            {{ definirjornadaregularForm.data_final }}
+          </div>
+        </div>
+
+        <div class="form-row field-equipe">
+          <div>
+            <label>Equipe: </label>
+            {{ definirjornadaregularForm.equipe }}
+          </div>
+        </div>
+
+        <div class="form-row field-tipo_jornada">
+          <div>
+            <label>Tipor de Jornada: </label>
+            {{ definirjornadaregularForm.tipo_jornada }}
+          </div>
+        </div>
+        -->
+        <div class="submit-row">
+          <input type="submit" value="{% translate 'Adicionar' %}">
+          <input type="button" value="{% translate 'Voltar' %}" onclick="goBack()">
+        </div>
+        
+    </form>
+  </div>
+</div>
+{% endblock %}

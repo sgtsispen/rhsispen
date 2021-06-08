@@ -38,8 +38,6 @@ DEFAULT_APPS = [
 ]
 
 THIRD_PARTY_APPS = [
-    #'django_object_actions',
-    #'crispy_forms',
 ]
 
 LOCAL_APPS = [
