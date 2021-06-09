@@ -40,11 +40,11 @@ def equipes_operador(request,template_name='namp/equipe/equipes_operador.html'):
 
 @login_required(login_url='/autenticacao/login/')
 def servidores_operador(request,template_name='namp/servidor/servidores_operador.html'):
-	print('Acesso view de servidores_operador!')
 	form = ServidorForm()
 	try:
 		setor = Servidor.objects.get(fk_user=request.user.id).fk_setor
 		form.fields['fk_equipe'].choices = [('', '--Selecione--')] + list(Equipe.objects.filter(fk_setor=setor).values_list('id_equipe', 'nome'))
+		print(setor)
 	except Servidor.DoesNotExist:
 		messages.warning(request, 'Servidor não encontrado para este usuário!')
 		return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
@@ -67,6 +67,15 @@ def servidores_operador(request,template_name='namp/servidor/servidores_operador
 			'form': form
 		}
 	return render(request,template_name, contexto)
+
+
+def busca(self, *args, **kwargs):
+	context = super().get_context_data(*args, **kwargs)
+	query = self.request.GET.get('q')
+	context['query'] = query
+	#SearchQuery.objects.create(query=query)
+	print(context)
+	return context
 
 @login_required(login_url='/autenticacao/login/')
 def frequencias_operador(request,template_name='namp/frequencia/frequencias_operador.html'):

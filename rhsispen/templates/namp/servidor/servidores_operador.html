@@ -21,21 +21,37 @@
 
 {% block content %}
 <div class="content">
+    <h4 class="text-center">Servidores</h4>
     <h5 class="text-center">{{ setor.nome }}</h5>
 </div>
 
 <div class="content">
     <div id="content" class="colM">
-        <h4>Lista de Servidores</h4>
+        <form method='GET' action='{% url "namp:servidores_operador" %}' class="form my-2 my-lg-0">
+            <div class="input-group">
+              <input class="form-control" type="search" placeholder="Digite o nome do Servidor" name='q' aria-label="Search" value='{{ busca.GET.q }}'>
+              <span class="input-group-btn">
+                <button class="btn btn-outline-success" type="submit">Buscar Servidor</button>
+              </span>
+            </div>
+          </form>
+        
+        <br>
+        <h4>Dados do Servidor:</h4>
+
         <form action="{% url 'namp:servidores_operador' %}" method="post">
             {% csrf_token %}
 
+            <!--
+
+                and field.name != setor
             {% for field in form %}
-            {% if field.name != 'fk_user' and field.name != 'fk_setor'  %}
+            {% if field.name != 'fk_user' %}
             
             <div class="form-row field-field {% if not field.is_readonly and field.errors %} errors {% endif %}">
                 <div>   
                     <label>{{ field.label }}</label> {{ field }}
+    
                 </div>
                 <div>
                     {% if field.errors %} {{ field.errors }} {% endif %}
@@ -43,9 +59,8 @@
             </div>
             
             {% endif %}
-            {% endfor %}
+            {% endfor %} !-->
 
-            <!--
 
             <div class="form-row field-nome {% if not form.nome.is_readonly and form.nome.errors %} errors{% endif %}">
                 <div>
@@ -102,6 +117,16 @@
                 </div>
             </div>
 
+            <div class="form-row field-situacao {% if not form.situacao.is_readonly and form.situacao.errors %} errors{% endif %}">
+                <div>
+                    <label>Servidor ativo: </label> {{ form.situacao }}
+                </div>
+                <div>
+                    {% if form.situacao.errors %} {{ form.situacao.errors }} {% endif %}
+                </div>
+                
+            </div>   
+
             <div class="form-row field-tipo_vinculo {% if not form.tipo_vinculo.is_readonly and form.tipo_vinculo.errors %} errors{% endif %}">
                 <div>
                     <label>Tipo de vinculo: </label> {{ form.tipo_vinculo }}
@@ -145,9 +170,18 @@
                 <div>
                     {% if form.fk_equipe.errors %} {{ form.fk_equipe.errors }} {% endif %}
                 </div>
-            </div>    
-                !-->
+            </div>
             
+            <div class="form-row field-fk_setor">
+                <div>
+                    <label>Setor: </label> {{ form.hidden }}
+                </div>
+                <div>
+                    {% if form.fk_setor.errors %} {{ form.fk_setor.errors }} {% endif %}
+                </div>
+            </div>    
+    
+    
 
             <div class="submit-row">
                 <input type="submit" value="{% translate 'Adicionar' %}">
