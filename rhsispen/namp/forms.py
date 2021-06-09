@@ -4,7 +4,7 @@ from functools import partial
 from django.forms import ModelForm
 
 DateInput = partial(forms.DateInput, {'class': 'datepicker'})
-
+    
 class DefinirJornadaRegularForm(forms.Form):   
     setor = forms.CharField(required=False, label='Código da Unidade')
     data_inicial = forms.DateField(widget=DateInput(),required=True)    
@@ -111,10 +111,18 @@ class JornadaFormAdmin(forms.ModelForm):
         self.fields['data_jornada'].widget.attrs={"placeholder":"00/00/0000"}
         self.fields['data_jornada'].widget.attrs['class'] = 'mask-dt'
 
-'''
+class TimeInput(forms.TimeInput):
+    input_type = "time"
 
 '''
-class EquipeForm(ModelForm):
+Formulário de adição de equipes. Cria-se o formulário a partir
+do modelo que se quer trabalhar. Neste caso, o model Equipe.
+'''
+class EquipeForm(forms.ModelForm):
     class Meta:
         model = Equipe
         fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['hora_inicial'].widget = TimeInput()

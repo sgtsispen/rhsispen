@@ -1,4 +1,5 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
+
 {% load i18n static %}
 {% load static %}
 
@@ -9,62 +10,37 @@
   </div>
 {% endblock %}
 
+{% block extrastyle %}{{ block.super }}
+<link rel="stylesheet" type="text/css" href="{% static 'admin/css/forms.css' %}">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-wEmeIV1mKuiNpC+IOBjI7aAzPcEZeedi5yW5f2yOq55WWLwNGmvvx4Um1vskeMj0" crossorigin="anonymous">
+{% endblock %}
+
 {% block content %}
 <div class="content">
+  <h5 class="text-center">{{ setor.nome }}</h5>
+</div>
+<div class="content">
   <div id="content" class="colM">
-    <h1>{% translate 'Adicionar Equipe' %}</h1>
-    
+    <h4>{% translate 'Adicionar Equipe' %}</h4>
     <form action="{% url 'namp:equipes_operador' %}" method="post">
         {% csrf_token %}
+        
         {% for field in form %}
-            <div class="form-row">
-              <div>
-                {{ field.label}}
-                {{ field }}
-              </div>
-            </div>
-        {% endfor%}
-        <!--
-        <div class="form-row field-setor">
+        <div class="form-row field-field {% if not field.is_readonly and field.errors %} errors {% endif %} {% if field.name == 'fk_setor' %} hidden {% endif %}">
           <div>
-            <label>Código do Setor: </label>
-            {{ definirjornadaregularForm.setor }}
+            <label>{{ field.label }}: </label>
+            {{ field }}
+          </div>
+          <div>
+            {% if field.errors %} {{ field.errors }} {% endif %}
           </div>
         </div>
+        {% endfor %}
 
-        <div class="form-row field-data_inicial">
-          <div>
-            <label>Data Inicial: </label>
-            {{ definirjornadaregularForm.data_inicial }}
-          </div>
-        </div>
-
-        <div class="form-row field-data_final">
-          <div>
-            <label>Data Final: </label>
-            {{ definirjornadaregularForm.data_final }}
-          </div>
-        </div>
-
-        <div class="form-row field-equipe">
-          <div>
-            <label>Equipe: </label>
-            {{ definirjornadaregularForm.equipe }}
-          </div>
-        </div>
-
-        <div class="form-row field-tipo_jornada">
-          <div>
-            <label>Tipor de Jornada: </label>
-            {{ definirjornadaregularForm.tipo_jornada }}
-          </div>
-        </div>
-        -->
         <div class="submit-row">
           <input type="submit" value="{% translate 'Adicionar' %}">
           <input type="button" value="{% translate 'Voltar' %}" onclick="goBack()">
         </div>
-        
     </form>
   </div>
 </div>
