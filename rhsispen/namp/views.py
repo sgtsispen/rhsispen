@@ -12,7 +12,8 @@ from django.urls import resolve
 from urllib.parse import urlparse
 from datetime import timedelta as TimeDelta, datetime as DateTime, date as Date
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
+from django.core.exceptions import ValidationError
 
 @login_required(login_url='/autenticacao/login/')
 def home(request,template_name='home.html'):
@@ -20,21 +21,34 @@ def home(request,template_name='home.html'):
 
 @login_required(login_url='/autenticacao/login/')
 def equipes_operador(request,template_name='namp/equipe/equipes_operador.html'):
+	form = EquipeForm()
+	try:
+		setor = Servidor.objects.get(fk_user=request.user.id).fk_setor
+		form.fields['fk_setor'].initial = setor
+	except Servidor.DoesNotExist:
+		messages.warning(request, 'Servidor não encontrado para este usuário!')
+		return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 	if request.method == 'POST':
-		form = EquipeForm(request.POST)
+		form = EquipeForm(request.POST)		
 		if form.is_valid():
 			'''
 			Realizar os tratamentos necessários e fazer o form.save()
 			para a instância do modelo Equipe seja salva
 			'''
+			form.save()
 			messages.success(request, 'Equipe adicionada com suceso!')
 			return redirect('/')
 		else:
-			messages.warning(request, 'Ops! Verifique os campos do formulário!')
+			contexto = {
+				'setor': setor,
+				'form': form
+			}
+			messages.warning(request, form.errors.get_json_data(escape_html=False)['__all__'][0]['message'])
 			return render(request, template_name, contexto)
 	else:
 		contexto = {
-			'form': EquipeForm()
+			'setor': setor,
+			'form': form
 		}
 		return render(request,template_name, contexto)
 
