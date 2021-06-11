@@ -22,28 +22,116 @@
             {% csrf_token %}
             <div>
                 {{ form.nome }} 
+                <input type="submit" value="{% translate 'Buscar' %}">      
             </div>
-            <input type="submit" value="{% translate 'Buscar' %}">           
+         
         </form>
+        <div class="results">
+            <table>
 
-        <table class="table table-bordered text-center table-overflow">
             <thead>
-                <tr>
-                    <th scope="col">Nome:</th>
-                    <th scope="col">Matricula: </th>
-                    <th scope="col">Vinculo:</th>
-                    <th scope="col">:</th>
-                    <th scope="col">:</th>
-                    <th scope="col">Vinculo:</th>
-                    <th scope="col">Vinculo:</th>
-                    <th scope="col">Vinculo:</th>
-                    <th scope="col">Vinculo:</th>
-                    <th scope="col">Vinculo:</th>
-                    <th scope="col">Vinculo:</th>
-                    <th scope="col">Vinculo:</th>
-                </tr>
+              <tr>
+                <th>
+                  <div class="text">
+                    <a href="att_operador.html">NOME</a>
+                  </div>
+                </th>
+                <th>
+                  <div class="text">
+                    <a href="#">MATRICULA</a>
+                  </div>
+                </th>
+                <th>
+                  <div class="text">
+                    <a href="#">VINCULO</a>
+                  </div>
+                </th>
+                <th>
+                    <div class="text">
+                      <a href="#">CPF</a>
+                    </div>
+                  </th>
+                <th>
+                    <div class="text">
+                      <a href="#">DATA NASCIMENTO</a>
+                    </div>
+                  </th>  
+                <th>
+                <th>
+                    <div class="text">
+                        <a href="#">SEXO</a>
+                    </div>
+                    </th>  
+                <th>
+                <th>
+                    <div class="text">
+                        <a href="#">CARGO</a>
+                    </div>
+                    </th>  
+                <th>
+                <th>
+                    <div class="text">
+                        <a href="#">CURSO DE FORMAÇÃO</a>
+                    </div>
+                    </th>  
+                <th>
+                <th>
+                    <div class="text">
+                        <a href="#">TIPO DE VÍNCULO</a>
+                    </div>
+                    </th>  
+                <th>
+                <th>
+                    <div class="text">
+                        <a href="#">REGIME JURÍDICO</a>
+                    </div>
+                    </th>  
+                <th>
+                <th>
+                    <div class="text">
+                        <a href="#">SITUAÇÃO</a>
+                    </div>
+                    </th>  
+                <th>
+                <th>
+                    <div class="text">
+                        <a href="#">EQUIPE</a>
+                    </div>
+                    </th>  
+                <th>          
+                  <div class="text">
+                    <a href="#">
+                      <strong>FINAL</strong>
+                    </a>
+                  </div>
+                </th>
+              </tr>
             </thead>
 
+            <tbody>
+              {% for servidor in servidores %}
+              <tr class="{% cycle 'row1' 'row2' %}">
+                <td> ... </td>
+                <td> ... </td>
+                <td> ... </td>
+                <td> ... </td>
+                <td> ... </td>
+                <td> ... </td>
+                <td> ... </td>
+                <td> ... </td>
+                <td> ... </td>
+                <td> ... </td>
+                <td> ... </td>
+                <td> ... </td>
+                <td> ... </td>
+                <td> ... </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+
+          </table>
+        </div>
+        <!-- ... -->
     </div>
 </div>
 {% endblock %}

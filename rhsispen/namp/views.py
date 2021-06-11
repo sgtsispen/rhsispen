@@ -69,24 +69,21 @@ def servidores_operador(request,template_name='namp/servidor/servidores_operador
 	form = ServidorSearchForm(request.POST or None)
 	servidores = []
 	for	equipe in equipes:
-		servidores+=Servidor.objects.filter(fk_equipe=equipe)
-	
+		for servidor in Servidor.objects.filter(fk_equipe=equipe):
+			servidores.append(servidor)
+		print(servidores)
 	contexto = { 
 		'servidores': servidores,
 		'form': form
 	}
-
 	if request.method == 'POST':
 		if form.is_valid():
 			servidores2 = []
 			print('FORM É VÁLIDO')
-			pattern = re.compile(form.cleaned_data['nome'])
+			pattern = re.compile(form.cleaned_data['nome'].upper())
 			for servidor in servidores:
 				if pattern.search(servidor.nome):
 					servidores2.append(servidor)
-					print(servidor.nome)
-					print(form.cleaned_data['nome'])
-			
 			if servidores2:
 				contexto['servidores']=servidores2
 				return render(request, template_name, contexto)
