@@ -17,22 +17,15 @@
 </div>
 
 <div class="content">
-    <div id="content" class="colM">
+    <div id="content" class="text-center">
         <form method = 'POST' action='{% url "namp:servidores_operador" %}'>
             {% csrf_token %}
-            <label for="searchbar"> </label>
-
-            <input id="searchbar" type="text" placeholder="Digite o nome do Servidor" name="q" value='{{ request.GET.q }}' >
-            <input type="submit" value="{% translate 'Buscar' %}">
-
-        </form>
-
-            <div class="submit-row">
-                <input type="submit" value="{% translate 'Adicionar' %}">
-                <input type="button" value="{% translate 'Voltar' %}" onclick="goBack()">
+            <div>
+                {{ form.nome }} 
             </div>
-
+            <input type="submit" value="{% translate 'Buscar' %}">           
         </form>
+
     </div>
 </div>
 {% endblock %}

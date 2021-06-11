@@ -134,3 +134,8 @@ class ServidorForm(forms.ModelForm):
             
    # def __init__(self, *args, **kwargs):
    #     super().__init__(*args, **kwargs)
+
+class ServidorSearchForm(forms.ModelForm):
+    class Meta:
+        model = Servidor
+        fields = ('nome', )

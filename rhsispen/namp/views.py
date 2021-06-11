@@ -1,5 +1,6 @@
 import tempfile
 import json
+from typing import Pattern
 import xlwt
 from django.shortcuts import render, redirect
 from .models import Setor, Equipe, Servidor, TipoJornada, Jornada, HistAfastamento
@@ -7,13 +8,14 @@ from django.http import HttpResponse, HttpResponseRedirect
 from weasyprint import HTML
 from django.template.loader import render_to_string
 from django.core.files.storage import FileSystemStorage
-from .forms import EquipeForm, ServidorForm, DefinirJornadaRegularForm, GerarJornadaRegularForm
+from .forms import EquipeForm, ServidorForm, DefinirJornadaRegularForm, GerarJornadaRegularForm, ServidorSearchForm
 from django.urls import resolve
 from urllib.parse import urlparse
 from datetime import timedelta as TimeDelta, datetime as DateTime, date as Date
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.core.exceptions import ValidationError
+import re
 
 @login_required(login_url='/autenticacao/login/')
 def home(request,template_name='home.html'):
@@ -54,33 +56,50 @@ def equipes_operador(request,template_name='namp/equipe/equipes_operador.html'):
 
 @login_required(login_url='/autenticacao/login/')
 def servidores_operador(request,template_name='namp/servidor/servidores_operador.html'):
-	form = ServidorForm()
 	try:
 		setor = Servidor.objects.get(fk_user=request.user.id).fk_setor
-		form.fields['fk_equipe'].choices = [('', '--Selecione--')] + list(Equipe.objects.filter(fk_setor=setor).values_list('id_equipe', 'nome'))
-		print(setor)
+		equipes = Equipe.objects.filter(fk_setor=setor)
 	except Servidor.DoesNotExist:
 		messages.warning(request, 'Servidor não encontrado para este usuário!')
 		return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+	except Equipe.DoesNotExist:
+		messages.warning(request, 'Unidade não possui equipes cadastradas')
+		return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+	form = ServidorSearchForm(request.POST or None)
+	servidores = []
+	for	equipe in equipes:
+		servidores+=Servidor.objects.filter(fk_equipe=equipe)
+	
+	contexto = { 
+		'servidores': servidores,
+		'form': form
+	}
 
 	if request.method == 'POST':
-		form = ServidorForm(request.POST)
 		if form.is_valid():
-			messages.success(request, 'Servidor adicionado com suceso!')
-			return redirect('/')
-		else:
-			contexto = {
-				'setor': setor,
-				'form': form
-			}
-			messages.warning(request, 'Ops! Verifique os campos do formulário!')
-			return render(request, template_name, contexto)
-	else:
-		contexto = {
-			'setor': setor,
-			'form': form
-		}
-	return render(request,template_name, contexto)
+			servidores2 = []
+			print('FORM É VÁLIDO')
+			pattern = re.compile(form.cleaned_data['nome'])
+			for servidor in servidores:
+				if pattern.search(servidor.nome):
+					servidores2.append(servidor)
+					print(servidor.nome)
+					print(form.cleaned_data['nome'])
+			
+			if servidores2:
+				contexto['servidores']=servidores2
+				return render(request, template_name, contexto)
+			else:
+				print('NÃO ENCONTRADO O SERVIDOR')
+				messages.warning(request, 'Servidor com este nome não encontrado!')
+				return render(request, template_name, contexto)
+	print('FORM NÃO É POST')
+	contexto = {
+		'servidores': servidores,
+		'form': form
+	}
+	return render(request, template_name, contexto)
 
 @login_required(login_url='/autenticacao/login/')
 def frequencias_operador(request,template_name='namp/frequencia/frequencias_operador.html'):
