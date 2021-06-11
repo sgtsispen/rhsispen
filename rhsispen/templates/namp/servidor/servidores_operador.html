@@ -25,7 +25,50 @@
             </div>
             <input type="submit" value="{% translate 'Buscar' %}">           
         </form>
+        <div class="results">
+            <table>
 
+            <thead>
+              <tr>
+                <th>
+                  <div class="text">
+                    <a href="#">MATRICULA</a>
+                  </div>
+                </th>
+                <th>
+                  <div class="text">
+                    <a href="#">VINCULO</a>
+                  </div>
+                </th>
+                <th>
+                  <div class="text">
+                    <a href="#">NOME</a>
+                  </div>
+                </th>
+                <th>
+                  <div class="text">
+                    <a href="#">
+                      <strong>CPF</strong>
+                    </a>
+                  </div>
+                </th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {% for servidor in servidores %}
+              <tr class="{% cycle 'row1' 'row2' %}">
+                <td> ... </td>
+                <td> ... </td>
+                <td> ... </td>
+                <td> ... </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+
+          </table>
+        </div>
+        <!-- ... -->
     </div>
 </div>
 {% endblock %}
