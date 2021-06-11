@@ -4,7 +4,7 @@ import xlwt
 from django.shortcuts import render, redirect
 from .models import Setor, Equipe, Servidor, TipoJornada, Jornada, HistAfastamento
 from django.http import HttpResponse, HttpResponseRedirect
-from weasyprint import HTML
+#from weasyprint import HTML
 from django.template.loader import render_to_string
 from django.core.files.storage import FileSystemStorage
 from .forms import EquipeForm, ServidorForm, DefinirJornadaRegularForm, GerarJornadaRegularForm
@@ -321,18 +321,18 @@ def get_equipe_servidor(request):
 	return HttpResponse(json.dumps(result), content_type="application/json")
 
 def exportar_pdf(request):
-	# Model data
-	servidores = Servidor.objects.all()
-	# Rendered
-	html_string = render_to_string('pdf_template.html', {'servidores': servidores})
-	html = HTML(string=html_string)
-	result = html.write_pdf(target='/tmp/servidores.pdf')
+	'''# Model data
+		servidores = Servidor.objects.all()
+		# Rendered
+		html_string = render_to_string('pdf_template.html', {'servidores': servidores})
+		html = HTML(string=html_string)
+		result = html.write_pdf(target='/tmp/servidores.pdf')
 
-	fs = FileSystemStorage('/tmp')
-	with fs.open('servidores.pdf') as pdf:
-		response = HttpResponse(pdf, content_type='application/pdf')
-		response['Content-Disposition'] = 'attachment; filename="servidores.pdf"'
-		return response
+		fs = FileSystemStorage('/tmp')
+		with fs.open('servidores.pdf') as pdf:
+			response = HttpResponse(pdf, content_type='application/pdf')
+			response['Content-Disposition'] = 'attachment; filename="servidores.pdf"'
+			return response'''
 	return response
 
 def definirjornadaregular(request):
