@@ -82,15 +82,6 @@ def servidores_operador(request,template_name='namp/servidor/servidores_operador
 		}
 	return render(request,template_name, contexto)
 
-
-def busca(self, *args, **kwargs):
-	context = super().get_context_data(*args, **kwargs)
-	query = self.request.GET.get('q')
-	context['query'] = query
-	#SearchQuery.objects.create(query=query)
-	print(context)
-	return context
-
 @login_required(login_url='/autenticacao/login/')
 def frequencias_operador(request,template_name='namp/frequencia/frequencias_operador.html'):
 	print('Acesso view de frequencias_operador!')
@@ -103,9 +94,30 @@ def adms_operador(request,template_name='namp/adm/adms_operador.html'):
 
 @login_required(login_url='/autenticacao/login/')
 def att_operador(request,template_name='namp/att/att_operador.html'):
-	print('Acesso view de att_operador!')
-	return render(request,template_name, {})
-
+	try:
+		servidor = Servidor.objects.get(fk_user=request.user.id)
+	except Servidor.DoesNotExist:
+		messages.warning(request, 'Servidor não encontrado para este usuário!')
+		return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+	form = ServidorForm(request.POST or None, instance=servidor)
+	if form.is_valid() and request.method == 'POST':
+		form.save()
+		messages.success(request, 'Servidor adicionado com suceso!')
+		return redirect('/')
+	elif not form.is_valid() and request.method == 'POST':
+		contexto = {
+			'servidor': servidor,
+			'form': form
+			}
+		messages.warning(request, 'Ops! Verifique os campos do formulário!')
+		return render(request, template_name, contexto)
+	contexto = {
+		'servidor': servidor,
+		'form': form
+	}
+	return render(request, template_name, contexto)
+	
+	
 @login_required(login_url='/autenticacao/login/')
 def jornadas_operador(request,template_name='namp/jornada/jornadas_operador.html'):
 	#if request.user.groups.filter(name='Operadores').count():
@@ -607,3 +619,12 @@ def exportar_frequencia_excel(request):
 		return response
 	messages.warning(request, 'Ops! Não há frequências registradas no mês corrente!')
 	return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+def busca(self, *args, **kwargs):
+	context = super().busca(*args, **kwargs)
+	query = self.request.GET.get('q')
+	context['query'] = query
+	#SearchQuery.objects.create(query=query)
+	print(context)
+	return context

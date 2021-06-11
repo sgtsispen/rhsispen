@@ -1,5 +1,5 @@
 {% extends 'base.html' %} {% load i18n static %} {% load static %} {% block extrahead %}{{ block.super }}
-<script src="{% url 'admin:jsi18n' %}"></script>
+<scrip src="{% url 'admin:jsi18n' %}"></script>
 <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
 <script src="http://code.jquery.com/ui/1.11.0/jquery-ui.js"></script>
 {% endblock %} {% block extrastyle %}{{ block.super }}
@@ -18,154 +18,14 @@
 
 <div class="content">
     <div id="content" class="colM">
-        <form method='GET' action='{% url "namp:servidores_operador" %}' class="form my-2 my-lg-0">
-            <div class="input-group">
-                <input class="form-control" type="search" placeholder="Digite o nome do Servidor" name='q' aria-label="Search" value='{{ busca.GET.q }}'>
-                <span class="input-group-btn">
-                <button class="btn btn-outline-success" type="submit">Buscar Servidor</button>
-              </span>
-            </div>
+        <form method = 'POST' action='{% url "namp:servidores_operador" %}'>
+            {% csrf_token %}
+            <label for="searchbar"> </label>
+
+            <input id="searchbar" type="text" placeholder="Digite o nome do Servidor" name="q" value='{{ request.GET.q }}' >
+            <input type="submit" value="{% translate 'Buscar' %}">
+
         </form>
-
-        <br>
-        <h4>Dados do Servidor:</h4>
-
-        <form action="{% url 'namp:servidores_operador' %}" method="post">
-            {% csrf_token %} {% for field in form %} {% if field.name != 'fk_user' %}
-            <div class="form-row field-field {% if not field.is_readonly and field.errors %} errors {% endif %}
-             {% if field.name == 'fk_setor' %} hidden {% endif %}">
-                <div>
-                    <label>{{ field.label }}</label> {{ field }}
-
-                </div>
-                <div>
-                    {% if field.errors %} {{ field.errors }} {% endif %}
-                </div>
-            </div>
-
-            {% endif %} {% endfor %}
-
-            <!--
-            <div class="form-row field-nome {% if not form.nome.is_readonly and form.nome.errors %} errors{% endif %}">
-                <div>
-                    <label>Nome: </label> {{ form.nome }}
-                </div>
-                <div>
-                    {% if form.nome.errors %} {{ form.nome.errors }} {% endif %}
-                </div>
-            </div>
-
-            <div class="form-row field-cpf {% if not form.cpf.is_readonly and form.cpf.errors %} errors{% endif %}">
-                <div>
-                    <label>CPF: </label> {{ form.cpf }}
-                </div>
-                <div>
-                    {% if form.cpf.errors %} {{ form.cpf.errors }} {% endif %}
-                </div>
-            </div>
-
-            <div class="form-row field-sexo {% if not form.sexo.is_readonly and form.sexo.errors %} errors{% endif %}">
-                <div>
-                    <label>Sexo: </label> {{ form.sexo }}
-                </div>
-                <div>
-                    {% if form.sexo.errors %} {{ form.sexo.errors }} {% endif %}
-                </div>
-            </div>
-
-            <div class="form-row field-dt_nasc {% if not form.dt_nasc.is_readonly and form.dt_nasc.errors %} errors{% endif %}">
-                <div>
-                    <label>Data Nascimento: </label> {{ form.dt_nasc }}
-                </div>
-                <div>
-                    {% if form.dt_nasc.errors %} {{ form.dt_nasc.errors}} {% endif %}
-                </div>
-            </div>
-
-
-            <div class="form-row field-id_matricula {% if not form.id_matricula.is_readonly and form.id_matricula.errors %} errors{% endif %}">
-                <div>
-                    <label>Matricula: </label> {{ form.id_matricula }}
-                </div>
-                <div>
-                    {% if form.id_matricula.errors %} {{ form.id_matricula.errors }} {% endif %}
-                </div>
-            </div>
-
-            <div class="form-row field-vinculo {% if not form.vinculo.is_readonly and form.vinculo.errors %} errors{% endif %}">
-                <div>
-                    <label>Vinculo: </label> {{ form.vinculo }}
-                </div>
-                <div>
-                    {% if form.vinculo.errors %} {{ form.vinculo.errors }} {% endif %}
-                </div>
-            </div>
-
-            <div class="form-row field-situacao {% if not form.situacao.is_readonly and form.situacao.errors %} errors{% endif %}">
-                <div>
-                    <label>Servidor ativo: </label> {{ form.situacao }}
-                </div>
-                <div>
-                    {% if form.situacao.errors %} {{ form.situacao.errors }} {% endif %}
-                </div>
-                
-            </div>   
-
-            <div class="form-row field-tipo_vinculo {% if not form.tipo_vinculo.is_readonly and form.tipo_vinculo.errors %} errors{% endif %}">
-                <div>
-                    <label>Tipo de vinculo: </label> {{ form.tipo_vinculo }}
-                </div>
-                <div>
-                    {% if form.tipo_vinculo.errors %} {{ form.tipo_vinculo.errors }} {% endif %}
-                </div>
-            </div>
-
-            <div class="form-row field-regime_juridico {% if not form.regime_juridico.is_readonly and form.regime_juridico.errors %} errors{% endif %}">
-                <div>
-                    <label>Regime Juridico: </label> {{ form.regime_juridico }}
-                </div>
-                <div>
-                    {% if form.regime_juridico.errors %} {{ form.regime_juridico.errors }} {% endif %}
-                </div>
-            </div>
-
-            <div class="form-row field-cargo {% if not form.cargo.is_readonly and form.cargo.errors %} errors{% endif %}">
-                <div>
-                    <label>Cargo: </label> {{ form.cargo }}
-                </div>
-                <div>
-                    {% if form.cargo.errors %} {{ form.cargo.errors }} {% endif %}
-                </div>
-            </div>
-
-            <div class="form-row field-cf {% if not form.cf.is_readonly and form.cf.errors %} errors{% endif %}">
-                <div>
-                    <label>Curso de formação: </label> {{ form.cf }}
-                </div>
-                <div>
-                    {% if form.cf.errors %} {{ form.cf.errors}} {% endif %}
-                </div>
-            </div>
-
-            <div class="form-row field-fk_equipe {% if not form.fk_equipe.is_readonly and form.fk_equipe.errors %} errors{% endif %}">
-                <div>
-                    <label>Equipe: </label> {{ form.fk_equipe }}
-                </div>
-                <div>
-                    {% if form.fk_equipe.errors %} {{ form.fk_equipe.errors }} {% endif %}
-                </div>
-            </div>
-            
-            <div class="form-row field-fk_setor">
-                <div>
-                    <label>Setor: </label> {{ form.hidden }}
-                </div>
-                <div>
-                    {% if form.fk_setor.errors %} {{ form.fk_setor.errors }} {% endif %}
-                </div>
-            </div>    
-    !-->
-
 
             <div class="submit-row">
                 <input type="submit" value="{% translate 'Adicionar' %}">
