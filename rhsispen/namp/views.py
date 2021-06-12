@@ -8,7 +8,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 #from weasyprint import HTML
 from django.template.loader import render_to_string
 from django.core.files.storage import FileSystemStorage
-from .forms import EquipeForm, ServidorForm, DefinirJornadaRegularForm, GerarJornadaRegularForm, ServidorSearchForm
+from .forms import EquipeForm, ServidorForm, DefinirJornadaRegularForm, GerarJornadaRegularForm, ServidorSearchForm, EquipeSearchForm
 from django.urls import resolve
 from urllib.parse import urlparse
 from datetime import timedelta as TimeDelta, datetime as DateTime, date as Date
@@ -20,6 +20,40 @@ import re
 @login_required(login_url='/autenticacao/login/')
 def home(request,template_name='home.html'):
     return render(request,template_name, {})
+
+@login_required(login_url='/autenticacao/login/')
+def equipe_operador_change_list(request,template_name='namp/equipe/equipe_operador_change_list.html'):
+	try:
+		servidor = Servidor.objects.get(fk_user=request.user.id)
+		equipes = Equipe.objects.filter(fk_setor=servidor.fk_setor)
+	except Servidor.DoesNotExist:
+		messages.warning(request, 'Servidor não encontrado para este usuário!')
+		return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+	except Equipe.DoesNotExist:
+		messages.warning(request, 'Unidade sem equipes equipes cadastradas no momento!')
+		return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+	form = EquipeSearchForm(request.POST or None)
+	contexto = { 
+		'equipes': equipes,
+		'servidor': servidor,
+		'form': form
+	}
+	if request.method == 'POST':
+		if form.is_valid():
+			#pattern = re.compile(form.cleaned_data['nome'].upper())
+			#for servidor in servidores:
+			#	if pattern.search(servidor.nome):
+			#		servidores2.append(servidor)
+			
+			messages.success(request, 'Formulário válidado!')
+			return render(request, template_name, contexto)
+	contexto = {
+		'equipes': equipes,
+		'servidor': servidor,
+		'form': form
+	}
+	return render(request, template_name, contexto)
 
 @login_required(login_url='/autenticacao/login/')
 def equipes_operador(request,template_name='namp/equipe/equipes_operador.html'):
