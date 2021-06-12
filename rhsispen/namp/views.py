@@ -73,7 +73,8 @@ def equipes_operador(request,template_name='namp/equipe/equipes_operador.html'):
 			'''
 			form.save()
 			messages.success(request, 'Equipe adicionada com suceso!')
-			return redirect('/')
+			return HttpResponseRedirect('/lista_equipes')
+
 		else:
 			contexto = {
 				'setor': setor,
