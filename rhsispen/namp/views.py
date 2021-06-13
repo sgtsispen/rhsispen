@@ -5,7 +5,7 @@ import xlwt
 from django.shortcuts import render, redirect
 from .models import Setor, Equipe, Servidor, TipoJornada, Jornada, HistAfastamento
 from django.http import HttpResponse, HttpResponseRedirect
-#from weasyprint import HTML
+from weasyprint import HTML
 from django.template.loader import render_to_string
 from django.core.files.storage import FileSystemStorage
 from .forms import EquipeForm, ServidorForm, DefinirJornadaRegularForm, GerarJornadaRegularForm, ServidorSearchForm, EquipeSearchForm
@@ -90,7 +90,7 @@ def equipes_operador(request,template_name='namp/equipe/equipes_operador.html'):
 		return render(request,template_name, contexto)
 
 @login_required(login_url='/autenticacao/login/')
-def servidores_operador(request,template_name='namp/servidor/servidores_operador.html'):
+def servidores_operador(request,template_name='namp/servidor/servidores_operador_change_list.html'):
 	try:
 		setor = Servidor.objects.get(fk_user=request.user.id).fk_setor
 		equipes = Equipe.objects.filter(fk_setor=setor)
@@ -106,7 +106,6 @@ def servidores_operador(request,template_name='namp/servidor/servidores_operador
 	for	equipe in equipes:
 		for servidor in Servidor.objects.filter(fk_equipe=equipe):
 			servidores.append(servidor)
-		print(servidores)
 	contexto = { 
 		'servidores': servidores,
 		'form': form
@@ -114,7 +113,6 @@ def servidores_operador(request,template_name='namp/servidor/servidores_operador
 	if request.method == 'POST':
 		if form.is_valid():
 			servidores2 = []
-			print('FORM É VÁLIDO')
 			pattern = re.compile(form.cleaned_data['nome'].upper())
 			for servidor in servidores:
 				if pattern.search(servidor.nome):
@@ -123,15 +121,38 @@ def servidores_operador(request,template_name='namp/servidor/servidores_operador
 				contexto['servidores']=servidores2
 				return render(request, template_name, contexto)
 			else:
-				print('NÃO ENCONTRADO O SERVIDOR')
 				messages.warning(request, 'Servidor com este nome não encontrado!')
 				return render(request, template_name, contexto)
-	print('FORM NÃO É POST')
 	contexto = {
 		'servidores': servidores,
 		'form': form
 	}
 	return render(request, template_name, contexto)
+
+@login_required(login_url='/autenticacao/login/')
+def form_servidor_operador(request, template_name='namp/servidor/form_servidor_operador.html'):
+	try:
+		servidor = Servidor.objects.get()
+	except Servidor.DoesNotExist:
+		messages.warning(request, 'Servidor não encontrado para este setor!')
+		return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+	form = ServidorForm(request.POST or None, instance=servidor)
+	if form.is_valid() and request.method == 'POST':
+		form.save()
+		messages.success(request, 'Servidor atualizado com suceso!')
+		return redirect('/')
+	elif not form.is_valid() and request.method == 'POST':
+		contexto = {
+			'servidor': servidor,
+			'form': form
+			}
+		messages.warning(request, 'Ops! Verifique os campos do formulário!')
+		return render(request, template_name, contexto)
+	contexto = {
+		'servidor': servidor,
+		'form': form
+	}
+	return render(request,template_name, contexto)
 
 @login_required(login_url='/autenticacao/login/')
 def frequencias_operador(request,template_name='namp/frequencia/frequencias_operador.html'):
@@ -144,7 +165,7 @@ def adms_operador(request,template_name='namp/adm/adms_operador.html'):
 	return render(request,template_name, {})
 
 @login_required(login_url='/autenticacao/login/')
-def att_operador(request,template_name='namp/att/att_operador.html'):
+def att_servidor_operador(request,template_name='namp/servidor/att_servidor_operador.html'):
 	try:
 		servidor = Servidor.objects.get(fk_user=request.user.id)
 	except Servidor.DoesNotExist:
@@ -317,8 +338,6 @@ def jornadas_operador(request,template_name='namp/jornada/jornadas_operador.html
 			messages.success(request, 'As escalas das equipes desta unidade foram atualizadas com suceso!')
 			return redirect('/')
 		else:
-			print('formulário inválido!')
-			print(form.cleaned_data)
 			contexto = {
 			'form':form,
 			'equipes':equipes,
