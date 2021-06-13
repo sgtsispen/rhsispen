@@ -127,6 +127,11 @@ class EquipeForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['hora_inicial'].widget = TimeInput()
 
+class EquipeSearchForm(forms.ModelForm):
+    class Meta:
+        model = Equipe
+        fields = ('nome', )
+
 class ServidorForm(forms.ModelForm):
     class Meta:
         model = Servidor

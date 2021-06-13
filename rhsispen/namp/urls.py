@@ -12,8 +12,10 @@ urlpatterns = [
 	path('', views.home, name='home'),
 	path('jornadas_operador/', views.jornadas_operador, name='jornadas_operador'),
 	path('equipes_operador/', views.equipes_operador, name='equipes_operador'),
-	path('servidores_operador/', views.servidores_operador, name='servidores_operador'),
-	path('att_operador', views.att_operador, name='att_operador'),
+	path('lista_equipes/', views.equipe_operador_change_list, name='lista_equipes'),
+	path('servidores_operador/', views.servidores_operador, name='servidores_operador_change_list'),
+	path('att_servidor_operador/', views.att_servidor_operador, name='att_servidor_operador'),
+	path('form_servidor_operador/', views.form_servidor_operador, name='form_servidor_operador'),
 	path('adms_operador', views.adms_operador, name='adms_operador'),
 	path('frequencias_operador', views.frequencias_operador, name='frequencias_operador'),
 

@@ -69,7 +69,7 @@
     <a href="{% url 'admin:index' %}">{% trans 'Ver o site' %}</a> / {% url 'django-admindocs-docroot' as docsroot %} {% if docsroot %}
     <a href="{{ docsroot }}">{% trans 'Documentation' %}</a> / {% endif %} {% if user.has_usable_password %}
     <a href="{% url 'admin:password_change' %}">{% trans 'Change password' %}</a> / {% endif %}
-    <a href="{% url 'admin:logout' %}">{% trans 'Log out' %}</a> {% endblock %}
+    <a href="{% url 'admin:logout' %}">{% trans 'Logout' %}</a> {% endblock %}
 </div>
 {% endblock %} {% block breadcrumbs %}
 <div class="breadcrumbs">
