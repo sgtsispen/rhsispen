@@ -19,16 +19,13 @@
 </div>
 {% endblock %}
 
-
-
 {% block content %}
-
 <div class="content">
-  <h5 class="text-center">{{ servidor.fk_setor }}</h5>
-</div>
+  <div>
+    <h5 class="text-center">{{ servidor.fk_setor }}</h5>
+  </div>
 
-<div id="content">
-  <h4  class>Equipes</h4>
+  <h4>Equipes</h4>
   {% block object-tools %}
     <ul class="object-tools">
       {% block object-tools-items %}
@@ -40,46 +37,58 @@
       {% endblock %}
     </ul>
   {% endblock %}
-  <div id="content-main" class="text-center">
-    <div class="results">
-      <table>
-        <thead>
-          <tr>
-            <th>
-              <div class="text">
-                <a href="#">NOME</a>
-              </div>
-            </th>
-            <th>
-              <div class="text">
-                <a href="#">EQUIPE ATIVA</a>
-              </div>
-            </th>
-            <th>
-              <div class="text">
-                <a href="#">CATEGORIA</a>
-              </div>
-            </th>
-            <th>
-              <div class="text">
-                <a href="#">SERVIDORES</a>
-              </div>
-            </th>
-          </tr>
-        </thead>
+  <div id="toolbar">
+    <form method="POST" action="{% url 'namp:lista_equipes' %}" >{% csrf_token %}
+      <div>
+        {{ form.nome }} 
+        <input type="submit" value="Pesquisar" style="padding: 4px 8px; background: #fff; color: var(--body-fg); box-shadow: 0 -15px 20px -10px rgb(0 0 0 / 15%) inset; border: 1px solid var(--border-color);">
+      </div>
+    </form>
+  </div><br>
+  <div class="results" style="overflow-x:auto;">
+    <table>
+      <thead>
+        <tr>
+          <th>
+            <div class="text">
+              <a href="#">NOME</a>
+            </div>
+          </th>
+          <th>
+            <div class="text">
+              <a href="#">EQUIPE ATIVA</a>
+            </div>
+          </th>
+          <th>
+            <div class="text">
+              <a href="#">CATEGORIA</a>
+            </div>
+          </th>
+          <th>
+            <div class="text">
+              <a href="#">SERVIDORES</a>
+            </div>
+          </th>
+        </tr>
+      </thead>
 
-        <tbody>
-          {% for equipe in equipes %}
-          <tr class="{% cycle 'row1' 'row2' %}">
-            <td> {{equipe.nome}} </td>
-            <td> {{equipe.status}} </td>
-            <td> {{equipe.categoria}} </td>
-            <td> {{equipe.get_servidores | default:0 }} </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
+      <tbody>
+        {% for equipe in equipes %}
+        <tr class="{% cycle 'row1' 'row2' %}">
+          <td> {{equipe.nome}} </td>
+          <td class="field-status">
+          {% if equipe.status %}
+            <img src="/static/admin/img/icon-yes.svg" alt="{{equipe.status}}">
+          {% else %}
+           <img src="/static/admin/img/icon-no.svg" alt="{{equipe.status}}">
+          {% endif%}
+          </td>
+          <td> {{equipe.categoria}} </td>
+          <td> {{equipe.get_servidores | default:0 }} </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
   </div>
 </div>
 {% endblock %}

@@ -41,18 +41,27 @@ def equipe_operador_change_list(request,template_name='namp/equipe/equipe_operad
 	}
 	if request.method == 'POST':
 		if form.is_valid():
-			#pattern = re.compile(form.cleaned_data['nome'].upper())
-			#for servidor in servidores:
-			#	if pattern.search(servidor.nome):
-			#		servidores2.append(servidor)
-			
-			messages.success(request, 'Formulário válidado!')
-			return render(request, template_name, contexto)
+			print('formulário validado')
+			equipes2 = []
+			print(equipes2)
+			pattern = re.compile(form.cleaned_data['nome'].upper())
+			for equipe in equipes:
+				if pattern.search(equipe.nome):
+					equipes2.append(equipe)
+			if equipes2:
+				print('equipe encontrada')
+				contexto['equipes']=equipes2
+				return render(request, template_name, contexto)
+			else:
+				print('equipe nao encontrada')
+				messages.warning(request, 'Equipe com este nome não encontrada!')
+				return render(request, template_name, contexto)
 	contexto = {
 		'equipes': equipes,
 		'servidor': servidor,
 		'form': form
 	}
+	print('formulário novo')
 	return render(request, template_name, contexto)
 
 @login_required(login_url='/autenticacao/login/')
