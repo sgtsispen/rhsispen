@@ -1,0 +1,43 @@
+{% extends 'admin/login.html' %}
+{% load i18n static %}
+
+{% block title %}Login{% endblock %}
+
+{% block branding %}
+ 	<a href="{% url 'autenticacao:login' %}">
+	<img style="float: left;" src="{% static 'images/logoppto.png' %}" alt="logo" width="45" height="50">
+	</a>
+	<h1>Núcleo de Apoio e Movimentação de Pessoal</h1>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+  	<h2>Confime suas credenciais de acesso.</h2>
+	<form method="post">
+	    {% csrf_token %}
+	    {% for field in form %}
+	    <div class="row">
+			<div class="col-md-2">
+			  {{ field.label_tag }}
+			  {% if field.help_text %}
+			    <small style="color: grey">{{ field.help_text }}</small>
+			  {% endif %}
+			  {% for error in field.errors %}
+			    <p style="color: red">{{ error }}</p>
+			  {% endfor %}
+			</div>
+			<div class="col-md-10 pull-left">
+			{{ field }}
+			</div>
+		</div>
+		{% endfor %}
+	    <div class="submit-row">
+			<input type="submit" value="{% translate 'Entrar' %}">
+	    </div>
+		<div class="submit-row">
+			<p><a href="#">Esqueci a minha senha</a></p>
+			<p><a href="{% url 'autenticacao:cadastro' %}">Ainda não possuo cadastro</a></p>
+		</div>
+	</form>
+</div>
+{% endblock %}

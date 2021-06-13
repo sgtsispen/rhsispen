@@ -1,0 +1,126 @@
+{% extends "admin/base_site.html" %} {% load i18n static %} {% block extrahead %}{{ block.super }}
+<script src="{% url 'admin:jsi18n' %}"></script>
+<script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+<script src="http://code.jquery.com/ui/1.11.0/jquery-ui.js"></script>
+
+<script>
+    function goBack() {
+        window.history.back()
+    }
+</script>
+
+<script>
+    $(document).ready(function() {
+                $('.datepicker').datepicker({
+                    dateFormat: 'mm/dd/yy',
+                    minDate: 0,
+                });
+</script>
+
+<script type="text/javascript">
+    $(function() {
+        // inspect html to check id of category select dropdown.
+        $(document).on("focus", "#id_equipe", function() {
+            $.getJSON("/getEquipes/", {
+                id_setor: $("#id_setor").val()
+            }, function(j) {
+                var options = '<option value="">--Selecione--</option>';
+                for (var i = 0; i < j.length; i++) {
+                    options +=
+                        '<option value="' + j[i].id_equipe + '">' + j[i].nome + "</option>";
+                }
+                // inspect html to check id of subcategory select dropdown.
+                $("#id_equipe").html(options);
+            });
+        });
+    });
+</script>
+
+<script type="text/javascript">
+    $(function() {
+        // inspect html to check id of category select dropdown.
+        $(document).on("change", "#id_equipe", function() {
+            $.getJSON("/getTipoJornada/", {
+                id_equipe: $("#id_equipe").val()
+            }, function(j) {
+                var options = '<option value="">--Selecione--</option>';
+                for (var i = 0; i < j.length; i++) {
+                    options +=
+                        '<option value="' + j[i].carga_horaria + '">' + j[i].tipificacao + "</option>";
+                }
+                // inspect html to check id of subcategory select dropdown.
+                $("#id_tipo_jornada").html(options);
+            });
+        });
+    });
+</script>
+
+{{ media }} {% endblock %} {% block extrastyle %}{{ block.super }}
+<link rel="stylesheet" type="text/css" href="{% static 'admin/css/forms.css' %}">
+<link rel="stylesheet" href="http://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css"> {% endblock %} {% block branding %}
+<a href="{% url 'admin:index' %}">
+    <img style="float: left;" src="{% static 'images/logoppto.png' %}" alt="logo" width="45" height="50">
+</a>
+<h1>Núcleo de Apoio e Movimentação de Pessoal</h1>
+{% endblock %} {%block usertools %}
+<div id="user-tools">
+    {% block welcome-msg %} {% trans 'Welcome,' %}
+    <strong>{% firstof user.get_short_name user.get_username %}</strong>. {% endblock %} {% block userlinks %}
+    <a href="{% url 'admin:index' %}">{% trans 'Ver o site' %}</a> / {% url 'django-admindocs-docroot' as docsroot %} {% if docsroot %}
+    <a href="{{ docsroot }}">{% trans 'Documentation' %}</a> / {% endif %} {% if user.has_usable_password %}
+    <a href="{% url 'admin:password_change' %}">{% trans 'Change password' %}</a> / {% endif %}
+    <a href="{% url 'admin:logout' %}">{% trans 'Log out' %}</a> {% endblock %}
+</div>
+{% endblock %} {% block breadcrumbs %}
+<div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">{% translate 'Home' %}</a> &rsaquo; {% translate 'Gerar Escala Regular' %}
+</div>
+{% endblock %} {% block title %}{{ title }}{% endblock %} {% block content_title %}
+<h1>{{ title }}</h1>{% endblock %} {% block content %}
+<div class="content">
+    <div id="content" class="colM">
+        <h1>{% translate 'Gerar jornadas.' %}</h1>
+        <h2>{% translate 'Selecione o intervalo de datas, a equipe e seu respectivo tipo de jornada de trabalho.' %}</h2>
+        <form action="{% url 'namp:gerarescalaregular' %}" method="post">
+            {% csrf_token %}
+
+            <div class="form-row field-setor">
+                <div>
+                    <label>Código do Setor: </label> {{ definirjornadaregularForm.setor }}
+                </div>
+            </div>
+
+            <div class="form-row field-data_inicial">
+                <div>
+                    <label>Data Inicial: </label> {{ definirjornadaregularForm.data_inicial }}
+                </div>
+            </div>
+
+            <div class="form-row field-data_final">
+                <div>
+                    <label>Data Final: </label> {{ definirjornadaregularForm.data_final }}
+                </div>
+            </div>
+
+            <div class="form-row field-equipe">
+                <div>
+                    <label>Equipe: </label> {{ definirjornadaregularForm.equipe }}
+                </div>
+            </div>
+
+            <!--
+        <div class="form-row field-tipo_jornada">
+          <div>
+            <label>Tipor de Jornada: </label>
+            {{ definirjornadaregularForm.tipo_jornada }}
+          </div>
+        </div>
+        -->
+            <div class="submit-row">
+                <input type="submit" value="{% translate 'Gerar Escalas' %}">
+                <input type="button" value="{% translate 'Voltar' %}" onclick="goBack()">
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
