@@ -14,9 +14,11 @@ urlpatterns = [
 	path('equipe_operador_change_form/', views.equipe_operador_change_form, name='equipe_operador_change_form'),
 	path('equipe_operador_change_list/', views.equipe_operador_change_list, name='equipe_operador_change_list'),
 	path('equipe_operador_att_form/<int:id_equipe>/', views.equipe_operador_att_form, name='equipe_operador_att_form'),
-	path('servidores_operador/', views.servidores_operador, name='servidores_operador_change_list'),
-	path('att_servidor_operador/', views.att_servidor_operador, name='att_servidor_operador'),
+	
+	path('servidores_operador_change_list/', views.servidores_operador_change_list, name='servidores_operador_change_list'),
+	path('servidor_operador_att_form/<int:id_matricula>/', views.servidor_operador_att_form, name='servidor_operador_att_form'),
 	path('form_servidor_operador/', views.form_servidor_operador, name='form_servidor_operador'),
+	
 	path('adms_operador', views.adms_operador, name='adms_operador'),
 	path('frequencias_operador', views.frequencias_operador, name='frequencias_operador'),
 

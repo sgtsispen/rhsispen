@@ -97,7 +97,7 @@
                         {% for servidor in servidores %} {% with events as paginator %}
                         <tr class="{% cycle 'row1' 'row2' %}">
                             <td>
-                                <a href="{% url 'namp:form_servidor_operador' %}">{{ servidor.nome }}</a></td>
+                                <a href="{% url 'namp:servidor_operador_att_form' servidor.id_matricula %}">{{ servidor.nome }}</a></td>
                             <td> {{ servidor.id_matricula }} </td>
                             <td> {{ servidor.vinculo }} </td>
                             <td> {{ servidor.cpf }} </td>
