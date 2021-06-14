@@ -35,10 +35,8 @@ def equipe_operador_att_form(request, id_equipe):
 		return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 	form = EquipeForm(instance=equipe)
 	if request.method == 'POST':
-		form = EquipeForm(request.POST)
-		print(form)		
+		form = EquipeForm(request.POST, instance=equipe)
 		if form.is_valid():
-			print('form preenchido e validado ----------------------------')
 			'''
 			Realizar os tratamentos necessários e fazer o form.save()
 			para a instância do modelo Equipe seja salva
@@ -48,22 +46,21 @@ def equipe_operador_att_form(request, id_equipe):
 			return HttpResponseRedirect('/equipe_operador_change_list')
 
 		else:
-			print('form preenchido e invalidado ----------------------------')
 			contexto = {
+				'equipe':equipe,
 				'servidor': servidor,
 				'form': form
 			}
 			messages.warning(request, form.errors.get_json_data(escape_html=False)['__all__'][0]['message'])
 			return render(request, 'namp/equipe/equipe_operador_att_form.html',contexto)
 	else:
-		print('form preenchido e enviado ----------------------------')
 		contexto = {
+			'equipe':equipe,
 			'servidor': servidor,
 			'form': form
 		}
-		#return render(request, 'namp/equipe/equipe_operador_att_form.html',contexto)
-		return reverse('namp:equipe_operador_att_form', args=(id_equipe,))
-
+		return render(request, 'namp/equipe/equipe_operador_att_form.html',contexto)
+		
 @login_required(login_url='/autenticacao/login/')
 def equipe_operador_change_list(request, template_name='namp/equipe/equipe_operador_change_list.html'):
 	try:
