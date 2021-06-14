@@ -25,12 +25,12 @@
     <h5 class="text-center">{{ servidor.fk_setor }}</h5>
   </div>
 
-  <h4>Equipes</h4>
+  <h4>Selecione Equipe para modificar</h4>
   {% block object-tools %}
     <ul class="object-tools">
       {% block object-tools-items %}
       <li>
-        <a href="{% url 'namp:equipes_operador' %}" class="addlink">
+        <a href="{% url 'namp:equipe_operador_change_form' %}" class="addlink">
         {% blocktrans with cl.opts.verbose_name as name %}Adicionar Equipe {{ name }}{% endblocktrans %}
         </a>
       </li>
@@ -38,16 +38,16 @@
     </ul>
   {% endblock %}
   <div id="toolbar">
-    <form method="POST" action="{% url 'namp:lista_equipes' %}" >{% csrf_token %}
+    <form method="POST" action="{% url 'namp:equipe_operador_change_list' %}" >{% csrf_token %}
       <div>
         {{ form.nome }} 
         <input type="submit" value="Pesquisar" style="padding: 4px 8px; background: #fff; color: var(--body-fg); box-shadow: 0 -15px 20px -10px rgb(0 0 0 / 15%) inset; border: 1px solid var(--border-color);">
-        <a href="{% url 'namp:lista_equipes' %}">ver todos</a>
+        <a href="{% url 'namp:equipe_operador_change_list' %}">ver todos</a>
       </div>
     </form>
   </div><br>
   <div class="results" style="overflow-x:auto;">
-    <table>
+    <table class="table">
       <thead>
         <tr>
           <th>
@@ -76,7 +76,7 @@
       <tbody>
         {% for equipe in equipes %}
         <tr class="{% cycle 'row1' 'row2' %}">
-          <td> {{equipe.nome}} </td>
+          <td> <a href="{% url 'namp:equipe_operador_att_form' equipe.id_equipe %}">{{equipe.nome}}</a></td>
           <td class="field-status">
           {% if equipe.status %}
             <img src="/static/admin/img/icon-yes.svg" alt="{{equipe.status}}">
