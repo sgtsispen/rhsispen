@@ -16,13 +16,56 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.core.exceptions import ValidationError
 import re
+from django.urls import reverse
 
 @login_required(login_url='/autenticacao/login/')
 def home(request,template_name='home.html'):
     return render(request,template_name, {})
 
 @login_required(login_url='/autenticacao/login/')
-def equipe_operador_change_list(request,template_name='namp/equipe/equipe_operador_change_list.html'):
+def equipe_operador_att_form(request, id_equipe):
+	try:
+		servidor = Servidor.objects.get(fk_user=request.user.id)
+		equipe = Equipe.objects.get(id_equipe=id_equipe)
+	except Servidor.DoesNotExist:
+		messages.warning(request, 'Servidor não encontrado para este usuário!')
+		return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+	except Equipe.DoesNotExist:
+		messages.warning(request, 'Equipe não encontrada!')
+		return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+	form = EquipeForm(instance=equipe)
+	if request.method == 'POST':
+		form = EquipeForm(request.POST)
+		print(form)		
+		if form.is_valid():
+			print('form preenchido e validado ----------------------------')
+			'''
+			Realizar os tratamentos necessários e fazer o form.save()
+			para a instância do modelo Equipe seja salva
+			'''
+			form.save()
+			messages.success(request, 'Equipe editada com suceso!')
+			return HttpResponseRedirect('/equipe_operador_change_list')
+
+		else:
+			print('form preenchido e invalidado ----------------------------')
+			contexto = {
+				'servidor': servidor,
+				'form': form
+			}
+			messages.warning(request, form.errors.get_json_data(escape_html=False)['__all__'][0]['message'])
+			return render(request, 'namp/equipe/equipe_operador_att_form.html',contexto)
+	else:
+		print('form preenchido e enviado ----------------------------')
+		contexto = {
+			'servidor': servidor,
+			'form': form
+		}
+		#return render(request, 'namp/equipe/equipe_operador_att_form.html',contexto)
+		return reverse('namp:equipe_operador_att_form', args=(id_equipe,))
+
+@login_required(login_url='/autenticacao/login/')
+def equipe_operador_change_list(request, template_name='namp/equipe/equipe_operador_change_list.html'):
 	try:
 		servidor = Servidor.objects.get(fk_user=request.user.id)
 		equipes = Equipe.objects.filter(fk_setor=servidor.fk_setor)
@@ -41,13 +84,18 @@ def equipe_operador_change_list(request,template_name='namp/equipe/equipe_operad
 	}
 	if request.method == 'POST':
 		if form.is_valid():
-			#pattern = re.compile(form.cleaned_data['nome'].upper())
-			#for servidor in servidores:
-			#	if pattern.search(servidor.nome):
-			#		servidores2.append(servidor)
-			
-			messages.success(request, 'Formulário válidado!')
-			return render(request, template_name, contexto)
+			equipes2 = []
+			print(equipes2)
+			pattern = re.compile(form.cleaned_data['nome'].upper())
+			for equipe in equipes:
+				if pattern.search(equipe.nome.upper()):
+					equipes2.append(equipe)
+			if equipes2:
+				contexto['equipes']=equipes2
+				return render(request, template_name, contexto)
+			else:
+				messages.warning(request, 'Equipe com este nome não encontrada!')
+				return render(request, template_name, contexto)
 	contexto = {
 		'equipes': equipes,
 		'servidor': servidor,
@@ -56,7 +104,7 @@ def equipe_operador_change_list(request,template_name='namp/equipe/equipe_operad
 	return render(request, template_name, contexto)
 
 @login_required(login_url='/autenticacao/login/')
-def equipes_operador(request,template_name='namp/equipe/equipes_operador.html'):
+def equipe_operador_change_form(request, template_name='namp/equipe/equipe_operador_change_form.html'):
 	form = EquipeForm()
 	try:
 		setor = Servidor.objects.get(fk_user=request.user.id).fk_setor
@@ -73,12 +121,12 @@ def equipes_operador(request,template_name='namp/equipe/equipes_operador.html'):
 			'''
 			form.save()
 			messages.success(request, 'Equipe adicionada com suceso!')
-			return HttpResponseRedirect('/lista_equipes')
+			return HttpResponseRedirect('/equipe_operador_change_list')
 
 		else:
 			contexto = {
 				'setor': setor,
-				'form': form
+				'form': form,
 			}
 			messages.warning(request, form.errors.get_json_data(escape_html=False)['__all__'][0]['message'])
 			return render(request, template_name, contexto)
@@ -145,13 +193,15 @@ def servidor_operador_att_form(request, id_matricula):
 	elif not form.is_valid() and request.method == 'POST':
 		contexto = {
 			'servidor': servidor,
-			'form': form
+			'form': form,
+			'id_matricula': id_matricula
 			}
 		messages.warning(request, 'Ops! Verifique os campos do formulário!')
 		return render(request, 'servidor/servidor_operador_att_form.html', contexto)
 	contexto = {
 		'servidor': servidor,
-		'form': form
+		'form': form,
+		'id_matricula': id_matricula
 	}
 	return render(request, 'servidor/servidor_operador_att_form.html', contexto)
 

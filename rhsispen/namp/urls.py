@@ -11,12 +11,11 @@ app_name = 'namp'
 urlpatterns = [
 	path('', views.home, name='home'),
 	path('jornadas_operador/', views.jornadas_operador, name='jornadas_operador'),
-	path('equipes_operador/', views.equipes_operador, name='equipes_operador'),
-	path('lista_equipes/', views.equipe_operador_change_list, name='lista_equipes'),
-
+	path('equipe_operador_change_form/', views.equipe_operador_change_form, name='equipe_operador_change_form'),
+	path('equipe_operador_change_list/', views.equipe_operador_change_list, name='equipe_operador_change_list'),
+	path('equipe_operador_att_form/<int:id_equipe>/', views.equipe_operador_att_form, name='equipe_operador_att_form'),
 	path('servidor_operador_change_list/', views.servidor_operador_change_list, name='servidor_operador_change_list'),
 	path('servidor_operador_att_form/<int:id_matricula>/', views.servidor_operador_att_form, name='servidor_operador_att_form'),
-
 	path('adms_operador', views.adms_operador, name='adms_operador'),
 	path('frequencias_operador', views.frequencias_operador, name='frequencias_operador'),
 
