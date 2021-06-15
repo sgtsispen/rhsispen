@@ -44,7 +44,6 @@ def equipe_operador_att_form(request, id_equipe):
 			form.save()
 			messages.success(request, 'Equipe editada com suceso!')
 			return HttpResponseRedirect('/equipe_operador_change_list')
-
 		else:
 			contexto = {
 				'equipe':equipe,
@@ -145,7 +144,6 @@ def servidor_operador_change_list(request,template_name='namp/servidor/servidor_
 	except Equipe.DoesNotExist:
 		messages.warning(request, 'Unidade não possui equipes cadastradas')
 		return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-
 	form = ServidorSearchForm(request.POST or None)
 	servidores = []
 	for	equipe in equipes:
@@ -174,11 +172,75 @@ def servidor_operador_change_list(request,template_name='namp/servidor/servidor_
 	}
 	return render(request, template_name, contexto)
 
+#@login_required(login_url='/autenticacao/login/')
+##def servidor_operador_att_form(request, template_name='namp/servidor/servidor_operador_att_form.html'):
+#def servidor_operador_att_form(request, id_matricula):
+#	try:		
+#		user = Servidor.objects.get(fk_user=request.user.id)
+#		servidor = Servidor.objects.get(id_matricula=id_matricula)
+#	except Servidor.DoesNotExist:
+#		messages.warning(request, 'Servidor não encontrado para este setor!')
+#		return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+#	form = ServidorForm(instance=servidor)
+#	if request.method == 'POST':
+#			form = ServidorForm(request.POST, instance=servidor)
+#			if form.is_valid():
+#				form.save()
+#				messages.success(request, 'Equipe editada com suceso!')
+#				return HttpResponseRedirect('/servidor_operador_change_list')
+#			else:
+#				contexto = {
+#					'user': user,
+#					'id_matricula': id_matricula,
+#					'form': form,
+#				}
+#				messages.warning(request, form.errors.get_json_data(escape_html=False)['__all__'][0]['message'])
+#				return render(request, 'namp/servidor/servidor_operador_att_form.html',contexto)
+#	else:
+#		contexto = {
+#			'user': user,
+#			'id_matricula': id_matricula,
+#			'form': form,
+#		}
+#		return render(request, 'namp/servidor/servidor_operador_att_form.html',contexto)
+
 @login_required(login_url='/autenticacao/login/')
-#def servidor_operador_att_form(request, template_name='namp/servidor/servidor_operador_att_form.html'):
-def servidor_operador_att_form(request, id_matricula):
+def servidor_operador_att_form(request,id_matricula):
 	try:
+		user = Servidor.objects.get(fk_user=request.user.id)
 		servidor = Servidor.objects.get(id_matricula=id_matricula)
+	except Servidor.DoesNotExist:
+		messages.warning(request, 'Servidor não encontrado!')
+		return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+	form = ServidorForm(instance=servidor)
+	if request.method == 'POST':
+		form = ServidorForm(request.POST, instance=servidor)
+		if form.is_valid():
+			form.save()
+			messages.success(request, 'Servidor editado com suceso!')
+			print(form)
+			return HttpResponseRedirect('/servidores_operador_change_list')
+		else:
+			contexto = {
+				'form': form,
+				#'user':user,
+				'id_matricula': id_matricula
+			}
+			messages.warning(request, form.errors.get_json_data(escape_html=False)['__all__'][0]['message'])
+			return render(request, 'namp/servidor/servidor_operador_att_form.html',contexto)
+	else:
+		contexto = {
+			'form': form,
+			'user':user,
+			'id_matricula': id_matricula
+		}
+		print(contexto)
+		return render(request, 'namp/servidor/servidor_operador_att_form.html',contexto)
+
+@login_required(login_url='/autenticacao/login/')
+def form_servidor_operador(request, template_name='namp/servidor/form_servidor_operador.html'):
+	try:
+		servidor = Servidor.objects.get(fk_user=request.user.id)
 	except Servidor.DoesNotExist:
 		messages.warning(request, 'Servidor não encontrado para este setor!')
 		return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
@@ -186,46 +248,6 @@ def servidor_operador_att_form(request, id_matricula):
 	if form.is_valid() and request.method == 'POST':
 		form.save()
 		messages.success(request, 'Servidor atualizado com suceso!')
-		return redirect('/servidor_operador_change_list')
-	elif not form.is_valid() and request.method == 'POST':
-		contexto = {
-			'servidor': servidor,
-			'form': form,
-			'id_matricula': id_matricula
-			}
-		messages.warning(request, 'Ops! Verifique os campos do formulário!')
-		return render(request, 'servidor/servidor_operador_att_form.html', contexto)
-	contexto = {
-		'servidor': servidor,
-		'form': form,
-		'id_matricula': id_matricula
-	}
-	return render(request, 'servidor/servidor_operador_att_form.html', contexto)
-
-
-
-
-@login_required(login_url='/autenticacao/login/')
-def frequencias_operador(request,template_name='namp/frequencia/frequencias_operador.html'):
-	print('Acesso view de frequencias_operador!')
-	return render(request,template_name, {})
-
-@login_required(login_url='/autenticacao/login/')
-def adms_operador(request,template_name='namp/adm/adms_operador.html'):
-	print('Acesso view de adms_operador!')
-	return render(request,template_name, {})
-
-@login_required(login_url='/autenticacao/login/')
-def servidor_operador_att_form(request,template_name='namp/servidor/servidor_operador_att_form.html'):
-	try:
-		servidor = Servidor.objects.get(fk_user=request.user.id)
-	except Servidor.DoesNotExist:
-		messages.warning(request, 'Servidor não encontrado para este usuário!')
-		return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-	form = ServidorForm(request.POST or None, instance=servidor)
-	if form.is_valid() and request.method == 'POST':
-		form.save()
-		messages.success(request, 'Servidor adicionado com suceso!')
 		return redirect('/')
 	elif not form.is_valid() and request.method == 'POST':
 		contexto = {
@@ -238,9 +260,19 @@ def servidor_operador_att_form(request,template_name='namp/servidor/servidor_ope
 		'servidor': servidor,
 		'form': form
 	}
-	return render(request, template_name, contexto)
-	
-	
+	return render(request,template_name, contexto)
+
+
+@login_required(login_url='/autenticacao/login/')
+def frequencias_operador(request,template_name='namp/frequencia/frequencias_operador.html'):
+	print('Acesso view de frequencias_operador!')
+	return render(request,template_name, {})
+
+@login_required(login_url='/autenticacao/login/')
+def adms_operador(request,template_name='namp/adm/adms_operador.html'):
+	print('Acesso view de adms_operador!')
+	return render(request,template_name, {})
+
 @login_required(login_url='/autenticacao/login/')
 def jornadas_operador(request,template_name='namp/jornada/jornadas_operador.html'):
 	#if request.user.groups.filter(name='Operadores').count():
