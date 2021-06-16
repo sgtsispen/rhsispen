@@ -201,6 +201,7 @@ def form_servidor_operador(request, template_name='namp/servidor/form_servidor_o
 
 @login_required(login_url='/autenticacao/login/')
 def servidor_operador_att_form(request,id_matricula):
+	print('Atualização de servidor...')
 	try:
 		user = Servidor.objects.get(fk_user=request.user.id)
 		servidor = Servidor.objects.get(id_matricula=id_matricula)
@@ -208,20 +209,21 @@ def servidor_operador_att_form(request,id_matricula):
 		messages.warning(request, 'Servidor não encontrado!')
 		return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 	form = ServidorForm(instance=servidor)
+
 	if request.method == 'POST':
 		form = ServidorForm(request.POST, instance=servidor)
 		if form.is_valid():
 			'''
 			Realizar os tratamentos necessários e fazer o form.save()
-			para a instância do modelo Equipe seja salva
+			para a instância do modelo Servidor seja salvo
 			'''
 			form.save()
 			messages.success(request, 'Servidor editado com suceso!')
 			return HttpResponseRedirect('/servidores_operador_change_list')
 		else:
 			contexto = {
-				'user':user,
-				'id_matricula': id_matricula,
+				'user': user,
+				'servidor': servidor,
 				'form': form
 			}
 			messages.warning(request, form.errors.get_json_data(escape_html=False)['__all__'][0]['message'])
@@ -229,7 +231,7 @@ def servidor_operador_att_form(request,id_matricula):
 	else:
 		contexto = {
 			'user':user,
-			'id_matricula': id_matricula,
+			'servidor': servidor,
 			'form': form
 		}
 		return render(request, 'namp/servidor/servidor_operador_att_form.html',contexto)
