@@ -152,6 +152,7 @@ def servidores_operador_change_list(request,template_name='namp/servidor/servido
 		for servidor in Servidor.objects.filter(fk_equipe=equipe):
 			servidores.append(servidor)
 	contexto = { 
+		'setor': setor,
 		'servidores': servidores,
 		'form': form
 	}
@@ -169,6 +170,7 @@ def servidores_operador_change_list(request,template_name='namp/servidor/servido
 				messages.warning(request, 'Servidor com este nome não encontrado!')
 				return render(request, template_name, contexto)
 	contexto = {
+		'setor': setor,
 		'servidores': servidores,
 		'form': form
 	}
@@ -209,7 +211,13 @@ def servidor_operador_att_form(request,id_matricula):
 		messages.warning(request, 'Servidor não encontrado!')
 		return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 	form = ServidorForm(instance=servidor)
-
+	'''
+	for field in form:
+		if field.name == 'fk_equipe':
+			continue
+		form.fields[field.name].widget.attrs['readonly'] = True
+	'''
+		
 	if request.method == 'POST':
 		form = ServidorForm(request.POST, instance=servidor)
 		if form.is_valid():

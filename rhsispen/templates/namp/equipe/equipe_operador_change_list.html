@@ -26,6 +26,7 @@
   </div>
 
   <h4>Selecione Equipe para modificar</h4>
+  
   {% block object-tools %}
     <ul class="object-tools">
       {% block object-tools-items %}
@@ -41,7 +42,7 @@
     <form method="POST" action="{% url 'namp:equipe_operador_change_list' %}" >{% csrf_token %}
       <div>
         {{ form.nome }} 
-        <input type="submit" value="Pesquisar" style="padding: 4px 8px; background: #fff; color: var(--body-fg); box-shadow: 0 -15px 20px -10px rgb(0 0 0 / 15%) inset; border: 1px solid var(--border-color);">
+        <input type="submit" value="Pesquisar" style="padding: 4px 8px;">
         <a href="{% url 'namp:equipe_operador_change_list' %}">ver todos</a>
       </div>
     </form>
