@@ -14,7 +14,7 @@
     {% endblock %} {% block content %}
     <div class="content">
         <h4 class="text-center">Modificar Servidor</h4>
-        <h5 class="text-center">{{ servidor.fk_setor }}</h5>
+        <h5 class="text-center">{{ user.fk_setor }}</h5>
     </div>
 
     <div class="content">
@@ -22,7 +22,7 @@
             <br>
             <h4>Dados do Servidor:</h4>
 
-            <form action="{% url 'namp:servidor_operador_att_form' %}" method="post">
+            <form action="{% url 'namp:servidor_operador_att_form' id_matricula %}" method="post">
                 {% csrf_token %} {% for field in form %}
                 <div class="form-row field-field {% if not field.is_readonly and field.errors %} errors {% endif %}
              {% if field.name == 'fk_setor' %} hidden {% endif %}  {% if field.name == 'fk_user' %} hidden {% endif %}">

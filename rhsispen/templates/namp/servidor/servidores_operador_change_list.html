@@ -19,7 +19,7 @@
 
     <div class="content">
         <div id="content" class="text-center">
-            <form method='POST' action='{% url "namp:servidor_operador_change_list" %}'>
+            <form method='POST' action='{% url "namp:servidores_operador_change_list" %}'>
                 {% csrf_token %}
                 <div>
                     {{ form.nome }}
