@@ -126,18 +126,34 @@ class EquipeForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['hora_inicial'].widget = TimeInput()
+        
 
 class EquipeSearchForm(forms.ModelForm):
     class Meta:
         model = Equipe
         fields = ('nome', )
+        widgets = {
+            'nome': forms.TextInput(attrs={'placeholder': 'Digite um nome de equipe'}),
+        }
 
 class ServidorForm(forms.ModelForm):
     class Meta:
         model = Servidor
         fields = '__all__'
-            
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['fk_equipe'].choices = [('', '--Selecione--')] + list(Equipe.objects.filter(fk_setor=self.instance.fk_setor).values_list('id_equipe', 'nome'))
+        for field in self.fields:
+            if field =='fk_equipe': continue
+            self.fields[field].widget.attrs['readonly'] = True
+            #Falta setar o choices    
 class ServidorSearchForm(forms.ModelForm):
     class Meta:
         model = Servidor
         fields = ('nome', )
+        widgets = {
+            'nome': forms.TextInput(attrs={'placeholder': 'Digite um nome de servidor'}),
+        }
+  #  def __init__(self, *args, **kwargs):
+  #    super().__init__(*args, **kwargs)
+  #      self.fields['nome', ].widget.attrs={"placeholder":"Digite o nome do servidor"}
