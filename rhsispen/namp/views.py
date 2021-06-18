@@ -81,7 +81,7 @@ def equipe_operador_change_list(request, template_name='namp/equipe/equipe_opera
 	contexto = { 
 		'equipes': equipes,
 		'servidor': servidor,
-		'form': form
+		'form': form,
 	}
 	if request.method == 'POST':
 		if form.is_valid():
@@ -100,7 +100,7 @@ def equipe_operador_change_list(request, template_name='namp/equipe/equipe_opera
 	contexto = {
 		'equipes': equipes,
 		'servidor': servidor,
-		'form': form
+		'form': form,
 	}
 	return render(request, template_name, contexto)
 
@@ -161,7 +161,7 @@ def servidores_operador_change_list(request,template_name='namp/servidor/servido
 	contexto = { 
 		'setor': setor,
 		'servidores': servidores,
-		'form': form,
+		'form': form
 	#	'page_obj': page_obj
 
 	}
@@ -188,7 +188,7 @@ def servidores_operador_change_list(request,template_name='namp/servidor/servido
 	contexto = {
 		'setor': setor,
 		'servidores': servidores,
-		'form': form,
+		'form': form
 	#	'page_obj': page_obj
 	}	
 	return render(request, template_name, contexto)
@@ -200,8 +200,11 @@ def servidor_operador_att_form(request,id_matricula):
 	try:
 		user = Servidor.objects.get(fk_user=request.user.id)
 		servidor = Servidor.objects.get(id_matricula=id_matricula)
+		print('usuario: ', user)
+		print()
+		print('servidor', servidor)
 	except Servidor.DoesNotExist:
-		messages.warning(request, 'Servidor não encontrado!')
+		messages.warning(request, 'Servidor não encontrado! TESTE')
 		return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 	form = ServidorForm(instance=servidor)
 	if request.method == 'POST':
@@ -221,9 +224,9 @@ def servidor_operador_att_form(request,id_matricula):
 			return render(request, 'namp/servidor/servidor_operador_att_form.html',contexto)
 	else:
 		contexto = {
-			'form': form,
 			'user':user,
-			'servidor': servidor,
+			'form': form,
+			'servidor': servidor
 		}
 		print(contexto)
 		return render(request, 'namp/servidor/servidor_operador_att_form.html',contexto)
