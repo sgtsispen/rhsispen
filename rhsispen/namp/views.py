@@ -117,7 +117,8 @@ def servidores_operador(request,template_name='namp/servidor/servidores_operador
 			servidores.append(servidor)
 	contexto = { 
 		'servidores': servidores,
-		'form': form
+		'form': form,
+		'setor': setor
 	}
 	if request.method == 'POST':
 		if form.is_valid():
@@ -134,34 +135,35 @@ def servidores_operador(request,template_name='namp/servidor/servidores_operador
 				return render(request, template_name, contexto)
 	contexto = {
 		'servidores': servidores,
-		'form': form
+		'form': form,
+		'setor': setor
 	}
 	return render(request, template_name, contexto)
 
-@login_required(login_url='/autenticacao/login/')
-def form_servidor_operador(request, template_name='namp/servidor/form_servidor_operador.html'):
-	try:
-		servidor = Servidor.objects.get()
-	except Servidor.DoesNotExist:
-		messages.warning(request, 'Servidor não encontrado para este setor!')
-		return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-	form = ServidorForm(request.POST or None, instance=servidor)
-	if form.is_valid() and request.method == 'POST':
-		form.save()
-		messages.success(request, 'Servidor atualizado com suceso!')
-		return redirect('/')
-	elif not form.is_valid() and request.method == 'POST':
-		contexto = {
-			'servidor': servidor,
-			'form': form
-			}
-		messages.warning(request, 'Ops! Verifique os campos do formulário!')
-		return render(request, template_name, contexto)
-	contexto = {
-		'servidor': servidor,
-		'form': form
-	}
-	return render(request,template_name, contexto)
+#@login_required(login_url='/autenticacao/login/')
+#def form_servidor_operador(request, template_name='namp/servidor/form_servidor_operador.html'):
+#	try:
+#		servidor = Servidor.objects.get()
+#	except Servidor.DoesNotExist:
+#		messages.warning(request, 'Servidor não encontrado para este setor!')
+#		return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+#	form = ServidorForm(request.POST or None, instance=servidor)
+#	if form.is_valid() and request.method == 'POST':
+#		form.save()
+#		messages.success(request, 'Servidor atualizado com suceso!')
+#		return redirect('/')
+#	elif not form.is_valid() and request.method == 'POST':
+#		contexto = {
+#			'servidor': servidor,
+#			'form': form
+#			}
+#		messages.warning(request, 'Ops! Verifique os campos do formulário!')
+#		return render(request, template_name, contexto)
+#	contexto = {
+#		'servidor': servidor,
+#		'form': form
+#	}
+#	return render(request,template_name, contexto)
 
 @login_required(login_url='/autenticacao/login/')
 def frequencias_operador(request,template_name='namp/frequencia/frequencias_operador.html'):
@@ -174,17 +176,18 @@ def adms_operador(request,template_name='namp/adm/adms_operador.html'):
 	return render(request,template_name, {})
 
 @login_required(login_url='/autenticacao/login/')
-def att_servidor_operador(request,template_name='namp/servidor/att_servidor_operador.html'):
+def att_servidor_operador(request, id_matricula):
 	try:
-		servidor = Servidor.objects.get(fk_user=request.user.id)
+		servidor = Servidor.objects.get(id_matricula=id_matricula)
+		print(servidor)
 	except Servidor.DoesNotExist:
 		messages.warning(request, 'Servidor não encontrado para este usuário!')
 		return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 	form = ServidorForm(request.POST or None, instance=servidor)
 	if form.is_valid() and request.method == 'POST':
 		form.save()
-		messages.success(request, 'Servidor adicionado com suceso!')
-		return redirect('/')
+		messages.success(request, 'Servidor atualizado com suceso!')
+		return redirect('/servidor_operador_change_list')
 	elif not form.is_valid() and request.method == 'POST':
 		contexto = {
 			'servidor': servidor,
@@ -196,8 +199,9 @@ def att_servidor_operador(request,template_name='namp/servidor/att_servidor_oper
 		'servidor': servidor,
 		'form': form
 	}
-	return render(request, template_name, contexto)
-	
+	return HttpResponseRedirect(reverse('namp:att_servidor_operador', args=(id_matricula)))
+	#return reverse('att_servidor_operador', args=(str(self.id)))
+	#return render(request, template_name, contexto)
 	
 @login_required(login_url='/autenticacao/login/')
 def jornadas_operador(request,template_name='namp/jornada/jornadas_operador.html'):
@@ -418,7 +422,6 @@ def exportar_pdf(request):
 		html_string = render_to_string('pdf_template.html', {'servidores': servidores})
 		html = HTML(string=html_string)
 		result = html.write_pdf(target='/tmp/servidores.pdf')
-
 		fs = FileSystemStorage('/tmp')
 		with fs.open('servidores.pdf') as pdf:
 			response = HttpResponse(pdf, content_type='application/pdf')

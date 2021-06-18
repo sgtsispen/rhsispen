@@ -13,10 +13,11 @@
     </div>
     {% endblock %} {% block content %}
     <div class="content">
-        <h4 class="text-center">Lista de Servidores</h4>
-        <h5 class="text-center">{{ servidor.fk_setor }}</h5>
+        <h4 class="text-center">Gerenciar Servidores</h4>
+        <h5 class="text-center">{{ setor.nome }}</h5>
     </div>
 
+  <!--
     <div class="content">
         <div id="content" class="text-center">
             <form method='POST' action='{% url "namp:servidores_operador_change_list" %}'>
@@ -26,10 +27,29 @@
                     <input type="submit" value="{% translate 'Buscar' %}">
                 </div>
             </form>
+        -->
+  
+    <div class="content">
+            <div id="toolbar">
+                <form method="POST" action='{% url "namp:servidores_operador_change_list" %}'>
+                    {% csrf_token %}
+                  <div>
+                    {{ form.nome }} 
+                    <input type="submit" value="Pesquisar"
+                     placeholder="Digite o nome do servidor"
+                     style="padding: 4px 8px; background: #fff; color: var(--body-fg);
+                      box-shadow: 0 -15px 20px -10px rgb(0 0 0 / 15%) inset;
+                      border: 1px solid var(--border-color);">
+                    <a href="{% url 'namp:servidores_operador_change_list' %}">ver todos</a>
+                  </div>
+                </form>
+            </div><br>
+
+
 
             <div class="results">
                 <br><br>
-                <table>
+                <table class="table">
                     <thead>
                         <tr>
                             <th>
@@ -97,7 +117,7 @@
                         {% for servidor in servidores %} {% with events as paginator %}
                         <tr class="{% cycle 'row1' 'row2' %}">
                             <td>
-                                <a href="{% url 'namp:form_servidor_operador' %}">{{ servidor.nome }}</a></td>
+                                <a href="{% url 'namp:att_servidor_operador' Servidor.id_matricula %}"> {{ servidor.nome }} </a></td>      
                             <td> {{ servidor.id_matricula }} </td>
                             <td> {{ servidor.vinculo }} </td>
                             <td> {{ servidor.cpf }} </td>
