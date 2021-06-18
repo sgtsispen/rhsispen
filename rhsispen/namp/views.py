@@ -17,6 +17,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.core.exceptions import ValidationError
 import re
 from django.urls import reverse
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger, InvalidPage
 
 @login_required(login_url='/autenticacao/login/')
 def home(request,template_name='home.html'):
@@ -136,6 +137,7 @@ def equipe_operador_change_form(request, template_name='namp/equipe/equipe_opera
 
 @login_required(login_url='/autenticacao/login/')
 def servidores_operador_change_list(request,template_name='namp/servidor/servidores_operador_change_list.html'):
+	
 	try:
 		setor = Servidor.objects.get(fk_user=request.user.id).fk_setor
 		equipes = Equipe.objects.filter(fk_setor=setor)
@@ -145,13 +147,15 @@ def servidores_operador_change_list(request,template_name='namp/servidor/servido
 	except Equipe.DoesNotExist:
 		messages.warning(request, 'Unidade não possui equipes cadastradas')
 		return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+	
 
 	form = ServidorSearchForm(request.POST or None)
 	servidores = []
 	for	equipe in equipes:
 		for servidor in Servidor.objects.filter(fk_equipe=equipe):
 			servidores.append(servidor)
-	contexto = { 
+
+	contexto = {
 		'setor': setor,
 		'servidores': servidores,
 		'form': form
