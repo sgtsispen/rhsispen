@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django import forms
+from datetime import timedelta as TimeDelta, datetime as DateTime, date as Date
 
 # Create your models here.
 '''CLASSES SEM CHAVE ESTRANGEIRA'''

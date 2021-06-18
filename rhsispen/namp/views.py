@@ -158,12 +158,13 @@ def servidores_operador_change_list(request,template_name='namp/servidor/servido
 	for	equipe in equipes:
 		for servidor in Servidor.objects.filter(fk_equipe=equipe):
 			servidores.append(servidor)
-		contexto = { 
-			'setor': setor,
-			'servidores': servidores,
-			'form': form,
-			'page_obj': page_obj
-		}
+	contexto = { 
+		'setor': setor,
+		'servidores': servidores,
+		'form': form,
+		'page_obj': page_obj
+
+	}
 	if request.method == 'POST':
 		if form.is_valid():
 			servidores2 = []
@@ -195,6 +196,7 @@ def servidores_operador_change_list(request,template_name='namp/servidor/servido
 
 @login_required(login_url='/autenticacao/login/')
 def servidor_operador_att_form(request,id_matricula):
+	print('Atualização de servidor...')
 	try:
 		user = Servidor.objects.get(fk_user=request.user.id)
 		servidor = Servidor.objects.get(id_matricula=id_matricula)
@@ -202,6 +204,13 @@ def servidor_operador_att_form(request,id_matricula):
 		messages.warning(request, 'Servidor não encontrado!')
 		return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 	form = ServidorForm(instance=servidor)
+	'''
+	for field in form:
+		if field.name == 'fk_equipe':
+			continue
+		form.fields[field.name].widget.attrs['readonly'] = True
+	'''
+		
 	if request.method == 'POST':
 		form = ServidorForm(request.POST, instance=servidor)
 		if form.is_valid():
@@ -211,9 +220,9 @@ def servidor_operador_att_form(request,id_matricula):
 			return HttpResponseRedirect('/servidores_operador_change_list')
 		else:
 			contexto = {
-				'form': form,
-				'user':user,
-				'id_matricula': id_matricula
+				'user': user,
+				'servidor': servidor,
+				'form': form
 			}
 			messages.warning(request, form.errors.get_json_data(escape_html=False)['__all__'][0]['message'])
 			return render(request, 'namp/servidor/servidor_operador_att_form.html',contexto)
@@ -221,7 +230,7 @@ def servidor_operador_att_form(request,id_matricula):
 		contexto = {
 			'form': form,
 			'user':user,
-			'id_matricula': id_matricula
+			'servidor': servidor,
 		}
 		print(contexto)
 		return render(request, 'namp/servidor/servidor_operador_att_form.html',contexto)
