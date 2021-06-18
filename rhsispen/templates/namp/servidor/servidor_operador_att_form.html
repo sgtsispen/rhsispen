@@ -13,6 +13,7 @@
     </div>
     {% endblock %} {% block content %}
     <div class="content">
+        <h4 class="text-center">Modificar Servidor</h4>
         <h5 class="text-center">{{ user.fk_setor }}</h5>
     </div>
 
@@ -21,14 +22,14 @@
             <br>
             <h4>Dados do Servidor:</h4>
 
-            <form action="{% url 'namp:servidor_operador_att_form' servidor.id_matricula %}" method="post">
+            <form action="{% url 'namp:servidor_operador_att_form' id_matricula %}" method="post">
                 {% csrf_token %} {% for field in form %}
                 <div class="form-row field-field {% if not field.is_readonly and field.errors %} errors {% endif %}
              {% if field.name == 'fk_setor' %} hidden {% endif %}  {% if field.name == 'fk_user' %} hidden {% endif %}">
                     <div>
                         <label>{{ field.label }}</label> {{ field }}
                     </div>
-                    <div> 
+                    <div>
                         {% if field.errors %} {{ field.errors }} {% endif %}
                     </div>
                 </div>
@@ -37,6 +38,7 @@
                     <input type="submit" value="{% translate 'Salvar' %}">
                     <input type="button" value="{% translate 'Voltar' %}" onclick="goBack()">
                 </div>
+
             </form>
         </div>
     </div>
