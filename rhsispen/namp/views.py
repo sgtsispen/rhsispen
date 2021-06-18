@@ -18,6 +18,11 @@ from django.core.exceptions import ValidationError
 import re
 from django.urls import reverse
 
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.views.generic import ListView
+
+
+
 @login_required(login_url='/autenticacao/login/')
 def home(request,template_name='home.html'):
     return render(request,template_name, {})
@@ -44,7 +49,6 @@ def equipe_operador_att_form(request, id_equipe):
 			form.save()
 			messages.success(request, 'Equipe editada com suceso!')
 			return HttpResponseRedirect('/equipe_operador_change_list')
-
 		else:
 			contexto = {
 				'equipe':equipe,
@@ -123,7 +127,7 @@ def equipe_operador_change_form(request, template_name='namp/equipe/equipe_opera
 		else:
 			contexto = {
 				'setor': setor,
-				'form': form
+				'form': form,
 			}
 			messages.warning(request, form.errors.get_json_data(escape_html=False)['__all__'][0]['message'])
 			return render(request, template_name, contexto)
@@ -136,6 +140,10 @@ def equipe_operador_change_form(request, template_name='namp/equipe/equipe_opera
 
 @login_required(login_url='/autenticacao/login/')
 def servidores_operador_change_list(request,template_name='namp/servidor/servidores_operador_change_list.html'):
+	servidor_list = Servidor.objects.all().order_by('id_matricula')
+	paginator = Paginator(servidor_list, 38)
+	page_number = request.GET.get('page')
+	page_obj = paginator.get_page(page_number)
 	try:
 		setor = Servidor.objects.get(fk_user=request.user.id).fk_setor
 		equipes = Equipe.objects.filter(fk_setor=setor)
@@ -145,18 +153,17 @@ def servidores_operador_change_list(request,template_name='namp/servidor/servido
 	except Equipe.DoesNotExist:
 		messages.warning(request, 'Unidade não possui equipes cadastradas')
 		return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-
 	form = ServidorSearchForm(request.POST or None)
 	servidores = []
 	for	equipe in equipes:
 		for servidor in Servidor.objects.filter(fk_equipe=equipe):
 			servidores.append(servidor)
-	contexto = { 
-		'setor': setor,
-		'servidores': servidores,
-		'form': form,
-		'setor': setor
-	}
+		contexto = { 
+			'setor': setor,
+			'servidores': servidores,
+			'form': form,
+			'page_obj': page_obj
+		}
 	if request.method == 'POST':
 		if form.is_valid():
 			servidores2 = []
@@ -170,13 +177,77 @@ def servidores_operador_change_list(request,template_name='namp/servidor/servido
 			else:
 				messages.warning(request, 'Servidor com este nome não encontrado!')
 				return render(request, template_name, contexto)
+	print('Servidor_list=', servidor_list)
+	print()
+	print('Paginator=', paginator)
+	print()
+	print('Page_number=', page_number)
+	print()
+	print('page_obj=', page_obj)
 	contexto = {
 		'setor': setor,
 		'servidores': servidores,
 		'form': form,
-		'setor': setor
-	}
+		'page_obj': page_obj
+	}	
 	return render(request, template_name, contexto)
+
+	def listing(request):
+		servidor_list = Servidor.objects.all().order_by('nome')
+		#page = request.Get.get('page', 1)
+		paginator = Paginator(servidor_list, 25)
+
+		page_number = request.GET.get('page', 1)
+		page_obj = paginator.get_page(page_number)
+		print('Servidor_list=', servidor_list)
+		print()
+		print('Paginator=', paginator)
+		print()
+		print('Page_number=', page_number)
+		print()
+		print('page_obj=', page_obj)
+		#try:
+		#	servidores = paginator.page(page)
+		#except PageNotAnInteger:
+		#	servidores = paginator.page(1)
+		#except EmptyPage:
+		#	servidores = paginator.page(paginator.num_pages)
+		return render(request, 'namp/servidor/servidores_operadores_change_list.html', {'page_obj': page_obj})
+
+
+
+@login_required(login_url='/autenticacao/login/')
+def servidor_operador_att_form(request,id_matricula):
+	try:
+		user = Servidor.objects.get(fk_user=request.user.id)
+		servidor = Servidor.objects.get(id_matricula=id_matricula)
+	except Servidor.DoesNotExist:
+		messages.warning(request, 'Servidor não encontrado!')
+		return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+	form = ServidorForm(instance=servidor)
+	if request.method == 'POST':
+		form = ServidorForm(request.POST, instance=servidor)
+		if form.is_valid():
+			form.save()
+			messages.success(request, 'Servidor editado com suceso!')
+			print(form)
+			return HttpResponseRedirect('/servidores_operador_change_list')
+		else:
+			contexto = {
+				'user': user,
+				'servidor':servidor,
+				'form': form,
+			}
+			messages.warning(request, form.errors.get_json_data(escape_html=False)['__all__'][0]['message'])
+			return render(request, 'namp/servidor/servidor_operador_att_form.html',contexto)
+	else:
+		contexto = {
+			'user':user,
+			'servidor': servidor,
+			'form': form
+		}
+		print(contexto)
+		return render(request, 'namp/servidor/servidor_operador_att_form.html',contexto)
 
 @login_required(login_url='/autenticacao/login/')
 def form_servidor_operador(request, template_name='namp/servidor/form_servidor_operador.html'):
@@ -202,6 +273,7 @@ def form_servidor_operador(request, template_name='namp/servidor/form_servidor_o
 		'form': form
 	}
 	return render(request,template_name, contexto)
+
 
 @login_required(login_url='/autenticacao/login/')
 def servidor_operador_att_form(request,id_matricula):
@@ -255,6 +327,16 @@ def frequencias_operador(request,template_name='namp/frequencia/frequencias_oper
 def adms_operador(request,template_name='namp/adm/adms_operador.html'):
 	print('Acesso view de adms_operador!')
 	return render(request,template_name, {})
+	
+
+def hire(request):
+
+    hire_article_list = hire_article.objects.all().order_by('-id')
+    hire_article_s = paginate(request, hire_article_list, 25, 5) 
+
+    context = {'hire_article_s': hire_article_s}
+    return render(request, 'hire/list.html', context)
+
 
 @login_required(login_url='/autenticacao/login/')
 def jornadas_operador(request,template_name='namp/jornada/jornadas_operador.html'):
@@ -756,10 +838,9 @@ def exportar_frequencia_excel(request):
 	return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
-def busca(self, *args, **kwargs):
-	context = super().busca(*args, **kwargs)
-	query = self.request.GET.get('q')
-	context['query'] = query
+#def busca(self, *args, **kwargs):
+#	context = super().busca(*args, **kwargs)
+#	query = self.request.GET.get('q')
+#	context['query'] = query
 	#SearchQuery.objects.create(query=query)
-	print(context)
-	return context
+##	return context

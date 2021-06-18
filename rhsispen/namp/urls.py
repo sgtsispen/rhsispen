@@ -17,7 +17,6 @@ urlpatterns = [
 	
 	path('servidores_operador_change_list/', views.servidores_operador_change_list, name='servidores_operador_change_list'),
 	path('servidor_operador_att_form/<int:id_matricula>/', views.servidor_operador_att_form, name='servidor_operador_att_form'),
-	path('form_servidor_operador/', views.form_servidor_operador, name='form_servidor_operador'),
 	
 	path('adms_operador', views.adms_operador, name='adms_operador'),
 	path('frequencias_operador', views.frequencias_operador, name='frequencias_operador'),

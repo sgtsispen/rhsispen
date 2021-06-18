@@ -131,6 +131,9 @@ class EquipeSearchForm(forms.ModelForm):
     class Meta:
         model = Equipe
         fields = ('nome', )
+        widgets = {
+            'nome': forms.TextInput(attrs={'placeholder': 'Digite um nome de equipe'}),
+        }
 
 class ServidorForm(forms.ModelForm):
     class Meta:
@@ -141,3 +144,9 @@ class ServidorSearchForm(forms.ModelForm):
     class Meta:
         model = Servidor
         fields = ('nome', )
+        widgets = {
+            'nome': forms.TextInput(attrs={'placeholder': 'Digite um nome de servidor'}),
+        }
+  #  def __init__(self, *args, **kwargs):
+  #    super().__init__(*args, **kwargs)
+  #      self.fields['nome', ].widget.attrs={"placeholder":"Digite o nome do servidor"}
