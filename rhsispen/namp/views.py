@@ -140,10 +140,6 @@ def equipe_operador_change_form(request, template_name='namp/equipe/equipe_opera
 
 @login_required(login_url='/autenticacao/login/')
 def servidores_operador_change_list(request,template_name='namp/servidor/servidores_operador_change_list.html'):
-	servidor_list = Servidor.objects.all().order_by('id_matricula')
-	paginator = Paginator(servidor_list, 38)
-	page_number = request.GET.get('page')
-	page_obj = paginator.get_page(page_number)
 	try:
 		setor = Servidor.objects.get(fk_user=request.user.id).fk_setor
 		equipes = Equipe.objects.filter(fk_setor=setor)
@@ -153,17 +149,17 @@ def servidores_operador_change_list(request,template_name='namp/servidor/servido
 	except Equipe.DoesNotExist:
 		messages.warning(request, 'Unidade não possui equipes cadastradas')
 		return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
 	form = ServidorSearchForm(request.POST or None)
 	servidores = []
 	for	equipe in equipes:
 		for servidor in Servidor.objects.filter(fk_equipe=equipe):
 			servidores.append(servidor)
-		contexto = { 
-			'setor': setor,
-			'servidores': servidores,
-			'form': form,
-			'page_obj': page_obj
-		}
+	contexto = { 
+		'setor': setor,
+		'servidores': servidores,
+		'form': form
+	}
 	if request.method == 'POST':
 		if form.is_valid():
 			servidores2 = []
@@ -177,103 +173,12 @@ def servidores_operador_change_list(request,template_name='namp/servidor/servido
 			else:
 				messages.warning(request, 'Servidor com este nome não encontrado!')
 				return render(request, template_name, contexto)
-	print('Servidor_list=', servidor_list)
-	print()
-	print('Paginator=', paginator)
-	print()
-	print('Page_number=', page_number)
-	print()
-	print('page_obj=', page_obj)
 	contexto = {
 		'setor': setor,
 		'servidores': servidores,
-		'form': form,
-		'page_obj': page_obj
-	}	
-	return render(request, template_name, contexto)
-
-	def listing(request):
-		servidor_list = Servidor.objects.all().order_by('nome')
-		#page = request.Get.get('page', 1)
-		paginator = Paginator(servidor_list, 25)
-
-		page_number = request.GET.get('page', 1)
-		page_obj = paginator.get_page(page_number)
-		print('Servidor_list=', servidor_list)
-		print()
-		print('Paginator=', paginator)
-		print()
-		print('Page_number=', page_number)
-		print()
-		print('page_obj=', page_obj)
-		#try:
-		#	servidores = paginator.page(page)
-		#except PageNotAnInteger:
-		#	servidores = paginator.page(1)
-		#except EmptyPage:
-		#	servidores = paginator.page(paginator.num_pages)
-		return render(request, 'namp/servidor/servidores_operadores_change_list.html', {'page_obj': page_obj})
-
-
-
-@login_required(login_url='/autenticacao/login/')
-def servidor_operador_att_form(request,id_matricula):
-	try:
-		user = Servidor.objects.get(fk_user=request.user.id)
-		servidor = Servidor.objects.get(id_matricula=id_matricula)
-	except Servidor.DoesNotExist:
-		messages.warning(request, 'Servidor não encontrado!')
-		return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-	form = ServidorForm(instance=servidor)
-	if request.method == 'POST':
-		form = ServidorForm(request.POST, instance=servidor)
-		if form.is_valid():
-			form.save()
-			messages.success(request, 'Servidor editado com suceso!')
-			print(form)
-			return HttpResponseRedirect('/servidores_operador_change_list')
-		else:
-			contexto = {
-				'user': user,
-				'servidor':servidor,
-				'form': form,
-			}
-			messages.warning(request, form.errors.get_json_data(escape_html=False)['__all__'][0]['message'])
-			return render(request, 'namp/servidor/servidor_operador_att_form.html',contexto)
-	else:
-		contexto = {
-			'user':user,
-			'servidor': servidor,
-			'form': form
-		}
-		print(contexto)
-		return render(request, 'namp/servidor/servidor_operador_att_form.html',contexto)
-
-@login_required(login_url='/autenticacao/login/')
-def form_servidor_operador(request, template_name='namp/servidor/form_servidor_operador.html'):
-	try:
-		servidor = Servidor.objects.get(fk_user=request.user.id)
-	except Servidor.DoesNotExist:
-		messages.warning(request, 'Servidor não encontrado para este setor!')
-		return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-	form = ServidorForm(request.POST or None, instance=servidor)
-	if form.is_valid() and request.method == 'POST':
-		form.save()
-		messages.success(request, 'Servidor atualizado com suceso!')
-		return redirect('/')
-	elif not form.is_valid() and request.method == 'POST':
-		contexto = {
-			'servidor': servidor,
-			'form': form
-			}
-		messages.warning(request, 'Ops! Verifique os campos do formulário!')
-		return render(request, template_name, contexto)
-	contexto = {
-		'servidor': servidor,
 		'form': form
 	}
-	return render(request,template_name, contexto)
-
+	return render(request, template_name, contexto)
 
 @login_required(login_url='/autenticacao/login/')
 def servidor_operador_att_form(request,id_matricula):
@@ -285,20 +190,9 @@ def servidor_operador_att_form(request,id_matricula):
 		messages.warning(request, 'Servidor não encontrado!')
 		return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 	form = ServidorForm(instance=servidor)
-	'''
-	for field in form:
-		if field.name == 'fk_equipe':
-			continue
-		form.fields[field.name].widget.attrs['readonly'] = True
-	'''
-		
 	if request.method == 'POST':
 		form = ServidorForm(request.POST, instance=servidor)
 		if form.is_valid():
-			'''
-			Realizar os tratamentos necessários e fazer o form.save()
-			para a instância do modelo Servidor seja salvo
-			'''
 			form.save()
 			messages.success(request, 'Servidor editado com suceso!')
 			return HttpResponseRedirect('/servidores_operador_change_list')
