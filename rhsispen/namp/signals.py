@@ -111,6 +111,23 @@ def post_save_create_afastamento(sender, instance, created, **kargs):
 					jornada.fk_afastamento = instance.fk_afastamento
 					jornada.save()
 					print('Entrei aqui também! Novo Afastamento')
+
+@receiver(post_save, sender=HistAfastamento)
+def post_save_create_afastamento(sender, instance, created, **kargs):
+	if created:
+		try:
+			jornadas = Jornada.objects.filter(
+				fk_servidor=instance.fk_servidor).filter(
+				data_jornada__range=[instance.data_inicial, instance.data_final])
+		except Jornada.DoesNotExist:
+			pass
+		else:
+			if jornadas:
+				for jornada in jornadas:
+					jornada.assiduidade = False
+					jornada.fk_afastamento = instance.fk_afastamento
+					jornada.save()
+					print('Entrei aqui também! Novo Afastamento')
 		
 '''
 	Este Signal desmarca a assiduidade e lança o tipo de afastamento

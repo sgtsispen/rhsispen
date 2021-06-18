@@ -3,6 +3,7 @@ from django.core import serializers
 import json
 from django import forms 
 from django.contrib import admin
+from django.contrib.auth.models import Group, User
 from django.core.serializers.json import DjangoJSONEncoder
 from namp.models import Afastamento, ContatoEquipe, ContatoServ, EnderecoServ, EnderecoSetor, Equipe, Funcao, HistAfastamento, HistFuncao, HistLotacao, HistStatusFuncional, Jornada, Regiao, Servidor, Setor, StatusFuncional, TipoJornada
 from namp.forms import *
@@ -16,6 +17,13 @@ from datetime import timedelta as TimeDelta, datetime as DateTime, date as Date
 # Register your models here.
 
 admin.site.site_header = 'Núcleo de Apoio e Movimentação de Pessoal'
+
+class OperadorAdminSite(admin.AdminSite):
+    pass
+operador_admin_site = OperadorAdminSite(name='operador_admin')
+operador_admin_site.register(Equipe)
+operador_admin_site.register(Group)
+operador_admin_site.register(User)
 
 @admin.register(Afastamento)
 class AfastamentoAdmin(admin.ModelAdmin):
