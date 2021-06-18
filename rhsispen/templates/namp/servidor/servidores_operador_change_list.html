@@ -1,4 +1,4 @@
-{% extends 'base.html' %} {% load i18n static %} {% load static %} {% load pagination_tags %} {% block extrahead %}{{ block.super }}
+{% extends 'base.html' %} {% load i18n static %} {% load static %} {% block extrahead %}{{ block.super }}
 <scrip src="{% url 'admin:jsi18n' %}">
     </script>
     <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
@@ -153,8 +153,6 @@
             <a href="?page={{ page_obj.paginator.num_pages }}"> &raquo;</a> {% endif %}
             </span>
         </div>
-
-
 
     </div>
     </div>

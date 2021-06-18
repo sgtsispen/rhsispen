@@ -159,6 +159,7 @@ def servidores_operador_change_list(request,template_name='namp/servidor/servido
 		for servidor in Servidor.objects.filter(fk_equipe=equipe):
 			servidores.append(servidor)
 		contexto = { 
+			'setor': setor,
 			'servidores': servidores,
 			'form': form,
 			'page_obj': page_obj
@@ -184,34 +185,12 @@ def servidores_operador_change_list(request,template_name='namp/servidor/servido
 	print()
 	print('page_obj=', page_obj)
 	contexto = {
+		'setor': setor,
 		'servidores': servidores,
 		'form': form,
 		'page_obj': page_obj
 	}	
 	return render(request, template_name, contexto)
-
-	def listing(request):
-		servidor_list = Servidor.objects.all().order_by('nome')
-		#page = request.Get.get('page', 1)
-		paginator = Paginator(servidor_list, 25)
-
-		page_number = request.GET.get('page', 1)
-		page_obj = paginator.get_page(page_number)
-		print('Servidor_list=', servidor_list)
-		print()
-		print('Paginator=', paginator)
-		print()
-		print('Page_number=', page_number)
-		print()
-		print('page_obj=', page_obj)
-		#try:
-		#	servidores = paginator.page(page)
-		#except PageNotAnInteger:
-		#	servidores = paginator.page(1)
-		#except EmptyPage:
-		#	servidores = paginator.page(paginator.num_pages)
-		return render(request, 'namp/servidor/servidores_operadores_change_list.html', {'page_obj': page_obj})
-
 
 
 @login_required(login_url='/autenticacao/login/')
@@ -233,7 +212,7 @@ def servidor_operador_att_form(request,id_matricula):
 		else:
 			contexto = {
 				'form': form,
-				#'user':user,
+				'user':user,
 				'id_matricula': id_matricula
 			}
 			messages.warning(request, form.errors.get_json_data(escape_html=False)['__all__'][0]['message'])
