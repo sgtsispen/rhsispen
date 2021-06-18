@@ -78,10 +78,17 @@ def equipe_operador_change_list(request, template_name='namp/equipe/equipe_opera
 		return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 	form = EquipeSearchForm(request.POST or None)
+	
+	
+	page = request.GET.get('page')
+	paginator = Paginator(equipes, 15)
+	page_obj = paginator.get_page(page)
+	
 	contexto = { 
 		'equipes': equipes,
 		'servidor': servidor,
-		'form': form
+		'form': form,
+		'page_obj': page_obj,
 	}
 	if request.method == 'POST':
 		if form.is_valid():
@@ -100,7 +107,8 @@ def equipe_operador_change_list(request, template_name='namp/equipe/equipe_opera
 	contexto = {
 		'equipes': equipes,
 		'servidor': servidor,
-		'form': form
+		'form': form,
+		'page_obj': page_obj,
 	}
 	return render(request, template_name, contexto)
 
@@ -140,10 +148,6 @@ def equipe_operador_change_form(request, template_name='namp/equipe/equipe_opera
 
 @login_required(login_url='/autenticacao/login/')
 def servidores_operador_change_list(request,template_name='namp/servidor/servidores_operador_change_list.html'):
-	servidor_list = Servidor.objects.all().order_by('id_matricula')
-	paginator = Paginator(servidor_list, 38)
-	page_number = request.GET.get('page')
-	page_obj = paginator.get_page(page_number)
 	try:
 		setor = Servidor.objects.get(fk_user=request.user.id).fk_setor
 		equipes = Equipe.objects.filter(fk_setor=setor)
@@ -158,11 +162,15 @@ def servidores_operador_change_list(request,template_name='namp/servidor/servido
 	for	equipe in equipes:
 		for servidor in Servidor.objects.filter(fk_equipe=equipe):
 			servidores.append(servidor)
+
+	page = request.GET.get('page')
+	paginator = Paginator(servidores, 15)
+	page_obj = paginator.get_page(page)
+
 	contexto = { 
 		'setor': setor,
-		'servidores': servidores,
 		'form': form,
-		'page_obj': page_obj
+		'page_obj': page_obj,
 
 	}
 	if request.method == 'POST':
@@ -178,18 +186,11 @@ def servidores_operador_change_list(request,template_name='namp/servidor/servido
 			else:
 				messages.warning(request, 'Servidor com este nome não encontrado!')
 				return render(request, template_name, contexto)
-	print('Servidor_list=', servidor_list)
-	print()
-	print('Paginator=', paginator)
-	print()
-	print('Page_number=', page_number)
-	print()
-	print('page_obj=', page_obj)
 	contexto = {
 		'setor': setor,
 		'servidores': servidores,
 		'form': form,
-		'page_obj': page_obj
+		'page_obj': page_obj,
 	}	
 	return render(request, template_name, contexto)
 
