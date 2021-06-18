@@ -18,6 +18,11 @@ from django.core.exceptions import ValidationError
 import re
 from django.urls import reverse
 
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.views.generic import ListView
+
+
+
 @login_required(login_url='/autenticacao/login/')
 def home(request,template_name='home.html'):
     return render(request,template_name, {})
@@ -44,7 +49,6 @@ def equipe_operador_att_form(request, id_equipe):
 			form.save()
 			messages.success(request, 'Equipe editada com suceso!')
 			return HttpResponseRedirect('/equipe_operador_change_list')
-
 		else:
 			contexto = {
 				'equipe':equipe,
@@ -123,7 +127,7 @@ def equipe_operador_change_form(request, template_name='namp/equipe/equipe_opera
 		else:
 			contexto = {
 				'setor': setor,
-				'form': form
+				'form': form,
 			}
 			messages.warning(request, form.errors.get_json_data(escape_html=False)['__all__'][0]['message'])
 			return render(request, template_name, contexto)
@@ -136,6 +140,10 @@ def equipe_operador_change_form(request, template_name='namp/equipe/equipe_opera
 
 @login_required(login_url='/autenticacao/login/')
 def servidores_operador_change_list(request,template_name='namp/servidor/servidores_operador_change_list.html'):
+	#servidor_list = Servidor.objects.all().order_by('id_matricula')
+	#paginator = Paginator(servidor_list, 38)
+	#page_number = request.GET.get('page')
+	#page_obj = paginator.get_page(page_number)
 	try:
 		setor = Servidor.objects.get(fk_user=request.user.id).fk_setor
 		equipes = Equipe.objects.filter(fk_setor=setor)
@@ -145,7 +153,6 @@ def servidores_operador_change_list(request,template_name='namp/servidor/servido
 	except Equipe.DoesNotExist:
 		messages.warning(request, 'Unidade não possui equipes cadastradas')
 		return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-
 	form = ServidorSearchForm(request.POST or None)
 	servidores = []
 	for	equipe in equipes:
@@ -154,7 +161,9 @@ def servidores_operador_change_list(request,template_name='namp/servidor/servido
 	contexto = { 
 		'setor': setor,
 		'servidores': servidores,
-		'form': form
+		'form': form,
+	#	'page_obj': page_obj
+
 	}
 	if request.method == 'POST':
 		if form.is_valid():
@@ -169,12 +178,21 @@ def servidores_operador_change_list(request,template_name='namp/servidor/servido
 			else:
 				messages.warning(request, 'Servidor com este nome não encontrado!')
 				return render(request, template_name, contexto)
+	#print('Servidor_list=', servidor_list)
+	#print()
+	#print('Paginator=', paginator)
+	#print()
+	#print('Page_number=', page_number)
+	#print()
+	#print('page_obj=', page_obj)
 	contexto = {
 		'setor': setor,
 		'servidores': servidores,
-		'form': form
-	}
+		'form': form,
+	#	'page_obj': page_obj
+	}	
 	return render(request, template_name, contexto)
+
 
 @login_required(login_url='/autenticacao/login/')
 def servidor_operador_att_form(request,id_matricula):
@@ -183,14 +201,15 @@ def servidor_operador_att_form(request,id_matricula):
 		user = Servidor.objects.get(fk_user=request.user.id)
 		servidor = Servidor.objects.get(id_matricula=id_matricula)
 	except Servidor.DoesNotExist:
-		messages.warning(request, 'Servidor não encontrado, TESTE!')
+		messages.warning(request, 'Servidor não encontrado!')
 		return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-	form = ServidorForm(instance=servidor)	
+	form = ServidorForm(instance=servidor)
 	if request.method == 'POST':
 		form = ServidorForm(request.POST, instance=servidor)
 		if form.is_valid():
 			form.save()
 			messages.success(request, 'Servidor editado com suceso!')
+			print(form)
 			return HttpResponseRedirect('/servidores_operador_change_list')
 		else:
 			contexto = {
@@ -202,12 +221,13 @@ def servidor_operador_att_form(request,id_matricula):
 			return render(request, 'namp/servidor/servidor_operador_att_form.html',contexto)
 	else:
 		contexto = {
+			'form': form,
 			'user':user,
 			'servidor': servidor,
-			'form': form
 		}
+		print(contexto)
 		return render(request, 'namp/servidor/servidor_operador_att_form.html',contexto)
-			
+				
 @login_required(login_url='/autenticacao/login/')
 def frequencias_operador(request,template_name='namp/frequencia/frequencias_operador.html'):
 	print('Acesso view de frequencias_operador!')
