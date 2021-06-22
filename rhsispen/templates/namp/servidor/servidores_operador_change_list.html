@@ -93,7 +93,7 @@
             </thead>
 
             <tbody>
-                {% for servidor in page_obj %}
+                {% for servidor in page_obj %} 
                 <tr class="{% cycle 'row1' 'row2' %}">
                     <td>
                         <a href="{% url 'namp:servidor_operador_att_form' servidor.id_matricula %}">{{ servidor.nome }}</a></td>
@@ -108,7 +108,6 @@
                     <td> {{ servidor.regime_juridico }} </td>
                     <td> {{ servidor.fk_equipe }} </td>
                 </tr>
-
                 {% endfor %}
             </tbody>
         </table>

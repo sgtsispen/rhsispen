@@ -17,6 +17,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.core.exceptions import ValidationError
 import re
 from django.urls import reverse
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger, InvalidPage
 
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.views.generic import ListView
@@ -157,6 +158,7 @@ def servidores_operador_change_list(request,template_name='namp/servidor/servido
 	except Equipe.DoesNotExist:
 		messages.warning(request, 'Unidade não possui equipes cadastradas')
 		return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
 	form = ServidorSearchForm(request.POST or None)
 	servidores = []
 	for	equipe in equipes:
@@ -171,8 +173,8 @@ def servidores_operador_change_list(request,template_name='namp/servidor/servido
 		'setor': setor,
 		'form': form,
 		'page_obj': page_obj,
-
 	}
+
 	if request.method == 'POST':
 		if form.is_valid():
 			servidores2 = []
@@ -209,7 +211,7 @@ def servidor_operador_att_form(request,id_matricula):
 		return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 	form = ServidorForm(instance=servidor)
 	if request.method == 'POST':
-		form = ServidorForm(request.POST, instance=servidor)
+		form = ServidorForm(request.POST,instance=servidor)
 		if form.is_valid():
 			form.save()
 			messages.success(request, 'Servidor editado com suceso!')
