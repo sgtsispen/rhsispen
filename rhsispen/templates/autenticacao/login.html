@@ -15,6 +15,18 @@
   	<h2>Confime suas credenciais de acesso.</h2>
 	<form method="post">
 	    {% csrf_token %}
+	    
+	    {% if form.errors %}
+		<div class="alert alert-error">
+		  <p style="border: 1px solid red;">Verifique suas credenciais de acesso!</p>
+		  <ul>
+	        {% for error in field.errors %}
+	          <li><a href="#id_{{ field.name }}" class="error">{{ error }}</a></li>
+	        {% endfor %}
+		  </ul>
+		</div>
+		{% endif %}
+
 	    {% for field in form %}
 	    <div class="row">
 			<div class="col-md-2">
@@ -22,10 +34,8 @@
 			  {% if field.help_text %}
 			    <small style="color: grey">{{ field.help_text }}</small>
 			  {% endif %}
-			  {% for error in field.errors %}
-			    <p style="color: red">{{ error }}</p>
-			  {% endfor %}
 			</div>
+
 			<div class="col-md-10 pull-left">
 			{{ field }}
 			</div>
@@ -35,7 +45,7 @@
 			<input type="submit" value="{% translate 'Entrar' %}">
 	    </div>
 		<div class="submit-row">
-			<p><a href="#">Esqueci a minha senha</a></p>
+			<p><a href="{% url 'autenticacao:password_reset' %}">Esqueci a minha senha</a></p>
 			<p><a href="{% url 'autenticacao:cadastro' %}">Ainda não possuo cadastro</a></p>
 		</div>
 	</form>
