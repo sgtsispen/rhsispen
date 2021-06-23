@@ -1,4 +1,5 @@
 from django import forms
+from django.forms.fields import ChoiceField
 from .models import TipoJornada, Setor, Equipe, Servidor
 from functools import partial
 from django.forms import ModelForm
@@ -146,6 +147,8 @@ class ServidorForm(forms.ModelForm):
         for field in self.fields:
             if field =='fk_equipe': continue
             self.fields[field].widget.attrs['readonly'] = True
+            #self.fields[ChoiceField].choices['readonly'] = True
+
             #Falta setar o choices    
 class ServidorSearchForm(forms.ModelForm):
     class Meta:

@@ -14,13 +14,9 @@ from urllib.parse import urlparse
 from datetime import timedelta as TimeDelta, datetime as DateTime, date as Date
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
-from django.core.exceptions import ValidationError
 import re
 from django.urls import reverse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger, InvalidPage
-
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.views.generic import ListView
 
 
 
@@ -79,10 +75,9 @@ def equipe_operador_change_list(request, template_name='namp/equipe/equipe_opera
 		return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 	form = EquipeSearchForm(request.POST or None)
-	
-	
+
 	page = request.GET.get('page')
-	paginator = Paginator(equipes, 15)
+	paginator = Paginator(equipes, 10)
 	page_obj = paginator.get_page(page)
 	
 	contexto = { 
@@ -166,7 +161,7 @@ def servidores_operador_change_list(request,template_name='namp/servidor/servido
 			servidores.append(servidor)
 
 	page = request.GET.get('page')
-	paginator = Paginator(servidores, 15)
+	paginator = Paginator(servidores, 10)
 	page_obj = paginator.get_page(page)
 
 	contexto = { 
