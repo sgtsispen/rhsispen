@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% load i18n static %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+    <a href="{% url 'namp:home' %}">{% translate 'Home' %}</a> &rsaquo; {% translate 'Alterar Senha' %}
+</div>
+{% endblock %}
+
+{% block title %}Alterar Senha{% endblock %}
+
+{% block content %}
+<form method="post">
+    {% csrf_token %}
+
+    {{ form.as_p }}
+
+    <div class="form-group">
+        <input type="submit" value="Alterar" class="btn btn-primary">
+    </div>
+</form>
+{% endblock %}

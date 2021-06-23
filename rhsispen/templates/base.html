@@ -32,7 +32,7 @@
 				{% if request.user.is_staff %}                      
 				<a href="{% url 'admin:index' %}">{% trans 'Acesso Admin' %}</a> /
 				{% endif %}             
-				<a href="#">{% trans 'Alterar Senha' %}</a> /
+				<a href="{% url 'autenticacao:alterar_senha' %}">{% trans 'Alterar Senha' %}</a> /
 			    <a href="{% url 'autenticacao:logout' %}">{% trans ' Encerrar sessão' %}</a>
 			{% else %}
 			  	<a href="{% url 'autenticacao:login' %}">{% trans 'Entrar' %}</a> /
