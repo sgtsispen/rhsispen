@@ -100,17 +100,20 @@ def equipe_operador_change_list(request, template_name='namp/equipe/equipe_opera
 				if pattern.search(equipe.nome.upper()):
 					equipes2.append(equipe)
 			if equipes2:
-				contexto['equipes']=equipes2
+				page = request.GET.get('page')
+				paginator = Paginator(equipes2, 15)
+				page_obj = paginator.get_page(page)
+				
+				contexto = { 
+					'equipes': equipes2,
+					'servidor': servidor,
+					'form': form,
+					'page_obj': page_obj,
+				}
 				return render(request, template_name, contexto)
 			else:
 				messages.warning(request, 'Equipe com este nome não encontrada!')
 				return render(request, template_name, contexto)
-	contexto = {
-		'equipes': equipes,
-		'servidor': servidor,
-		'form': form,
-		'page_obj': page_obj,
-	}
 	return render(request, template_name, contexto)
 
 @login_required(login_url='/autenticacao/login/')
@@ -171,6 +174,7 @@ def servidores_operador_change_list(request,template_name='namp/servidor/servido
 
 	contexto = { 
 		'setor': setor,
+		'servidores': servidores,
 		'form': form,
 		'page_obj': page_obj,
 	}
@@ -183,17 +187,21 @@ def servidores_operador_change_list(request,template_name='namp/servidor/servido
 				if pattern.search(servidor.nome.upper()):
 					servidores2.append(servidor)
 			if servidores2:
-				contexto['servidores']=servidores2
+				page = request.GET.get('page')
+				paginator = Paginator(servidores2, 15)
+				page_obj = paginator.get_page(page)
+
+				contexto = { 
+					'setor': setor,
+					'servidores': servidores2,
+					'form': form,
+					'page_obj': page_obj,
+				}
 				return render(request, template_name, contexto)
 			else:
+				print('entrei no form invalid')
 				messages.warning(request, 'Servidor com este nome não encontrado!')
 				return render(request, template_name, contexto)
-	contexto = {
-		'setor': setor,
-		'servidores': servidores,
-		'form': form,
-		'page_obj': page_obj,
-	}	
 	return render(request, template_name, contexto)
 
 
@@ -207,12 +215,6 @@ def servidor_operador_att_form(request,id_matricula):
 		messages.warning(request, 'Servidor não encontrado!')
 		return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 	form = ServidorForm(instance=servidor)
-	'''
-	for field in form:
-		if field.name == 'fk_equipe':
-			continue
-		form.fields[field.name].widget.attrs['readonly'] = True
-	'''
 		
 	if request.method == 'POST':
 		form = ServidorForm(request.POST,instance=servidor)

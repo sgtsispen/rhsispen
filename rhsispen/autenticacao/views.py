@@ -7,6 +7,11 @@ from . forms import CadastroForm
 from django.contrib import messages
 from namp.models import Servidor
 from django.contrib.auth.models import User
+from django.contrib.auth import views as auth_views
+from django.contrib.auth.views import PasswordResetForm
+from django.urls import reverse_lazy
+from django.contrib.auth.tokens import default_token_generator    
+
 
 @login_required
 def sair(request):
@@ -37,3 +42,40 @@ def cadastro(request, template_name='autenticacao/cadastro.html'):
 	else:
 		form = CadastroForm()
 		return render(request, template_name,{'form': form})
+
+def password_reset_request(request):
+	from django.db.models import Q
+	from django.utils.encoding import force_bytes, force_text
+	from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+	from django.template.loader import render_to_string
+	from django.core.mail import send_mail, BadHeaderError
+
+	if request.method == "POST":
+		password_reset_form = PasswordResetForm(request.POST)
+		if password_reset_form.is_valid():
+			data = password_reset_form.cleaned_data['email']
+			associated_users = User.objects.filter(Q(email=data))
+			if associated_users.exists():
+				for user in associated_users:
+					subject = "Recuperação de Senha"
+					email_template_name = "autenticacao/password_reset_email.txt"
+					c = {
+					"email":user.email,
+					'domain':'127.0.0.1:8000',
+					'site_name': 'Website',
+					"uid": urlsafe_base64_encode(force_bytes(user.pk)),
+					"user": user,
+					'token': default_token_generator.make_token(user),
+					'protocol': 'http',
+					}
+					email = render_to_string(email_template_name, c)
+					try:
+						send_mail(subject, email, 'nao-responda@sgtsispento.com' , [user.email], fail_silently=False)
+					except BadHeaderError:
+						return HttpResponse('Invalid header found.')
+					return redirect ("autenticacao:password_reset_done")
+			else:
+				messages.warning(request, 'O email informado não foi encontrado em nossa base de dados!')
+				return render(request=request, template_name="autenticacao/password_reset_form.html", context={"form":password_reset_form})
+	password_reset_form = PasswordResetForm()
+	return render(request=request, template_name="autenticacao/password_reset_form.html", context={"form":password_reset_form})

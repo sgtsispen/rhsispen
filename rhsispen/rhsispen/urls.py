@@ -23,7 +23,7 @@ admin.autodiscover()
 
 urlpatterns = [
     path('autenticacao/', include('autenticacao.urls', namespace='autenticacao')),
-    path('autenticacao/', include('django.contrib.auth.urls')), # new
+    path('autenticacao/', include('django.contrib.auth.urls')),
     path('admin/', admin.site.urls),
     path('', include('namp.urls', namespace='namp')),
 ]
