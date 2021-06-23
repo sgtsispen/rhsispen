@@ -3,7 +3,7 @@ import json
 from typing import Pattern
 import xlwt
 from django.shortcuts import render, redirect
-from .models import Setor, Equipe, Servidor, TipoJornada, Jornada, HistAfastamento
+from .models import Equipe, Servidor, TipoJornada, Jornada, HistAfastamento
 from django.http import HttpResponse, HttpResponseRedirect
 from weasyprint import HTML
 from django.template.loader import render_to_string
@@ -16,7 +16,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 import re
 from django.urls import reverse
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger, InvalidPage
+from django.core.paginator import Paginator
 
 
 
