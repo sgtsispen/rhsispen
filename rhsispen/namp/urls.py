@@ -1,5 +1,4 @@
 # coding=utf-8
-
 from namp.views import *
 from . import views
 from django.conf.urls import  url

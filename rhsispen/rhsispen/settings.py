@@ -49,8 +49,6 @@ LOCAL_APPS = [
 
 INSTALLED_APPS = LOCAL_APPS + THIRD_PARTY_APPS + DEFAULT_APPS
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 MIDDLEWARE = [
@@ -149,12 +147,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
-#EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # During development only
-
-#EMAIL_HOST = 'smtp.gmail.com'
-#EMAIL_PORT = 587
-#EMAIL_HOST_USER = 'ead.esgepen@gmail.com'
-#EMAIL_HOST_PASSWORD = 'nossofuturo'
-#EMAIL_USE_TLS = True
-#DEFAULT_FROM_EMAIL = 'SGT Sispen/TO'
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # During development only
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'ead.esgepen@gmail.com'
+EMAIL_HOST_PASSWORD = 'nossofuturo'
+EMAIL_USE_TLS = True
+DEFAULT_FROM_EMAIL = 'SGT Sispen/TO'
 
