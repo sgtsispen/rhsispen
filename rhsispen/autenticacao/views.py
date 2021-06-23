@@ -76,5 +76,5 @@ def password_reset_request(request):
 					messages.success(request, 'Email de recuperação enviado com sucesso!')
 					return redirect ("autenticacao:password_reset_done")
 			messages.warning(request, 'O email informado não foi encontrado em nossa base de dados!')
-		password_reset_form = PasswordResetForm()
+	password_reset_form = PasswordResetForm()
 	return render(request=request, template_name="autenticacao/password_reset_form.html", context={"form":password_reset_form})
