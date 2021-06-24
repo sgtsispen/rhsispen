@@ -206,7 +206,7 @@ def servidor_operador_att_form(request,id_matricula):
 	try:
 		user = Servidor.objects.get(fk_user=request.user.id)
 		servidor = Servidor.objects.get(id_matricula=id_matricula)
-		#contatoServ = ContatoServ.objects.get(fk_servidor_id=id_matricula)
+		contatoServ = ContatoServ.objects.get(fk_servidor_id=id_matricula)
 	except Servidor.DoesNotExist:
 		messages.warning(request, 'Servidor não encontrado!')
 		return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
@@ -223,7 +223,7 @@ def servidor_operador_att_form(request,id_matricula):
 				'user': user,
 				'servidor': servidor,
 				'form': form,
-				#'contatoServ': contatoServ,
+				'contatoServ': contatoServ,
 			}
 			messages.warning(request, form.errors.get_json_data(escape_html=False)['__all__'][0]['message'])
 			return render(request, 'namp/servidor/servidor_operador_att_form.html',contexto)
@@ -232,7 +232,7 @@ def servidor_operador_att_form(request,id_matricula):
 			'form': form,
 			'user':user,
 			'servidor': servidor,
-			#'contatoServ':contatoServ,
+			'contatoServ':contatoServ,
 		}
 		print(contexto)
 		return render(request, 'namp/servidor/servidor_operador_att_form.html',contexto)

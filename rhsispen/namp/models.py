@@ -233,15 +233,13 @@ class HistFuncao(models.Model):
 class ContatoServ(models.Model):
 	CELULAR = 'Telefone Celular'
 	FIXO = 'Telefone Fixo'
-	EMAIL = 'E-mail'
 	CONTATOS_CHOICES = (
 	    (CELULAR,'Telefone Celular'), 
 	    (FIXO,'Telefone Fixo'),
-	    (EMAIL,'E-mail'),
 	)
 	id_contato_serv = models.AutoField(primary_key=True)
-	tipo_contato = models.CharField('Tipo de contato', max_length=100,choices=CONTATOS_CHOICES)
-	contato = models.CharField(max_length=100)
+	tipo_contato = models.CharField('Tipo de contato', max_length=50,choices=CONTATOS_CHOICES)
+	contato = models.CharField(max_length=50)
 	fk_servidor = models.ForeignKey(Servidor, on_delete = models.RESTRICT, verbose_name='Servidor')
 	
 	def __str__(self):

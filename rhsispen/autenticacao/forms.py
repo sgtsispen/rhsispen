@@ -9,4 +9,6 @@ class CadastroForm(UserCreationForm):
 	#email = forms.EmailField(max_length=254, help_text='exemplo@email.com')
 	class Meta:
 		model = User
-		fields = ('username', 'cpf', 'matricula', 'email', 'password1', 'password2', )
+		fields = ('username','cpf', 'matricula', 'email', 'password1', 'password2', )
+		#exclude = ('username',)
+		#fields = ('cpf', 'matricula', 'email', 'password1', 'password2', )

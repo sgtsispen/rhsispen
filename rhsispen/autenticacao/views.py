@@ -73,9 +73,8 @@ def password_reset_request(request):
 						send_mail(subject, email, 'nao-responda@sgtsispento.com' , [user.email], fail_silently=False)
 					except BadHeaderError:
 						return HttpResponse('Invalid header found.')
+					messages.success(request, 'Email de recuperação enviado com sucesso!')
 					return redirect ("autenticacao:password_reset_done")
-			else:
-				messages.warning(request, 'O email informado não foi encontrado em nossa base de dados!')
-				return render(request=request, template_name="autenticacao/password_reset_form.html", context={"form":password_reset_form})
+			messages.warning(request, 'O email informado não foi encontrado em nossa base de dados!')
 	password_reset_form = PasswordResetForm()
 	return render(request=request, template_name="autenticacao/password_reset_form.html", context={"form":password_reset_form})

@@ -13,15 +13,26 @@
     <div id="content" class="colM">
         <h4>{% translate 'Editar Equipe' %}</h4>
         <form action="{% url 'namp:equipe_operador_att_form' equipe.id_equipe %}" method="post">
-            {% csrf_token %} {% for field in form %}
-            <div class="form-row field-field {% if not field.is_readonly and field.errors %} errors {% endif %} {% if field.name == 'fk_setor' %} hidden {% endif %}">
-                <div>
-                    <label>{{ field.label }}: </label> {{ field }}
+            {% csrf_token %}
+            {% for field in form %}
+                <div class="form-row field-field {% if not field.is_readonly and field.errors %} errors {% endif %} {% if field.name == 'fk_setor' %} hidden {% endif %}">
+                    <div>
+                        <label>{{ field.label }}: </label> {{ field }}
+                    </div>
+                    <div>
+                        {% if field.errors %} {{ field.errors }} {% endif %}
+                    </div>
                 </div>
-                <div>
-                    {% if field.errors %} {{ field.errors }} {% endif %}
-                </div>
-            </div>
+                    {% for field in line %}
+                        <div class="{{ field.field.name }} {{ field.field.errors.as_ul }} {{ field.field }}">
+                            <div>
+                                <label>{{ field.field.label }}: </label> {{ field.field }}
+                            </div>
+                            <div>
+                                {% if field.field.errors %} {{ field.field.errors }} {% endif %}
+                            </div>
+                        </div>            
+                    {% endfor %}
             {% endfor %}
 
             <div class="submit-row">

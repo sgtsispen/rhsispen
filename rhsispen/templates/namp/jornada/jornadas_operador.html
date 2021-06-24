@@ -78,7 +78,7 @@
                 {% for equipe in equipes %}
                 <tr>
                     {% if equipe.categoria == "Expediente" %}
-                    <td><a href="#">{{ equipe.nome }} </a></td>
+                    <td><a href="{% url 'namp:equipe_operador_att_form' equipe.id_equipe %}">{{equipe.nome}}</a></td>
                     <td>{{ equipe.get_servidores }}</td>
                     <td>{{ equipe.fk_tipo_jornada.tipificacao }}</td>
                     {% endif %}
@@ -102,7 +102,7 @@
             <tbody>
                 {% for equipe in equipes %} {% if equipe.fk_tipo_jornada.carga_horaria == 12 %}
                 <tr>
-                    <td><a href="#">{{equipe.nome}} </a></td>
+                    <td><a href="{% url 'namp:equipe_operador_att_form' equipe.id_equipe %}">{{equipe.nome}}</a></td>
                     <td>{{equipe.get_servidores}}</td>
                     <td>{{equipe.fk_tipo_jornada.tipificacao}}</td>
                 </tr>
@@ -124,7 +124,7 @@
             <tbody>
                 {% for equipe in equipes %} {% if equipe.fk_tipo_jornada.carga_horaria == 24 %}
                 <tr>
-                    <td><a href="#">{{equipe.nome}} </a></td>
+                    <td><a href="{% url 'namp:equipe_operador_att_form' equipe.id_equipe %}">{{equipe.nome}}</a></td>
                     <td>{{equipe.get_servidores}}</td>
                     <td>{{equipe.fk_tipo_jornada.tipificacao}}</td>
                 </tr>
@@ -146,7 +146,7 @@
             <tbody>
                 {% for equipe in equipes %} {% if tem_plantao48 and equipe.fk_tipo_jornada.carga_horaria == 48 %}
                 <tr>
-                    <td><a href="#">{{equipe.nome}} </a></td>
+                    <td><a href="{% url 'namp:equipe_operador_att_form' equipe.id_equipe %}">{{equipe.nome}}</a></td>
                     <td>{{equipe.get_servidores}}</td>
                     <td>{{equipe.fk_tipo_jornada.tipificacao}}</td>
                 </tr>
