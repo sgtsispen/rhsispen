@@ -30,8 +30,15 @@
                 <div>
                     {% if field.errors %} {{ field.errors }} {% endif %}
                 </div>
+
+                <div>
+                    <label>{{ field.field.line }}</label> {{ field.field }}
+                </div>
+                <div>
+                    {% if field.field.errors %} {{ field.field.errors }} {% endif %}
+                </div>
             </div>
-            
+
 
 
             {% endfor %}
