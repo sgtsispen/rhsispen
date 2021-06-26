@@ -30,8 +30,8 @@
                 <div>
                     {% if field.errors %} {{ field.errors }} {% endif %}
                 </div>
-
-                {% for form in line %}
+                <!--
+               {% for form in line %}
                 <div>
                     <label>{{ field.field.line }}</label> {{ field.field }}
                 </div>
@@ -40,14 +40,12 @@
                 </div>
                 {% endfor %}
             </div>
-
-
-
-            {% endfor %}
-            <div class="submit-row">
-                <input type="submit" class="default" name="_save" value="{% translate 'Salvar' %}">
-            </div>
+                -->
+                {% endfor %}
+                <div class="submit-row">
+                    <input type="submit" class="default" name="_save" value="{% translate 'Salvar' %}">
+                </div>
         </form>
+        </div>
     </div>
-</div>
-{% endblock %}
+    {% endblock %}
