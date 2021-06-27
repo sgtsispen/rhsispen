@@ -122,6 +122,7 @@ do modelo que se quer trabalhar. Neste caso, o model Equipe.
 class EquipeForm(forms.ModelForm):
     class Meta:
         model = Equipe
+        exclude = ('deleted_on',)
         fields = '__all__'
 
     def __init__(self, *args, **kwargs):

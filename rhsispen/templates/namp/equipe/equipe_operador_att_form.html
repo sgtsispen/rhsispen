@@ -37,9 +37,11 @@
 
             <div class="submit-row">
                 <input type="submit" class="default" name="_save" value="{% translate 'Salvar' %}">
+                {% if equipe.nome.upper != 'GERAL' %}
                 <p class="deletelink-box">
-                    <a href="#" class="deletelink" style="height: auto;">Apagar</a>
+                    <a href="{% url 'namp:equipe_delete' equipe.id_equipe %}" class="deletelink" style="height: auto;">Apagar</a>
                 </p>
+                {% endif %}
             </div>
         </form>
     </div>

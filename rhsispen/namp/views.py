@@ -2,8 +2,9 @@ import tempfile
 import json
 from typing import Pattern
 import xlwt
-from django.shortcuts import render, redirect
-from .models import Equipe, Servidor, TipoJornada, Jornada, HistAfastamento, EnderecoServ
+from django.shortcuts import render, redirect, get_object_or_404
+
+from .models import Setor, Equipe, Servidor, TipoJornada, Jornada, HistAfastamento
 from django.http import HttpResponse, HttpResponseRedirect
 from weasyprint import HTML
 from django.template.loader import render_to_string
@@ -15,8 +16,13 @@ from datetime import timedelta as TimeDelta, datetime as DateTime, date as Date
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 import re
-from django.urls import reverse
-from django.core.paginator import Paginator
+from django.urls import reverse, reverse_lazy
+
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger, InvalidPage
+
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.views.generic import ListView
+from django.views.generic.edit import DeleteView
 
 
 
@@ -66,7 +72,7 @@ def equipe_operador_att_form(request, id_equipe):
 def equipe_operador_change_list(request, template_name='namp/equipe/equipe_operador_change_list.html'):
 	try:
 		servidor = Servidor.objects.get(fk_user=request.user.id)
-		equipes = Equipe.objects.filter(fk_setor=servidor.fk_setor)
+		equipes = Equipe.objects.filter(fk_setor=servidor.fk_setor, deleted_on=None)
 	except Servidor.DoesNotExist:
 		messages.warning(request, 'Servidor não encontrado para este usuário!')
 		return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
@@ -144,6 +150,20 @@ def equipe_operador_change_form(request, template_name='namp/equipe/equipe_opera
 			'form': form
 		}
 		return render(request,template_name, contexto)
+
+@login_required(login_url='/autenticacao/login/')
+def EquipeDeleteView(request, id_equipe):
+	equipe = get_object_or_404(Equipe, id_equipe=id_equipe)
+	servidores = list(Servidor.objects.filter(fk_equipe=equipe))
+	if servidores:
+		equipeGeral = get_object_or_404(Equipe, nome='GERAL', fk_setor=equipe.fk_setor)
+		if equipeGeral:
+			for servidor in servidores:
+				servidor.fk_equipe = equipeGeral
+				servidor.save()
+	equipe.delete()
+	messages.success(request, "Equipe deletada com sucesso!")
+	return HttpResponseRedirect("/equipe_operador_change_list")
 
 @login_required(login_url='/autenticacao/login/')
 def servidores_operador_change_list(request,template_name='namp/servidor/servidores_operador_change_list.html'):

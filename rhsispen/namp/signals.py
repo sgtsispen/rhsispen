@@ -1,7 +1,7 @@
 #from models import HistFuncao
 from django.db.models.signals import post_save,pre_save
 from django.dispatch import receiver
-from namp.models import Servidor, HistFuncao, HistLotacao, HistAfastamento, Jornada
+from namp.models import Servidor, HistFuncao, HistLotacao, HistAfastamento, Jornada, Equipe
 import datetime
 
 '''
@@ -166,3 +166,4 @@ def post_save_create_histfuncao(sender, instance,created, **kargs):
 			if oldHistFuncao:
 				oldHistFuncao.data_final = datetime.date.today()
 				oldHistFuncao.save()
+
