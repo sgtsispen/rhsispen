@@ -167,3 +167,13 @@ def post_save_create_histfuncao(sender, instance,created, **kargs):
 				oldHistFuncao.data_final = datetime.date.today()
 				oldHistFuncao.save()
 
+'''
+	Att dos Equipe: o admin restaura o status ativo para uma equipe anteriormente
+	deletada pelo operador. A equipe volta a ser exibida para o operador
+'''
+@receiver(post_save, sender=Equipe)
+def post_save_equipe(sender, instance,created, **kargs):
+	if not created:
+		if instance.status and instance.deleted_on is not None:
+			instance.deleted_on = None
+			instance.save()

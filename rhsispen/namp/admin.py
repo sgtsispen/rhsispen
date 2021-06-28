@@ -64,6 +64,7 @@ class EquipeAdmin(admin.ModelAdmin):
 	search_fields = ['nome', 'fk_setor__nome']
 	autocomplete_fields = ['fk_setor']
 	list_per_page = 10
+	readonly_fields = ('deleted_on',)
 	inlines=[ContatoEquipeInline, ServidorInline]
 	
 	def get_servidor(self, obj):

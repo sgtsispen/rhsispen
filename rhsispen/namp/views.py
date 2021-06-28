@@ -11,7 +11,7 @@ from weasyprint import HTML
 from .forms import EquipeForm, ServidorForm, DefinirJornadaRegularForm, GerarJornadaRegularForm, ServidorSearchForm, EquipeSearchForm
 from datetime import timedelta as TimeDelta, datetime as DateTime, date as Date
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.decorators import login_required
 import re
 
 
@@ -24,7 +24,7 @@ from django.core.paginator import Paginator
 
 @login_required(login_url='/autenticacao/login/')
 def home(request,template_name='home.html'):
-    return render(request,template_name, {'servidor': Servidor.objects.get(fk_user=request.user.id)})
+    return render(request,template_name, {'servidor':Servidor.objects.get(fk_user=request.user.id)})
 
 @login_required(login_url='/autenticacao/login/')
 def equipe_operador_att_form(request, id_equipe):
@@ -163,58 +163,60 @@ def EquipeDeleteView(request, id_equipe):
 
 @login_required(login_url='/autenticacao/login/')
 def servidores_operador_change_list(request,template_name='namp/servidor/servidores_operador_change_list.html'):
-	try:
-		setor = Servidor.objects.get(fk_user=request.user.id).fk_setor
-		equipes = Equipe.objects.filter(fk_setor=setor)
-	except Servidor.DoesNotExist:
-		messages.warning(request, 'Servidor não encontrado para este usuário!')
-		return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-	except Equipe.DoesNotExist:
-		messages.warning(request, 'Unidade não possui equipes cadastradas')
-		return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+	if request.user.is_staff:
+		try:
+			setor = Servidor.objects.get(fk_user=request.user.id).fk_setor
+			equipes = Equipe.objects.filter(fk_setor=setor)
+		except Servidor.DoesNotExist:
+			messages.warning(request, 'Servidor não encontrado para este usuário!')
+			return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+		except Equipe.DoesNotExist:
+			messages.warning(request, 'Unidade não possui equipes cadastradas')
+			return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
-	form = ServidorSearchForm(request.POST or None)
-	servidores = []
-	for	equipe in equipes:
-		for servidor in Servidor.objects.filter(fk_equipe=equipe):
-			servidores.append(servidor)
+		form = ServidorSearchForm(request.POST or None)
+		servidores = []
+		for	equipe in equipes:
+			for servidor in Servidor.objects.filter(fk_equipe=equipe):
+				servidores.append(servidor)
 
-	page = request.GET.get('page')
-	paginator = Paginator(servidores, 10)
-	page_obj = paginator.get_page(page)
+		page = request.GET.get('page')
+		paginator = Paginator(servidores, 15)
+		page_obj = paginator.get_page(page)
 
-	contexto = { 
-		'setor': setor,
-		'servidores': servidores,
-		'form': form,
-		'page_obj': page_obj,
-	}
+		contexto = { 
+			'setor': setor,
+			'servidores': servidores,
+			'form': form,
+			'page_obj': page_obj,
+		}
 
-	if request.method == 'POST':
-		if form.is_valid():
-			servidores2 = []
-			pattern = re.compile(form.cleaned_data['nome'].upper())
-			for servidor in servidores:
-				if pattern.search(servidor.nome.upper()):
-					servidores2.append(servidor)
-			if servidores2:
-				page = request.GET.get('page')
-				paginator = Paginator(servidores2, 15)
-				page_obj = paginator.get_page(page)
+		if request.method == 'POST':
+			if form.is_valid():
+				servidores2 = []
+				pattern = re.compile(form.cleaned_data['nome'].upper())
+				for servidor in servidores:
+					if pattern.search(servidor.nome.upper()):
+						servidores2.append(servidor)
+				if servidores2:
+					page = request.GET.get('page')
+					paginator = Paginator(servidores2, 15)
+					page_obj = paginator.get_page(page)
 
-				contexto = { 
-					'setor': setor,
-					'servidores': servidores2,
-					'form': form,
-					'page_obj': page_obj,
-				}
-				return render(request, template_name, contexto)
-			else:
-				print('entrei no form invalid')
-				messages.warning(request, 'Servidor com este nome não encontrado!')
-				return render(request, template_name, contexto)
-	return render(request, template_name, contexto)
-
+					contexto = { 
+						'setor': setor,
+						'servidores': servidores2,
+						'form': form,
+						'page_obj': page_obj,
+					}
+					return render(request, template_name, contexto)
+				else:
+					print('entrei no form invalid')
+					messages.warning(request, 'Servidor com este nome não encontrado!')
+					return render(request, template_name, contexto)
+		return render(request, template_name, contexto)
+	else:
+		return HttpResponseRedirect('/')
 
 @login_required(login_url='/autenticacao/login/')
 def servidor_operador_att_form(request,id_matricula):
@@ -234,6 +236,8 @@ def servidor_operador_att_form(request,id_matricula):
 			form.save()
 			messages.success(request, 'Servidor editado com suceso!')
 			return HttpResponseRedirect('/servidores_operador_change_list')
+			#return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
 		else:
 			contexto = {
 				'user': user,
@@ -261,7 +265,8 @@ def frequencias_operador(request,template_name='namp/frequencia/frequencias_oper
 def adms_operador(request,template_name='namp/adm/adms_operador.html'):
 	print('Acesso view de adms_operador!')
 	return render(request,template_name, {})
-	
+
+
 @login_required(login_url='/autenticacao/login/')
 def jornadas_operador(request,template_name='namp/jornada/jornadas_operador.html'):
 	#if request.user.groups.filter(name='Operadores').count():
