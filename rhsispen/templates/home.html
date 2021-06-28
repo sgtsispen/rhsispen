@@ -69,9 +69,8 @@
             </a>
         </div>
 
-        {% if request.user.is_staff %}
         <div class="col-md-4 col-xs-6 col-sm-6">
-            <a href="{% url 'namp:servidores_operador_change_list' %}">
+            <a href="{% url 'namp:servidor_operador_att_form' servidor.id_matricula %}">
                 <div class="card card-edit" style="width: 100%; height:85%;">
                     <div class="card-body">
                         <p class="card-title"><b>ATUALIZAÇÃO CADASTRAL </b></p>
@@ -81,7 +80,6 @@
                 </div>
             </a>
         </div>
-        {% endif %}
     </div>
 </div>
 {% endblock%}
