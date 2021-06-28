@@ -4,31 +4,27 @@ from typing import Pattern
 import xlwt
 from django.shortcuts import render, redirect, get_object_or_404
 
-from .models import Setor, Equipe, Servidor, TipoJornada, Jornada, HistAfastamento
+from .models import Equipe, Servidor, TipoJornada, Jornada, HistAfastamento
 from django.http import HttpResponse, HttpResponseRedirect
 from weasyprint import HTML
-from django.template.loader import render_to_string
-from django.core.files.storage import FileSystemStorage
+
 from .forms import EquipeForm, ServidorForm, DefinirJornadaRegularForm, GerarJornadaRegularForm, ServidorSearchForm, EquipeSearchForm
-from django.urls import resolve
-from urllib.parse import urlparse
 from datetime import timedelta as TimeDelta, datetime as DateTime, date as Date
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 import re
-from django.urls import reverse, reverse_lazy
 
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger, InvalidPage
 
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.views.generic import ListView
-from django.views.generic.edit import DeleteView
+from django.core.paginator import Paginator
+
+from django.core.paginator import Paginator
+
 
 
 
 @login_required(login_url='/autenticacao/login/')
 def home(request,template_name='home.html'):
-    return render(request,template_name, {})
+    return render(request,template_name, {'servidor': Servidor.objects.get(fk_user=request.user.id)})
 
 @login_required(login_url='/autenticacao/login/')
 def equipe_operador_att_form(request, id_equipe):
@@ -226,7 +222,7 @@ def servidor_operador_att_form(request,id_matricula):
 	try:
 		user = Servidor.objects.get(fk_user=request.user.id)
 		servidor = Servidor.objects.get(id_matricula=id_matricula)
-		enderecoServ = EnderecoServ.objects.get(fk_servidor=id_matricula)
+		#enderecoServ = EnderecoServ.objects.get(fk_servidor=id_matricula)
 	except Servidor.DoesNotExist:
 		messages.warning(request, 'Servidor não encontrado!')
 		return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
@@ -243,7 +239,7 @@ def servidor_operador_att_form(request,id_matricula):
 				'user': user,
 				'servidor': servidor,
 				'form': form,
-				'enderecoServ': enderecoServ,
+				#'enderecoServ': enderecoServ,
 			}
 			messages.warning(request, form.errors.get_json_data(escape_html=False)['__all__'][0]['message'])
 			return render(request, 'namp/servidor/servidor_operador_att_form.html',contexto)
@@ -252,9 +248,8 @@ def servidor_operador_att_form(request,id_matricula):
 			'form': form,
 			'user':user,
 			'servidor': servidor,
-			'enderecoServ':enderecoServ,
+			#'enderecoServ':enderecoServ,
 		}
-		print(contexto)
 		return render(request, 'namp/servidor/servidor_operador_att_form.html',contexto)
 			
 @login_required(login_url='/autenticacao/login/')
@@ -267,16 +262,6 @@ def adms_operador(request,template_name='namp/adm/adms_operador.html'):
 	print('Acesso view de adms_operador!')
 	return render(request,template_name, {})
 	
-
-def hire(request):
-
-    hire_article_list = hire_article.objects.all().order_by('-id')
-    hire_article_s = paginate(request, hire_article_list, 25, 5) 
-
-    context = {'hire_article_s': hire_article_s}
-    return render(request, 'hire/list.html', context)
-
-
 @login_required(login_url='/autenticacao/login/')
 def jornadas_operador(request,template_name='namp/jornada/jornadas_operador.html'):
 	#if request.user.groups.filter(name='Operadores').count():

@@ -1,18 +1,18 @@
-.card-edit{
-  background-color: #595959 !important  ;
-  border: 3px solid #fff !important;
-  border-radius: 10px;
-  color: #fff !important;
-  margin-top: 30px;
-}
-
-.card-title{
-  font-size: 20px;
-}
-
-.card-edit:hover{
-  border: 3px solid #343a40 !important;
-  background-color: #fff   !important;
-  transition: 0.5s;
-  color: #343a40 !important;
-}
+ .card-edit {
+     background-color: #595959 !important;
+     border: 3px solid #fff !important;
+     border-radius: 10px;
+     color: #fff !important;
+     margin-top: 30px;
+ }
+ 
+ .card-title {
+     font-size: 20px;
+ }
+ 
+ .card-edit:hover {
+     border: 3px solid #343a40 !important;
+     background-color: #fff !important;
+     transition: 0.5s;
+     color: #343a40 !important;
+ }
