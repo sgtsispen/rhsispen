@@ -7,8 +7,11 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .models import Equipe, Servidor, TipoJornada, Jornada, HistAfastamento
 from django.http import HttpResponse, HttpResponseRedirect
 from weasyprint import HTML
-
-from .forms import EquipeForm, ServidorForm, DefinirJornadaRegularForm, GerarJornadaRegularForm, ServidorSearchForm, EquipeSearchForm
+from django.template.loader import render_to_string
+from django.core.files.storage import FileSystemStorage
+from .forms import *
+from django.urls import resolve
+from urllib.parse import urlparse
 from datetime import timedelta as TimeDelta, datetime as DateTime, date as Date
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -20,13 +23,18 @@ from django.core.paginator import Paginator
 from django.core.paginator import Paginator
 
 
+from django.contrib.admin.views.decorators import staff_member_required
+
 
 
 @login_required(login_url='/autenticacao/login/')
 def home(request,template_name='home.html'):
     return render(request,template_name, {'servidor':Servidor.objects.get(fk_user=request.user.id)})
 
+
+
 @login_required(login_url='/autenticacao/login/')
+@staff_member_required(login_url='/autenticacao/login/')
 def equipe_operador_att_form(request, id_equipe):
 	try:
 		servidor = Servidor.objects.get(fk_user=request.user.id)
@@ -65,6 +73,7 @@ def equipe_operador_att_form(request, id_equipe):
 		return render(request, 'namp/equipe/equipe_operador_att_form.html',contexto)
 		
 @login_required(login_url='/autenticacao/login/')
+@staff_member_required(login_url='/autenticacao/login/')
 def equipe_operador_change_list(request, template_name='namp/equipe/equipe_operador_change_list.html'):
 	try:
 		servidor = Servidor.objects.get(fk_user=request.user.id)
@@ -114,6 +123,7 @@ def equipe_operador_change_list(request, template_name='namp/equipe/equipe_opera
 	return render(request, template_name, contexto)
 
 @login_required(login_url='/autenticacao/login/')
+@staff_member_required(login_url='/autenticacao/login/')
 def equipe_operador_change_form(request, template_name='namp/equipe/equipe_operador_change_form.html'):
 	form = EquipeForm()
 	try:
@@ -148,6 +158,7 @@ def equipe_operador_change_form(request, template_name='namp/equipe/equipe_opera
 		return render(request,template_name, contexto)
 
 @login_required(login_url='/autenticacao/login/')
+@staff_member_required(login_url='/autenticacao/login/')
 def EquipeDeleteView(request, id_equipe):
 	equipe = get_object_or_404(Equipe, id_equipe=id_equipe)
 	servidores = list(Servidor.objects.filter(fk_equipe=equipe))
@@ -162,65 +173,62 @@ def EquipeDeleteView(request, id_equipe):
 	return HttpResponseRedirect("/equipe_operador_change_list")
 
 @login_required(login_url='/autenticacao/login/')
+@staff_member_required(login_url='/autenticacao/login/')
 def servidores_operador_change_list(request,template_name='namp/servidor/servidores_operador_change_list.html'):
-	if request.user.is_staff:
-		try:
-			setor = Servidor.objects.get(fk_user=request.user.id).fk_setor
-			equipes = Equipe.objects.filter(fk_setor=setor)
-		except Servidor.DoesNotExist:
-			messages.warning(request, 'Servidor não encontrado para este usuário!')
-			return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-		except Equipe.DoesNotExist:
-			messages.warning(request, 'Unidade não possui equipes cadastradas')
-			return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+	try:
+		setor = Servidor.objects.get(fk_user=request.user.id).fk_setor
+		equipes = Equipe.objects.filter(fk_setor=setor)
+	except Servidor.DoesNotExist:
+		messages.warning(request, 'Servidor não encontrado para este usuário!')
+		return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+	except Equipe.DoesNotExist:
+		messages.warning(request, 'Unidade não possui equipes cadastradas')
+		return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
-		form = ServidorSearchForm(request.POST or None)
-		servidores = []
-		for	equipe in equipes:
-			for servidor in Servidor.objects.filter(fk_equipe=equipe):
-				servidores.append(servidor)
+	form = ServidorSearchForm(request.POST or None)
+	servidores = []
+	for	equipe in equipes:
+		for servidor in Servidor.objects.filter(fk_equipe=equipe):
+			servidores.append(servidor)
 
-		page = request.GET.get('page')
-		paginator = Paginator(servidores, 15)
-		page_obj = paginator.get_page(page)
+	page = request.GET.get('page')
+	paginator = Paginator(servidores, 15)
+	page_obj = paginator.get_page(page)
 
-		contexto = { 
-			'setor': setor,
-			'servidores': servidores,
-			'form': form,
-			'page_obj': page_obj,
-		}
+	contexto = { 
+		'setor': setor,
+		'servidores': servidores,
+		'form': form,
+		'page_obj': page_obj,
+	}
 
-		if request.method == 'POST':
-			if form.is_valid():
-				servidores2 = []
-				pattern = re.compile(form.cleaned_data['nome'].upper())
-				for servidor in servidores:
-					if pattern.search(servidor.nome.upper()):
-						servidores2.append(servidor)
-				if servidores2:
-					page = request.GET.get('page')
-					paginator = Paginator(servidores2, 15)
-					page_obj = paginator.get_page(page)
+	if request.method == 'POST':
+		if form.is_valid():
+			servidores2 = []
+			pattern = re.compile(form.cleaned_data['nome'].upper())
+			for servidor in servidores:
+				if pattern.search(servidor.nome.upper()):
+					servidores2.append(servidor)
+			if servidores2:
+				page = request.GET.get('page')
+				paginator = Paginator(servidores2, 15)
+				page_obj = paginator.get_page(page)
 
-					contexto = { 
-						'setor': setor,
-						'servidores': servidores2,
-						'form': form,
-						'page_obj': page_obj,
-					}
-					return render(request, template_name, contexto)
-				else:
-					print('entrei no form invalid')
-					messages.warning(request, 'Servidor com este nome não encontrado!')
-					return render(request, template_name, contexto)
-		return render(request, template_name, contexto)
-	else:
-		return HttpResponseRedirect('/')
+				contexto = { 
+					'setor': setor,
+					'servidores': servidores2,
+					'form': form,
+					'page_obj': page_obj,
+				}
+				return render(request, template_name, contexto)
+			else:
+				print('entrei no form invalid')
+				messages.warning(request, 'Servidor com este nome não encontrado!')
+				return render(request, template_name, contexto)
+	return render(request, template_name, contexto)
 
 @login_required(login_url='/autenticacao/login/')
 def servidor_operador_att_form(request,id_matricula):
-	print('Atualização de servidor...')
 	try:
 		user = Servidor.objects.get(fk_user=request.user.id)
 		servidor = Servidor.objects.get(id_matricula=id_matricula)
@@ -229,15 +237,13 @@ def servidor_operador_att_form(request,id_matricula):
 		messages.warning(request, 'Servidor não encontrado!')
 		return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 	form = ServidorForm(instance=servidor)
-		
+
 	if request.method == 'POST':
 		form = ServidorForm(request.POST,instance=servidor)
 		if form.is_valid():
 			form.save()
 			messages.success(request, 'Servidor editado com suceso!')
-			return HttpResponseRedirect('/servidores_operador_change_list')
-			#return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-
+			return HttpResponseRedirect('/')
 		else:
 			contexto = {
 				'user': user,
@@ -255,19 +261,152 @@ def servidor_operador_att_form(request,id_matricula):
 			#'enderecoServ':enderecoServ,
 		}
 		return render(request, 'namp/servidor/servidor_operador_att_form.html',contexto)
+
+@login_required(login_url='/autenticacao/login/')
+@staff_member_required(login_url='/autenticacao/login/')
+def servidor_operador_change_form(request,id_matricula):
+	try:
+		user = Servidor.objects.get(fk_user=request.user.id)
+		servidor = Servidor.objects.get(id_matricula=id_matricula)
+	except Servidor.DoesNotExist:
+		messages.warning(request, 'Servidor não encontrado!')
+		return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+	form = ServidorForm(instance=servidor)
+
+	if request.method == 'POST':
+		form = ServidorForm(request.POST,instance=servidor)
+		if form.is_valid():
+			form.save()
+			messages.success(request, 'Servidor editado com suceso!')
+			return HttpResponseRedirect('/servidores_operador_change_list')
+		else:
+			contexto = {
+				'user': user,
+				'servidor': servidor,
+				'form': form
+			}
+			messages.warning(request, form.errors.get_json_data(escape_html=False)['__all__'][0]['message'])
+			return render(request, 'namp/servidor/servidor_operador_change_form.html',contexto)
+	else:
+		contexto = {
+			'form': form,
+			'user':user,
+			'servidor': servidor,
+		}
+		return render(request, 'namp/servidor/servidor_operador_change_form.html',contexto)
 			
 @login_required(login_url='/autenticacao/login/')
+@staff_member_required(login_url='/autenticacao/login/')
 def frequencias_operador(request,template_name='namp/frequencia/frequencias_operador.html'):
 	print('Acesso view de frequencias_operador!')
 	return render(request,template_name, {})
 
 @login_required(login_url='/autenticacao/login/')
-def adms_operador(request,template_name='namp/adm/adms_operador.html'):
-	print('Acesso view de adms_operador!')
-	return render(request,template_name, {})
+@staff_member_required(login_url='/autenticacao/login/')
+def afastamento_change_list(request, template_name='namp/afastamento/afastamento_change_list.html'):
+	try:
+		servidor = Servidor.objects.get(fk_user=request.user.id)
+		afastamentos = HistAfastamento.objects.filter(fk_servidor__fk_setor=servidor.fk_setor)
+	except Servidor.DoesNotExist:
+		messages.warning(request, 'Servidor não encontrado para este usuário!')
+		return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+	
+	form = AfastamentoSearchForm(request.POST or None)
+	
+	page = request.GET.get('page')
+	paginator = Paginator(list(afastamentos), 15)
+	page_obj = paginator.get_page(page)
 
+	contexto = { 
+		'servidor': servidor,
+		'form': form,
+		'page_obj': page_obj,
+	}
+
+	if request.method == 'POST':
+		if form.is_valid():
+			afastamentos2 = []
+			pattern = re.compile(form.cleaned_data['servidor'].upper())
+			for afastamento in afastamentos:
+				if pattern.search(afastamento.fk_servidor.nome.upper()):
+					afastamentos2.append(afastamento)
+			if afastamentos2:
+				page = request.GET.get('page')
+				paginator = Paginator(afastamentos2, 15)
+				page_obj = paginator.get_page(page)
+
+				contexto = { 
+					'servidor': servidor,
+					'form': form,
+					'page_obj': page_obj,
+				}
+				return render(request, template_name, contexto)
+			else:
+				messages.warning(request, 'Sem afastamentos para o servidor informado!')
+				return render(request, template_name, contexto)
+	return render(request, template_name, contexto)
 
 @login_required(login_url='/autenticacao/login/')
+@staff_member_required(login_url='/autenticacao/login/')
+def afastamento_change_form(request,template_name='namp/afastamento/afastamento_change_form.html'):
+	try:
+		servidor = Servidor.objects.get(fk_user=request.user.id)
+	except Servidor.DoesNotExist:
+		messages.warning(request, 'Servidor não encontrado!')
+		return HttpResponseRedirect(request.META.get('HTTP_REFERER')) 
+	else:
+		servidores = list(Servidor.objects.filter(fk_setor=servidor.fk_setor).values_list('id_matricula', 'nome'))
+		form = AfastamentoForm({"servidores":servidores})
+	if request.method == 'POST':
+		form = AfastamentoForm(request.POST, {"servidores":servidores})
+		if form.is_valid():
+			form.save()	
+			return HttpResponseRedirect('/')
+		else:
+			contexto['form'] = form
+			return render(request, template_name, contexto)
+	else:
+		contexto = { 
+			'servidor': servidor,
+			'form': form
+		}
+		return render(request, template_name, contexto)
+
+@login_required(login_url='/autenticacao/login/')
+@staff_member_required(login_url='/autenticacao/login/')
+def afastamento_att_form(request, id_hist_afastamento):
+	try:
+		#servidor = Servidor.objects.get(fk_user=request.user.id)
+		afastamentos = HistAfastamento.objects.get(id_hist_afastamento=id_hist_afastamento)
+	except HistAfastamento.DoesNotExist:
+		messages.warning(request, 'Afastamento não encontrado!')
+		return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+	form = AfastamentoForm(instance=afastamentos)
+
+	if request.method == 'POST':
+		form = AfastamentoForm(request.POST,instance=afastamentos)
+		if form.is_valid():
+			form.save()
+			messages.success(request, 'Afastamento editado com suceso!')
+			return HttpResponseRedirect('/afastamento_change_list')
+		else:
+			contexto = {
+				#'servidor': servidor,
+				'form': form,
+				'afastamentos': afastamentos,
+			}
+			messages.warning(request, form.errors.get_json_data(escape_html=False)['__all__'][0]['message'])
+			return render(request, 'namp/afastamento/afastamento_att_form.html',contexto)
+	else:
+		contexto = {
+			#'servidor':servidor,
+			'form': form,
+			'afastamentos': afastamentos,
+		}
+		return render(request, 'namp/servidor/servidor_operador_att_form.html',contexto)
+
+@login_required(login_url='/autenticacao/login/')
+@staff_member_required(login_url='/autenticacao/login/')
 def jornadas_operador(request,template_name='namp/jornada/jornadas_operador.html'):
 	#if request.user.groups.filter(name='Operadores').count():
 	#if request.user.is_staff or request.user.is_superuser:
@@ -546,7 +685,6 @@ def datasportipodejornada(data_inicial, data_final, tipo_jornada):
 			data_inicial+= intervalo
 		return datas
 
-
 def funcaogeraescalaporequipe(equipe, servidores, data_inicial, data_final):
 	for servidor in servidores:
 		#Verifica se o servidor está ativo
@@ -562,6 +700,7 @@ def funcaogeraescalaporequipe(equipe, servidores, data_inicial, data_final):
 				jornada.save()
 
 @login_required(login_url='/autenticacao/login/')
+@staff_member_required(login_url='/autenticacao/login/')
 def gerarescalaregular(request):
 	if request.method == "POST":
 		form = DefinirJornadaRegularForm(request.POST)
@@ -582,6 +721,7 @@ def gerarescalaregular(request):
 		return render(request, 'namp/setor/gerarjornadaregular.html', {'definirjornadaregularForm': DefinirJornadaRegularForm(initial={'setor':form.cleaned_data['setor']})})
 
 @login_required(login_url='/autenticacao/login/')
+@staff_member_required(login_url='/autenticacao/login/')
 def exportar_jornadas_excel(request):
 	#recuperando as jornadas do banco. OBS: apenas as jornadas do mês corrente
 	jornadas = Jornada.objects.filter(assiduidade=True).filter(data_jornada__month=Date.today().month).order_by('fk_equipe__fk_setor__nome', 'fk_equipe__nome','fk_servidor__nome','data_jornada')
@@ -637,6 +777,7 @@ def exportar_jornadas_excel(request):
 	return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 @login_required(login_url='/autenticacao/login/')
+@staff_member_required(login_url='/autenticacao/login/')
 def exportar_noturno_excel(request):
 	#recuperando as jornadas do banco. OBS: apenas as jornadas do mês corrente
 	jornadas = Jornada.objects.filter(assiduidade=True).filter(fk_tipo_jornada__carga_horaria__in=[24,48]).order_by('data_jornada','fk_equipe__fk_setor__nome', 'fk_equipe__nome','fk_servidor__nome')
@@ -707,6 +848,7 @@ def exportar_noturno_excel(request):
 	messages.warning(request, 'Ops! Não há jornadas registradas no mês corrente, para o cálculo do adicional noturno!')
 	return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
+@staff_member_required(login_url='/autenticacao/login/')
 def exportar_frequencia_excel(request):
 	#recuperando as jornadas do banco. OBS: apenas as jornadas do mês corrente
 	jornadas = Jornada.objects.filter(data_jornada__month=Date.today().month).order_by('fk_equipe__fk_setor__nome', 'fk_equipe__nome','fk_servidor__nome','data_jornada')

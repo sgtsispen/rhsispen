@@ -17,8 +17,13 @@ urlpatterns = [
 	path('equipe_delete/<int:id_equipe>/delete', views.EquipeDeleteView, name='equipe_delete'),
 	
 	path('servidores_operador_change_list/', views.servidores_operador_change_list, name='servidores_operador_change_list'),
+	path('servidor_operador_change_form/<int:id_matricula>/', views.servidor_operador_change_form, name='servidor_operador_change_form'),
 	path('servidor_operador_att_form/<int:id_matricula>/', views.servidor_operador_att_form, name='servidor_operador_att_form'),
-	path('adms_operador', views.adms_operador, name='adms_operador'),
+	
+	path('afastamento_change_form/', views.afastamento_change_form, name='afastamento_change_form'),
+	path('afastamento_change_list/', views.afastamento_change_list, name='afastamento_change_list'),
+	path('afastamento_att_form/<int:id_hist_afastamento>/', views.afastamento_att_form, name='afastamento_att_form'),
+
 	path('frequencias_operador', views.frequencias_operador, name='frequencias_operador'),
 	#Calculos
 	url('getEquipes/$', views.get_equipes),
