@@ -173,8 +173,8 @@ class AfastamentoForm(forms.ModelForm):
         fields = '__all__'
     
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super(AfastamentoForm, self).__init__(*args, **kwargs)
         self.fields['data_inicial'].widget = DateInput()
         self.fields['data_final'].widget = DateInput()
-        self.fields['fk_servidor'].choices = [('', '--Selecione--')] + args[len(args)-1]['servidores']
+        #self.fields['fk_servidor'].choices = [('', '--Selecione--')] + args[len(args)-1]['servidores']
             

@@ -357,6 +357,7 @@ def afastamento_change_form(request,template_name='namp/afastamento/afastamento_
 	else:
 		servidores = list(Servidor.objects.filter(fk_setor=servidor.fk_setor).values_list('id_matricula', 'nome'))
 		form = AfastamentoForm({"servidores":servidores})
+	
 	if request.method == 'POST':
 		form = AfastamentoForm(request.POST, {"servidores":servidores})
 		if form.is_valid():
@@ -372,38 +373,45 @@ def afastamento_change_form(request,template_name='namp/afastamento/afastamento_
 		}
 		return render(request, template_name, contexto)
 
+
+
+
+
+
 @login_required(login_url='/autenticacao/login/')
 @staff_member_required(login_url='/autenticacao/login/')
 def afastamento_att_form(request, id_hist_afastamento):
 	try:
-		#servidor = Servidor.objects.get(fk_user=request.user.id)
-		afastamentos = HistAfastamento.objects.get(id_hist_afastamento=id_hist_afastamento)
+		servidor = Servidor.objects.get(fk_user=request.user.id)
+		afastamento = HistAfastamento.objects.get(id_hist_afastamento=id_hist_afastamento)
 	except HistAfastamento.DoesNotExist:
 		messages.warning(request, 'Afastamento não encontrado!')
 		return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-	form = AfastamentoForm(instance=afastamentos)
+	
+	servidores = list(Servidor.objects.filter(fk_setor=servidor.fk_setor).values_list('id_matricula', 'nome'))
+	form = AfastamentoForm(instance=afastamento)
 
 	if request.method == 'POST':
-		form = AfastamentoForm(request.POST,instance=afastamentos)
+		form = AfastamentoForm(request.POST)
 		if form.is_valid():
 			form.save()
 			messages.success(request, 'Afastamento editado com suceso!')
 			return HttpResponseRedirect('/afastamento_change_list')
 		else:
 			contexto = {
-				#'servidor': servidor,
+				'servidor': servidor,
 				'form': form,
-				'afastamentos': afastamentos,
+				'afastamento': afastamento,
 			}
 			messages.warning(request, form.errors.get_json_data(escape_html=False)['__all__'][0]['message'])
 			return render(request, 'namp/afastamento/afastamento_att_form.html',contexto)
 	else:
 		contexto = {
-			#'servidor':servidor,
+			'servidor':servidor,
 			'form': form,
-			'afastamentos': afastamentos,
+			'afastamento': afastamento,
 		}
-		return render(request, 'namp/servidor/servidor_operador_att_form.html',contexto)
+		return render(request, 'namp/afastamento/afastamento_att_form.html',contexto)
 
 @login_required(login_url='/autenticacao/login/')
 @staff_member_required(login_url='/autenticacao/login/')
