@@ -2,7 +2,8 @@ import tempfile
 import json
 from typing import Pattern
 import xlwt
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
+
 from .models import Setor, Equipe, Servidor, TipoJornada, Jornada, HistAfastamento
 from django.http import HttpResponse, HttpResponseRedirect
 from weasyprint import HTML
@@ -16,16 +17,19 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.core.exceptions import ValidationError
 import re
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
+
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger, InvalidPage
 
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.views.generic import ListView
+from django.views.generic.edit import DeleteView
 
 
 
 @login_required(login_url='/autenticacao/login/')
 def home(request,template_name='home.html'):
-    return render(request,template_name, {})
+    return render(request,template_name, {'servidor':Servidor.objects.get(fk_user=request.user.id)})
 
 @login_required(login_url='/autenticacao/login/')
 def equipe_operador_att_form(request, id_equipe):
@@ -69,7 +73,7 @@ def equipe_operador_att_form(request, id_equipe):
 def equipe_operador_change_list(request, template_name='namp/equipe/equipe_operador_change_list.html'):
 	try:
 		servidor = Servidor.objects.get(fk_user=request.user.id)
-		equipes = Equipe.objects.filter(fk_setor=servidor.fk_setor)
+		equipes = Equipe.objects.filter(fk_setor=servidor.fk_setor, deleted_on=None)
 	except Servidor.DoesNotExist:
 		messages.warning(request, 'Servidor não encontrado para este usuário!')
 		return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
@@ -99,17 +103,20 @@ def equipe_operador_change_list(request, template_name='namp/equipe/equipe_opera
 				if pattern.search(equipe.nome.upper()):
 					equipes2.append(equipe)
 			if equipes2:
-				contexto['equipes']=equipes2
+				page = request.GET.get('page')
+				paginator = Paginator(equipes2, 15)
+				page_obj = paginator.get_page(page)
+				
+				contexto = { 
+					'equipes': equipes2,
+					'servidor': servidor,
+					'form': form,
+					'page_obj': page_obj,
+				}
 				return render(request, template_name, contexto)
 			else:
 				messages.warning(request, 'Equipe com este nome não encontrada!')
 				return render(request, template_name, contexto)
-	contexto = {
-		'equipes': equipes,
-		'servidor': servidor,
-		'form': form,
-		'page_obj': page_obj,
-	}
 	return render(request, template_name, contexto)
 
 @login_required(login_url='/autenticacao/login/')
@@ -147,53 +154,75 @@ def equipe_operador_change_form(request, template_name='namp/equipe/equipe_opera
 		return render(request,template_name, contexto)
 
 @login_required(login_url='/autenticacao/login/')
-def servidores_operador_change_list(request,template_name='namp/servidor/servidores_operador_change_list.html'):
-	try:
-		setor = Servidor.objects.get(fk_user=request.user.id).fk_setor
-		equipes = Equipe.objects.filter(fk_setor=setor)
-	except Servidor.DoesNotExist:
-		messages.warning(request, 'Servidor não encontrado para este usuário!')
-		return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-	except Equipe.DoesNotExist:
-		messages.warning(request, 'Unidade não possui equipes cadastradas')
-		return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-	form = ServidorSearchForm(request.POST or None)
-	servidores = []
-	for	equipe in equipes:
-		for servidor in Servidor.objects.filter(fk_equipe=equipe):
-			servidores.append(servidor)
-
-	page = request.GET.get('page')
-	paginator = Paginator(servidores, 15)
-	page_obj = paginator.get_page(page)
-
-	contexto = { 
-		'setor': setor,
-		'form': form,
-		'page_obj': page_obj,
-
-	}
-	if request.method == 'POST':
-		if form.is_valid():
-			servidores2 = []
-			pattern = re.compile(form.cleaned_data['nome'].upper())
+def EquipeDeleteView(request, id_equipe):
+	equipe = get_object_or_404(Equipe, id_equipe=id_equipe)
+	servidores = list(Servidor.objects.filter(fk_equipe=equipe))
+	if servidores:
+		equipeGeral = get_object_or_404(Equipe, nome='GERAL', fk_setor=equipe.fk_setor)
+		if equipeGeral:
 			for servidor in servidores:
-				if pattern.search(servidor.nome.upper()):
-					servidores2.append(servidor)
-			if servidores2:
-				contexto['servidores']=servidores2
-				return render(request, template_name, contexto)
-			else:
-				messages.warning(request, 'Servidor com este nome não encontrado!')
-				return render(request, template_name, contexto)
-	contexto = {
-		'setor': setor,
-		'servidores': servidores,
-		'form': form,
-		'page_obj': page_obj,
-	}	
-	return render(request, template_name, contexto)
+				servidor.fk_equipe = equipeGeral
+				servidor.save()
+	equipe.delete()
+	messages.success(request, "Equipe deletada com sucesso!")
+	return HttpResponseRedirect("/equipe_operador_change_list")
 
+@login_required(login_url='/autenticacao/login/')
+def servidores_operador_change_list(request,template_name='namp/servidor/servidores_operador_change_list.html'):
+	if request.user.is_staff:
+		try:
+			setor = Servidor.objects.get(fk_user=request.user.id).fk_setor
+			equipes = Equipe.objects.filter(fk_setor=setor)
+		except Servidor.DoesNotExist:
+			messages.warning(request, 'Servidor não encontrado para este usuário!')
+			return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+		except Equipe.DoesNotExist:
+			messages.warning(request, 'Unidade não possui equipes cadastradas')
+			return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+		form = ServidorSearchForm(request.POST or None)
+		servidores = []
+		for	equipe in equipes:
+			for servidor in Servidor.objects.filter(fk_equipe=equipe):
+				servidores.append(servidor)
+
+		page = request.GET.get('page')
+		paginator = Paginator(servidores, 15)
+		page_obj = paginator.get_page(page)
+
+		contexto = { 
+			'setor': setor,
+			'servidores': servidores,
+			'form': form,
+			'page_obj': page_obj,
+		}
+
+		if request.method == 'POST':
+			if form.is_valid():
+				servidores2 = []
+				pattern = re.compile(form.cleaned_data['nome'].upper())
+				for servidor in servidores:
+					if pattern.search(servidor.nome.upper()):
+						servidores2.append(servidor)
+				if servidores2:
+					page = request.GET.get('page')
+					paginator = Paginator(servidores2, 15)
+					page_obj = paginator.get_page(page)
+
+					contexto = { 
+						'setor': setor,
+						'servidores': servidores2,
+						'form': form,
+						'page_obj': page_obj,
+					}
+					return render(request, template_name, contexto)
+				else:
+					print('entrei no form invalid')
+					messages.warning(request, 'Servidor com este nome não encontrado!')
+					return render(request, template_name, contexto)
+		return render(request, template_name, contexto)
+	else:
+		return HttpResponseRedirect('/')
 
 @login_required(login_url='/autenticacao/login/')
 def servidor_operador_att_form(request,id_matricula):
@@ -205,13 +234,15 @@ def servidor_operador_att_form(request,id_matricula):
 		messages.warning(request, 'Servidor não encontrado!')
 		return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 	form = ServidorForm(instance=servidor)
+		
 	if request.method == 'POST':
 		form = ServidorForm(request.POST, instance=servidor)
 		if form.is_valid():
 			form.save()
 			messages.success(request, 'Servidor editado com suceso!')
-			print(form)
 			return HttpResponseRedirect('/servidores_operador_change_list')
+			#return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
 		else:
 			contexto = {
 				'user': user,
@@ -238,15 +269,6 @@ def frequencias_operador(request,template_name='namp/frequencia/frequencias_oper
 def adms_operador(request,template_name='namp/adm/adms_operador.html'):
 	print('Acesso view de adms_operador!')
 	return render(request,template_name, {})
-	
-
-def hire(request):
-
-    hire_article_list = hire_article.objects.all().order_by('-id')
-    hire_article_s = paginate(request, hire_article_list, 25, 5) 
-
-    context = {'hire_article_s': hire_article_s}
-    return render(request, 'hire/list.html', context)
 
 
 @login_required(login_url='/autenticacao/login/')

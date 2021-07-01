@@ -14,7 +14,8 @@ from pathlib import Path
 from os import path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+#BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
@@ -66,7 +67,10 @@ ROOT_URLCONF = 'rhsispen.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')],
+        'DIRS': [
+            #os.path.join(BASE_DIR, 'templates')
+            str(BASE_DIR.joinpath('templates'))
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -147,12 +151,20 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
-#EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # During development only
+'''
+Configuração do envio de email pelo backends com arquivos salvos
+no diretório sent_mails/
+'''
 
+#EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+#EMAIL_FILE_PATH = str(BASE_DIR.joinpath('sent_mails'))
+
+# Configuração do envio de email real com o servidor Gmail
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_HOST_USER = 'ead.esgepen@gmail.com'
 EMAIL_HOST_PASSWORD = 'nossofuturo'
 EMAIL_USE_TLS = True
-DEFAULT_FROM_EMAIL = 'SGT Sispen/TO'
-
+DEFAULT_FROM_EMAIL = "SGT Sispen/TO <nao-responda@sgtsispento.com>"

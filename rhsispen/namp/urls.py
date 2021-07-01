@@ -14,6 +14,7 @@ urlpatterns = [
 	path('equipe_operador_change_form/', views.equipe_operador_change_form, name='equipe_operador_change_form'),
 	path('equipe_operador_change_list/', views.equipe_operador_change_list, name='equipe_operador_change_list'),
 	path('equipe_operador_att_form/<int:id_equipe>/', views.equipe_operador_att_form, name='equipe_operador_att_form'),
+	path('equipe_delete/<int:id_equipe>/delete', views.EquipeDeleteView, name='equipe_delete'),
 	
 	path('servidores_operador_change_list/', views.servidores_operador_change_list, name='servidores_operador_change_list'),
 	path('servidor_operador_att_form/<int:id_matricula>/', views.servidor_operador_att_form, name='servidor_operador_att_form'),

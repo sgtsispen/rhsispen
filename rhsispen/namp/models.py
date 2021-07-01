@@ -117,6 +117,13 @@ class Equipe(models.Model):
 	fk_setor = models.ForeignKey(Setor, on_delete = models.RESTRICT, verbose_name='Setor')
 	fk_tipo_jornada = models.ForeignKey(TipoJornada, on_delete = models.RESTRICT, verbose_name='Tipo de Jornada')
 	
+	deleted_on = models.DateTimeField(null=True, blank=True, verbose_name='Data da exclusão')
+
+	def delete(self):
+		self.deleted_on = DateTime.now()
+		self.status = False
+		self.save()
+
 	def __str__(self):
 		return self.nome
 	
