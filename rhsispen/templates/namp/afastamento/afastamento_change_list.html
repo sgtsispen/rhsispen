@@ -9,34 +9,33 @@
     <div class="breadcrumbs">
         <a href="{% url 'namp:home' %}">
     {% translate 'Home' %}
-    </a> &rsaquo; {% translate 'Equipes' %}
+    </a> &rsaquo; {% translate 'Afastamentos' %}
     </div>
     {% endblock %} {% block content %}
     <div class="content">
         <div>
             <h5 class="text-center">{{ servidor.fk_setor }}</h5>
-            <h4 class="text-center">Selecione Equipe para modificar</h4>
         </div>
 
-
+        <h4>Selecione Afastamento para modificar</h4>
 
         {% block object-tools %}
         <ul class="object-tools">
             {% block object-tools-items %}
             <li>
-                <a href="{% url 'namp:equipe_operador_change_form' %}" class="addlink">
-        {% blocktrans with cl.opts.verbose_name as name %}Adicionar Equipe {{ name }}{% endblocktrans %}
+                <a href="{% url 'namp:afastamento_change_form' %}" class="addlink">
+        {% blocktrans with cl.opts.verbose_name as name %}Adicionar Afastamento {{ name }}{% endblocktrans %}
         </a>
             </li>
             {% endblock %}
         </ul>
         {% endblock %}
         <div id="toolbar">
-            <form method="POST" action="{% url 'namp:equipe_operador_change_list' %}">{% csrf_token %}
+            <form method="POST" action="{% url 'namp:afastamento_change_list' %}">{% csrf_token %}
                 <div>
-                    {{ form.nome }}
+                    {{ form.servidor }}
                     <input type="submit" value="Pesquisar" style="padding: 4px 8px;">
-                    <a href="{% url 'namp:equipe_operador_change_list' %}">ver todos</a>
+                    <a href="{% url 'namp:afastamento_change_list' %}">ver todos</a>
                 </div>
             </form>
         </div><br>
@@ -46,38 +45,35 @@
                     <tr>
                         <th>
                             <div class="text">
-                                <a href="#">NOME</a>
+                                <a href="#">SERVIDOR</a>
                             </div>
                         </th>
                         <th>
                             <div class="text">
-                                <a href="#">EQUIPE ATIVA</a>
+                                <a href="#">DATA INICIAL</a>
                             </div>
                         </th>
                         <th>
                             <div class="text">
-                                <a href="#">CATEGORIA</a>
+                                <a href="#">DATA FINAL</a>
                             </div>
                         </th>
                         <th>
                             <div class="text">
-                                <a href="#">SERVIDORES</a>
+                                <a href="#">AFASTAMENTO</a>
                             </div>
                         </th>
                     </tr>
                 </thead>
 
                 <tbody>
-                    {% for equipe in equipes %}
+                    {% for afastamento in page_obj %}
                     <tr class="{% cycle 'row1' 'row2' %}">
-                        <td> <a href="{% url 'namp:equipe_operador_att_form' equipe.id_equipe %}">{{equipe.nome}}</a></td>
-                        <td class="field-status">
-                            {% if equipe.status %}
-                            <img src="/static/admin/img/icon-yes.svg" alt="{{equipe.status}}"> {% else %}
-                            <img src="/static/admin/img/icon-no.svg" alt="{{equipe.status}}"> {% endif%}
-                        </td>
-                        <td> {{equipe.categoria}} </td>
-                        <td> {{equipe.get_servidores | default:0 }} </td>
+                        <td> <a href="{% url 'namp:afastamento_att_form' afastamento.id_hist_afastamento %}">{{afastamento.fk_servidor}}</a></td>
+
+                        <td> {{ afastamento.data_inicial }} </td>
+                        <td> {{ afastamento.data_final }} </td>
+                        <td> {{ afastamento.fk_afastamento }} </td>
                     </tr>
                     {% endfor %}
                 </tbody>

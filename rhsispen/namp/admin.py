@@ -5,7 +5,7 @@ from django import forms
 from django.contrib import admin
 from django.contrib.auth.models import Group, User
 from django.core.serializers.json import DjangoJSONEncoder
-from namp.models import Afastamento, ContatoEquipe, ContatoServ, EnderecoServ, EnderecoSetor, Equipe, Funcao, HistAfastamento, HistFuncao, HistLotacao, HistStatusFuncional, Jornada, Regiao, Servidor, Setor, StatusFuncional, TipoJornada
+from namp.models import Afastamento, ContatoEquipe, EnderecoServ, EnderecoSetor, Equipe, Funcao, HistAfastamento, HistFuncao, HistLotacao, HistStatusFuncional, Jornada, Regiao, Servidor, Setor, StatusFuncional, TipoJornada
 from namp.forms import *
 
 from django.core.files.storage import FileSystemStorage
@@ -34,9 +34,9 @@ class ContatoEquipeInline(admin.TabularInline):
     model = ContatoEquipe
     extra = 0
 
-class ContatoServInline(admin.TabularInline):
-    model = ContatoServ
-    extra = 0
+#class ContatoServInline(admin.TabularInline):
+#    model = ContatoServ
+#    extra = 0
 
 class EnderecoServInline(admin.StackedInline):
 	model=EnderecoServ
@@ -187,7 +187,7 @@ class ServidorAdmin(admin.ModelAdmin):
 	list_per_page = 20
 	search_fields = ('nome','fk_equipe__nome', 'fk_equipe__fk_setor__nome')
 
-	radio_fields = {'sexo': admin.HORIZONTAL, 'regime_juridico': admin.HORIZONTAL, 'tipo_vinculo': admin.VERTICAL}
+	radio_fields = {'sexo': admin.HORIZONTAL, 'regime_juridico': admin.HORIZONTAL, 'tipo_vinculo': admin.VERTICAL, 'tipo_contato': admin.HORIZONTAL}
 	'''
 	Abaixo: apresentação dos forms da model ContatoServ dentro do form da model Servidor
 	'''
@@ -202,9 +202,12 @@ class ServidorAdmin(admin.ModelAdmin):
 		('Dados Funcionais',{
 				'fields': (('id_matricula','vinculo'), ('tipo_vinculo', 'regime_juridico'), ('cargo','cf', 'situacao'),'fk_setor', 'fk_equipe', 'fk_user')
 		}),
+		('Contato ',{
+				'fields': (('tipo_contato', 'contato'), )
+		}),
 	)
 
-	inlines = [EnderecoServInline, ContatoServInline]
+	inlines = [EnderecoServInline ]
 
 	def change_view(self, request, object_id, form_url='', extra_context=None):
 		try:

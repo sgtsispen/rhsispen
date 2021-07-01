@@ -48,6 +48,7 @@ main {
   background-color: transparent;
   border: 0;
 }
+
 .btn-toggle:hover,
 .btn-toggle:focus {
   color: rgba(0, 0, 0, .85);
@@ -76,7 +77,9 @@ main {
   margin-left: 1.25rem;
   text-decoration: none;
 }
+
 .btn-toggle-nav a:hover,
+
 .btn-toggle-nav a:focus {
   background-color: #f5f5f5;
 }
@@ -87,7 +90,6 @@ main {
 
 .fw-semibold { font-weight: 600; }
 .lh-tight { line-height: 1.25; }
-
 
 .notificacoes{
   background-color: #f2f2f2;
@@ -102,10 +104,4 @@ main {
 .conteudo{
   background-color: #e5e5e5;
   padding: 25px;
-}
-
-@media (min-width: 768px) { 
-  .conteudo{
-    margin-left: 16.65%;
-  }
 }

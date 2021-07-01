@@ -1,5 +1,5 @@
 from django import forms
-from .models import TipoJornada, Setor, Equipe, Servidor
+from .models import * 
 from functools import partial
 from django.forms import ModelForm
 
@@ -51,7 +51,14 @@ class ServidorFormAdmin(forms.ModelForm):
         self.fields['cpf'].widget.attrs['class'] = 'mask-cpf'
         self.fields['dt_nasc'].widget.attrs={"placeholder":"00/00/0000"}
         self.fields['dt_nasc'].widget.attrs['class'] = 'mask-dt'
- 
+       # if self.objects.filter(Servidor.tipo_contato == 'Celular')
+        self.fields['contato'].widget.attrs={"placeholder": "(00)9 0000-0000"}
+        self.fields['contato'].widget.attrs['class'] = 'mask-contato'
+        #    else:
+         #   self.fields['contato'].widget.attrs={"placeholder": "(00) 0000-0000"}
+          #  self.fields['contato'].widget.attrs['class'] = 'mask-contato'
+
+
 class EnderecoFormAdmin(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(EnderecoFormAdmin, self).__init__(*args, **kwargs)
@@ -114,6 +121,9 @@ class JornadaFormAdmin(forms.ModelForm):
 class TimeInput(forms.TimeInput):
     input_type = "time"
 
+class DateInput(forms.DateInput):
+    input_type = 'date'
+
 '''
 Formulário de adição de equipes. Cria-se o formulário a partir
 do modelo que se quer trabalhar. Neste caso, o model Equipe.
@@ -137,6 +147,13 @@ class EquipeSearchForm(forms.ModelForm):
             'nome': forms.TextInput(attrs={'placeholder': 'Digite um nome de equipe'}),
         }
 
+class AfastamentoSearchForm(forms.Form):
+    servidor = forms.CharField(required=True)
+    class Meta:
+        widgets = {
+            'servidor': forms.TextInput(attrs={'placeholder': 'Digite um nome de servidor'}),
+        }
+
 class ServidorForm(forms.ModelForm):
     class Meta:
         model = Servidor
@@ -147,7 +164,8 @@ class ServidorForm(forms.ModelForm):
         for field in self.fields:
             if field =='fk_equipe': continue
             self.fields[field].widget.attrs['readonly'] = True
-            #Falta setar o choices    
+            #Falta setar o choices 
+
 class ServidorSearchForm(forms.ModelForm):
     class Meta:
         model = Servidor
@@ -155,6 +173,15 @@ class ServidorSearchForm(forms.ModelForm):
         widgets = {
             'nome': forms.TextInput(attrs={'placeholder': 'Digite um nome de servidor'}),
         }
-  #  def __init__(self, *args, **kwargs):
-  #    super().__init__(*args, **kwargs)
-  #      self.fields['nome', ].widget.attrs={"placeholder":"Digite o nome do servidor"}
+
+class AfastamentoForm(forms.ModelForm):
+    class Meta:
+        model = HistAfastamento
+        fields = '__all__'
+    
+    def __init__(self, *args, **kwargs):
+        super(AfastamentoForm, self).__init__(*args, **kwargs)
+        self.fields['data_inicial'].widget = DateInput()
+        self.fields['data_final'].widget = DateInput()
+        #self.fields['fk_servidor'].choices = [('', '--Selecione--')] + args[len(args)-1]['servidores']
+            
