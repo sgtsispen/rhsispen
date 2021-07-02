@@ -194,9 +194,7 @@ class Servidor(models.Model):
 	CHOICES_JURIDICO = [('CLT','CLT'),('Estatutário','Estatutário')]
 	regime_juridico = models.CharField('Regime Jurídico',max_length=25, choices=CHOICES_JURIDICO)
 	situacao = models.BooleanField('Servidor Ativo', default=False)
-	CHOICES_TIPO_CONTATO = [('Celular', 'Celular'),('Telefone Fixo', 'Telefone Fixo')]
-	tipo_contato = models.CharField('Tipo: ', max_length=25, choices=CHOICES_TIPO_CONTATO, blank=True, null=True)
-	contato = models.CharField('Número para contato: ', max_length=25, blank=True, null=True)
+	contato = models.CharField('Número para contato: ', max_length=11, blank=True, null=True)
 	fk_setor = models.ForeignKey(Setor, on_delete = models.RESTRICT, verbose_name='Setor')
 	fk_equipe = models.ForeignKey(Equipe, on_delete = models.RESTRICT, verbose_name='Equipe')
 	fk_user = models.OneToOneField(User, on_delete=models.CASCADE, blank=True, null=True)
