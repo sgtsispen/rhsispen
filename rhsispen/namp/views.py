@@ -297,9 +297,16 @@ def servidor_operador_change_form(request,id_matricula):
 			
 @login_required(login_url='/autenticacao/login/')
 @staff_member_required(login_url='/autenticacao/login/')
-def frequencias_operador(request,template_name='namp/frequencia/frequencias_operador.html'):
+def frequencias_operador_list(request,template_name='namp/frequencia/frequencias_operador_list.html'):
 	print('Acesso view de frequencias_operador!')
 	return render(request,template_name, {})
+
+@login_required(login_url='/autenticacao/login/')
+@staff_member_required(login_url='/autenticacao/login/')
+def add_noturno_list(request,template_name='namp/jornada/add_noturno_list.html'):
+	print('entrei em LISTA DE ADD NOTURNO')
+	return render(request,template_name, {})
+
 
 @login_required(login_url='/autenticacao/login/')
 @staff_member_required(login_url='/autenticacao/login/')
@@ -407,6 +414,13 @@ def afastamento_att_form(request, id_hist_afastamento):
 			'afastamento': afastamento,
 		}
 		return render(request, 'namp/afastamento/afastamento_att_form.html',contexto)
+
+
+@login_required(login_url='/autenticacao/login/')
+@staff_member_required(login_url='/autenticacao/login/')
+def jornadas_operador_list(request,template_name='namp/jornada/jornadas_operador_list.html'):
+	print('entrei em LISTA DE JORNADAS')
+	return render(request,template_name, {})
 
 @login_required(login_url='/autenticacao/login/')
 @staff_member_required(login_url='/autenticacao/login/')

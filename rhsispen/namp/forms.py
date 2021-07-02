@@ -52,7 +52,7 @@ class ServidorFormAdmin(forms.ModelForm):
         self.fields['dt_nasc'].widget.attrs={"placeholder":"00/00/0000"}
         self.fields['dt_nasc'].widget.attrs['class'] = 'mask-dt'
        # if self.objects.filter(Servidor.tipo_contato == 'Celular')
-        self.fields['contato'].widget.attrs={"placeholder": "(00)9 0000-0000"}
+        self.fields['contato'].widget.attrs={"placeholder": "(00)90000-0000"}
         self.fields['contato'].widget.attrs['class'] = 'mask-contato'
         #    else:
          #   self.fields['contato'].widget.attrs={"placeholder": "(00) 0000-0000"}
