@@ -147,13 +147,6 @@ class EquipeSearchForm(forms.ModelForm):
             'nome': forms.TextInput(attrs={'placeholder': 'Digite um nome de equipe'}),
         }
 
-class AfastamentoSearchForm(forms.Form):
-    servidor = forms.CharField(required=True)
-    class Meta:
-        widgets = {
-            'servidor': forms.TextInput(attrs={'placeholder': 'Digite um nome de servidor'}),
-        }
-
 class ServidorForm(forms.ModelForm):
     class Meta:
         model = Servidor
@@ -178,10 +171,18 @@ class AfastamentoForm(forms.ModelForm):
     class Meta:
         model = HistAfastamento
         fields = '__all__'
-    
+
     def __init__(self, *args, **kwargs):
         super(AfastamentoForm, self).__init__(*args, **kwargs)
         self.fields['data_inicial'].widget = DateInput()
         self.fields['data_final'].widget = DateInput()
         #self.fields['fk_servidor'].choices = [('', '--Selecione--')] + args[len(args)-1]['servidores']
-            
+
+class AfastamentoSearchForm(forms.Form):
+    servidor = forms.CharField(required=True)
+    class Meta:
+        fields = ('servidor', )
+        widgets = {
+            'servidor': forms.TextInput(attrs={'placeholder': 'Digite um nome de servidor'}),
+        }
+
