@@ -3,6 +3,8 @@ from django.contrib.auth.models import User
 from django import forms
 from datetime import timedelta as TimeDelta, datetime as DateTime, date as Date
 
+from django.db.models.fields import AutoField
+
 # Create your models here.
 '''CLASSES SEM CHAVE ESTRANGEIRA'''
 
@@ -294,3 +296,9 @@ class Jornada(models.Model):
 		verbose_name = "Jornada"
 		verbose_name_plural = "Jornadas"
 		unique_together = ('fk_servidor','data_jornada',)
+
+class Escala(models.Model):
+	id_escala = models.AutoField(primary_key=True)
+	data_inicial = models.DateField()
+	data_final = models.DateField()
+	fk_jornada = models.ForeignKey(Jornada, on_delete = models.RESTRICT, verbose_name='Jornada')

@@ -5,7 +5,7 @@ from django import forms
 from django.contrib import admin
 from django.contrib.auth.models import Group, User
 from django.core.serializers.json import DjangoJSONEncoder
-from namp.models import Afastamento, ContatoEquipe, EnderecoServ, EnderecoSetor, Equipe, Funcao, HistAfastamento, HistFuncao, HistLotacao, HistStatusFuncional, Jornada, Regiao, Servidor, Setor, StatusFuncional, TipoJornada
+from namp.models import Afastamento, ContatoEquipe, EnderecoServ, EnderecoSetor, Equipe, Funcao, HistAfastamento, HistFuncao, HistLotacao, HistStatusFuncional, Jornada, Regiao, Servidor, Setor, StatusFuncional, TipoJornada, Escala
 from namp.forms import *
 
 from django.core.files.storage import FileSystemStorage
@@ -254,3 +254,7 @@ class StatusFuncionalAdmin(admin.ModelAdmin):
 @admin.register(TipoJornada)
 class TipoJornadaAdmin(admin.ModelAdmin):
 	list_display = ('carga_horaria', 'tipificacao', 'descricao')
+
+@admin.register(Escala)
+class EscalaAdmin(admin.ModelAdmin):
+	list_display = ('data_inicial', 'data_final')
