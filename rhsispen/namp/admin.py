@@ -5,7 +5,7 @@ from django import forms
 from django.contrib import admin
 from django.contrib.auth.models import Group, User
 from django.core.serializers.json import DjangoJSONEncoder
-from namp.models import Afastamento, ContatoEquipe, EnderecoServ, EnderecoSetor, Equipe, Funcao, HistAfastamento, HistFuncao, HistLotacao, HistStatusFuncional, Jornada, Regiao, Servidor, Setor, StatusFuncional, TipoJornada
+from namp.models import PeriodoAcao, Afastamento, ContatoEquipe, EnderecoServ, EnderecoSetor, Equipe, Funcao, HistAfastamento, HistFuncao, HistLotacao, HistStatusFuncional, Jornada, Regiao, Servidor, Setor, StatusFuncional, TipoJornada
 from namp.forms import *
 
 from django.core.files.storage import FileSystemStorage
@@ -203,7 +203,7 @@ class ServidorAdmin(admin.ModelAdmin):
 				'fields': (('id_matricula','vinculo'), ('tipo_vinculo', 'regime_juridico'), ('cargo','cf', 'situacao'),'fk_setor', 'fk_equipe', 'fk_user')
 		}),
 		('Contato ',{
-				'fields': (('contato'), )
+				'fields': (('contato'),)
 		}),
 	)
 
@@ -254,3 +254,13 @@ class StatusFuncionalAdmin(admin.ModelAdmin):
 @admin.register(TipoJornada)
 class TipoJornadaAdmin(admin.ModelAdmin):
 	list_display = ('carga_horaria', 'tipificacao', 'descricao')
+
+@admin.register(PeriodoAcao)
+class PeriodoAcaoAdmin(admin.ModelAdmin):
+	list_display = ('getDescricao', 'data_inicial', 'data_final')
+
+	def getDescricao(self, obj):
+		if obj.descricao == '1':
+			return 'CONSOLIDAR ESCALAS - MÊS DE ' + (obj.data_inicial + TimeDelta(days=30)).strftime('%B')
+		elif obj.descricao == '2':
+			return 'CONSOLIDAR FREQUÊNCIAS - MÊS DE ' + (obj.data_inicial - TimeDelta(days=30)).strftime('%B')
