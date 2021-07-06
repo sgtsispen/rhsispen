@@ -187,7 +187,7 @@ class ServidorAdmin(admin.ModelAdmin):
 	list_per_page = 20
 	search_fields = ('nome','fk_equipe__nome', 'fk_equipe__fk_setor__nome')
 
-	radio_fields = {'sexo': admin.HORIZONTAL, 'regime_juridico': admin.HORIZONTAL, 'tipo_vinculo': admin.VERTICAL, 'tipo_contato': admin.HORIZONTAL}
+	radio_fields = {'sexo': admin.HORIZONTAL, 'regime_juridico': admin.HORIZONTAL, 'tipo_vinculo': admin.VERTICAL}
 	'''
 	Abaixo: apresentação dos forms da model ContatoServ dentro do form da model Servidor
 	'''
@@ -203,7 +203,7 @@ class ServidorAdmin(admin.ModelAdmin):
 				'fields': (('id_matricula','vinculo'), ('tipo_vinculo', 'regime_juridico'), ('cargo','cf', 'situacao'),'fk_setor', 'fk_equipe', 'fk_user')
 		}),
 		('Contato ',{
-				'fields': (('tipo_contato', 'contato'), )
+				'fields': (('contato'), )
 		}),
 	)
 

@@ -419,8 +419,16 @@ def afastamento_att_form(request, id_hist_afastamento):
 @login_required(login_url='/autenticacao/login/')
 @staff_member_required(login_url='/autenticacao/login/')
 def jornadas_operador_list(request,template_name='namp/jornada/jornadas_operador_list.html'):
-	print('entrei em LISTA DE JORNADAS')
-	return render(request,template_name, {})
+	try:
+		servidor = Servidor.objects.get(fk_user=request.user.id)
+	except Servidor.DoesNotExist:
+		messages.warning(request, 'Servidor não encontrado para este usuário!')
+		return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+	contexto = {
+		'servidor': servidor,
+	}	
+
+	return render(request,template_name, contexto)
 
 @login_required(login_url='/autenticacao/login/')
 @staff_member_required(login_url='/autenticacao/login/')
