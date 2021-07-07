@@ -157,6 +157,7 @@ class ServidorForm(forms.ModelForm):
         for field in self.fields:
             if field =='fk_equipe': continue
             self.fields[field].widget.attrs['readonly'] = True
+            #self.fields[choices].widget.attrs['readonly'] = True
             #Falta setar o choices 
 
 class ServidorSearchForm(forms.ModelForm):
