@@ -1,4 +1,7 @@
 {% extends 'base.html' %} {% load i18n static %} {% load static %} {% block extrahead %}{{ block.super }}
+
+{% load namp_extras %}
+
 <scrip src="{% url 'admin:jsi18n' %}">
     </script>
     <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
@@ -87,19 +90,23 @@
                                                 <a scope="col">SERVIDORES EM PLANTÃO</a>
                                             </div>
                                         </th>
+                                        <th>
+                                            <div class="text">
+                                                <a scope="col">AÇÕES</a>
+                                            </div>
+                                        </th>
                                     </tr>
                                 </thead>
 
                                 <tbody>
-                                    {% for escalafrequencia in escalafrequencias %}
+                                    {% for escalafrequencia in page_obj %}
                                     <tr class="{% cycle 'row1' 'row2' %}">
-                                        <td> {{ escalafrequencia.data }} </td>
-                                        <td> {{ .qte_equipes }} </td>
-                                        <td> {{ .qte_servidores }} </td>
-                                        <td> {{ .serv_exp }} </td>
-                                        <td> {{ .serv_plantao }} </td>
-                                        <td> EDITAR </td>
-                                        <td> BAIXAR </td>
+                                        <td> {{ escalafrequencia.data|add_month|date:"F Y"}} </td>
+                                        <td> {{ escalafrequencia.qtd_equipes|length }} </td>
+                                        <td> {{ escalafrequencia.qtd_servidores|length }} </td>
+                                        <td> {{ escalafrequencia.qtd_expediente|length }} </td>
+                                        <td> {{ escalafrequencia.qtd_plantonista|length }} </td>
+                                        <td> EDITAR - BAIXAR</td>
                                     </tr>
                                     {% endfor %}
                                 </tbody>
