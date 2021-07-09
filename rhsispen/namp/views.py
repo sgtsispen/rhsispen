@@ -317,33 +317,60 @@ def servidor_operador_change_form(request,id_matricula):
 @login_required(login_url='/autenticacao/login/')
 @staff_member_required(login_url='/autenticacao/login/')
 def frequencias_operador_list(request,template_name='namp/frequencia/frequencias_operador_list.html'):
-	print('ANTES DO TRY')
 	try:
 		servidor = Servidor.objects.get(fk_user=request.user.id)
+		frequencias = EscalaFrequencia.objects.filter(fk_setor=servidor.fk_setor, fk_periodo_acao__descricao=2)
 	except Servidor.DoesNotExist:
 		messages.warning(request, 'Servidor não encontrado para este usuário!')
 		return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 	
+	page = request.GET.get('page')
+	paginator = Paginator(list(frequencias), 15)
+	page_obj = paginator.get_page(page)
+
 	mensagens = {}
-	print('APÓS O TRY')
+				
 	#Verificando se tem período para consolidar escalas
-	periodo_escala = PeriodoAcao.objects.filter(descricao=1, data_inicial__lte=DateTime.today(), data_final__gte=DateTime.today()).order_by('-data_inicial').first()
 	periodo_frequencia = PeriodoAcao.objects.filter(descricao=2, data_inicial__lte=DateTime.today(), data_final__gte=DateTime.today()).order_by('-data_inicial').first()
-	
-	if periodo_escala:
-		escalas_geradas = EscalaFrequencia.objects.filter(fk_periodo_acao=periodo_escala)
-		if not escalas_geradas:
-			mensagens['mensagem_escalas'] = 'O período para consolidar as escalas do mês de ' + periodo_escala.data_inicial.strftime('%B') + ' encontra-se em aberto até ' + periodo_escala.data_final.strftime('%d/%m/%Y %H:%M')
+
 	if periodo_frequencia:
 		frequencia_gerada = EscalaFrequencia.objects.filter(fk_periodo_acao=periodo_frequencia)
 		if not frequencia_gerada:
-			mensagens['mensagem_frequencia'] = 'O período para consolidar as frequências do mês de ' + (periodo_frequencia.data_inicial - TimeDelta(days=30)).strftime('%B') + ' encontra-se em aberto até ' + periodo_frequencia.data_final.strftime('%d/%m/%Y') + ' às ' + periodo_frequencia.data_final.strftime('%H:%M')		
+			mensagens['mensagem_frequencia'] = 'O período para consolidar as frequências do mês de ' + (periodo_frequencia.data_inicial - TimeDelta(days=30)).strftime('%B') + ' encontra-se em aberto até ' + periodo_frequencia.data_final.strftime('%d/%m/%Y %H:%M')		
 
-	contexto = {
-		'mensagens':mensagens,
-		'servidor': servidor,
-	}	
-	return render(request,template_name, contexto)
+	form = EscalaFrequenciaForm()
+	if request.method =='POST':
+		form = EscalaFrequenciaForm(request.POST)
+		if form.is_valid():
+			frequencias_operador_change(servidor, servidor.fk_setor, periodo_frequencia)
+			frequencia_gerada = EscalaFrequencia.objects.filter(fk_periodo_acao=periodo_frequencia)
+			if frequencia_gerada:
+				mensagens = []
+
+			contexto = { 
+				'servidor': servidor,
+				'mensagens': mensagens,
+				'page_obj': page_obj,
+				'form': form,
+			}
+			messages.success(request, 'Frequências consolidadas com sucesso!')
+			return HttpResponseRedirect('/frequencias_operador_list')
+	else:
+		contexto = { 
+			'servidor': servidor,
+			'mensagens': mensagens,
+			'page_obj': page_obj,
+			'form': form,
+		}
+		return render(request, template_name, contexto)
+
+def frequencias_operador_change(servidor, setor, periodo_frequencia ):
+	frequencia= EscalaFrequencia()
+	frequencia.fk_periodo_acao = periodo_frequencia
+	frequencia.data = DateTime.today()
+	frequencia.fk_servidor = servidor
+	frequencia.fk_setor = setor
+	frequencia.save()
 
 @login_required(login_url='/autenticacao/login/')
 @staff_member_required(login_url='/autenticacao/login/')
@@ -471,7 +498,7 @@ def afastamento_att_form(request, id_hist_afastamento):
 def escalas_operador_list(request,template_name='namp/escala/escalas_operador_list.html'):
 	try:
 		servidor = Servidor.objects.get(fk_user=request.user.id)
-		escalas = EscalaFrequencia.objects.filter(fk_setor=servidor.fk_setor)
+		escalas = EscalaFrequencia.objects.filter(fk_setor=servidor.fk_setor, fk_periodo_acao__descricao=1)
 	except Servidor.DoesNotExist:
 		messages.warning(request, 'Servidor não encontrado para este usuário!')
 		return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
@@ -504,11 +531,6 @@ def escalas_operador_list(request,template_name='namp/escala/escalas_operador_li
 	}
 
 	return render(request, template_name, contexto)
-
-
-
-
-
 	
 
 @login_required(login_url='/autenticacao/login/')
