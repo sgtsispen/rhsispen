@@ -476,7 +476,7 @@ def escalas_operador_list(request,template_name='namp/escala/escalas_operador_li
 		return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 	
 	mensagens = {}
-	
+
 	#Verificando se tem período para consolidar escalas
 	periodo_escala = PeriodoAcao.objects.filter(descricao=1, data_inicial__lte=DateTime.today(), data_final__gte=DateTime.today()).order_by('-data_inicial').first()
 	periodo_frequencia = PeriodoAcao.objects.filter(descricao=2, data_inicial__lte=DateTime.today(), data_final__gte=DateTime.today()).order_by('-data_inicial').first()
@@ -498,6 +498,12 @@ def escalas_operador_list(request,template_name='namp/escala/escalas_operador_li
 	}	
 
 	return render(request,template_name, contexto)
+
+
+
+
+
+	
 
 @login_required(login_url='/autenticacao/login/')
 @staff_member_required(login_url='/autenticacao/login/')

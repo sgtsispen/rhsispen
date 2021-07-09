@@ -17,6 +17,7 @@
             <h5 class="text-center">{{ servidor.fk_setor }}</h5>
         </div>
 
+
         <div class="container-fluid" id="div-geral" style="margin-top: 50px;">
             <div class="container px-1" id="conteudo">
                 <div class="row gx-2">
@@ -24,6 +25,16 @@
                         <div class="p-3 bg-white text-center" id="titulo-atividade">
                             <h4>Escala Regular - Lista</h4>
                         </div>
+
+                        <div id="toolbar">
+                            <form method="POST" action="{% url 'namp:escalas_operador_list' %}">{% csrf_token %}
+                                <div>
+                                    {{ form.data }}
+                                    <input type="submit" value="Pesquisar" style="padding: 4px 8px;">
+                                </div>
+                            </form>
+                        </div><br>
+
                         <div class="row gx-2 p-3 bg-light" id="lista-setores-botao-gerar">
                             {% if mensagens.mensagem_escalas %}
                             <div class="col-md-9 ms-md-auto text-center">
@@ -80,13 +91,13 @@
                                 </thead>
 
                                 <tbody>
-                                    {% for escalafrequencia in page_obj %}
+                                    {% for escalafrequencia in escalafrequencias %}
                                     <tr class="{% cycle 'row1' 'row2' %}">
-                                        <td> {{ escalafrequencia.mes }} </td>
-                                        <td> {{ escalafrequencia.qte_equipes }} </td>
-                                        <td> {{ escalafrequencia.qte_servidores }} </td>
-                                        <td> {{ escalafrequencia.serv_exp }} </td>
-                                        <td> {{ escalafrequencia.serv_plantao }} </td>
+                                        <td> {{ escalafrequencia.data }} </td>
+                                        <td> {{ .qte_equipes }} </td>
+                                        <td> {{ .qte_servidores }} </td>
+                                        <td> {{ .serv_exp }} </td>
+                                        <td> {{ .serv_plantao }} </td>
                                         <td> EDITAR </td>
                                         <td> BAIXAR </td>
                                     </tr>
