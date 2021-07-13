@@ -342,6 +342,7 @@ def frequencias_operador_list(request,template_name='namp/frequencia/frequencias
 	if request.method =='POST':
 		form = EscalaFrequenciaForm(request.POST)
 		if form.is_valid():
+
 			frequencias_operador_change(servidor, servidor.fk_setor, periodo_frequencia)
 			frequencia_gerada = EscalaFrequencia.objects.filter(fk_periodo_acao=periodo_frequencia)
 			if frequencia_gerada:
@@ -364,8 +365,8 @@ def frequencias_operador_list(request,template_name='namp/frequencia/frequencias
 		}
 		return render(request, template_name, contexto)
 
-def frequencias_operador_change(servidor, setor, periodo_frequencia ):
-	frequencia= EscalaFrequencia()
+def frequencias_operador_change(servidor, setor, periodo_frequencia):
+	frequencia = EscalaFrequencia()
 	frequencia.fk_periodo_acao = periodo_frequencia
 	frequencia.data = DateTime.today()
 	frequencia.fk_servidor = servidor
